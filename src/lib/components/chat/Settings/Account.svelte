@@ -12,6 +12,8 @@
 	import Plus from '$lib/components/icons/Plus.svelte';
 	import Tooltip from '$lib/components/common/Tooltip.svelte';
 
+	import { writable } from 'svelte/store';
+
 	const i18n = getContext('i18n');
 
 	export let saveHandler: Function;
@@ -20,6 +22,12 @@
 	let name = '';
 
 	let showAPIKeys = false;
+	
+	let showAutopticKeys = false;
+	let showAutopticEP = false;
+	let autoptic_endpoint = '';
+	let AutopticEPCopied = false;
+
 
 	let showJWTToken = false;
 	let JWTTokenCopied = false;
@@ -29,6 +37,50 @@
 	let APIKeyCopied = false;
 
 	let profileImageInputElement: HTMLInputElement;
+
+	const fileContent = writable('');
+	let envFile = null;
+
+	let placeholderText = "Environment file here.";
+
+	function handleFileChange(event) {
+		
+		const fileInput = event.target;
+		// const placeholderText = document.getElementById('placeholder-envfile');
+		
+		if (fileInput.files.length > 0) {
+			envFile = fileInput.files[0]
+			const fileName = fileInput.files[0].name;
+			placeholderText = fileName; 
+		} else {
+			placeholderText = 'Envinroment file here';
+			}	
+	}
+
+	function saveEnvContent() {
+		if (placeholderText != "Environment file here.") {
+			const reader = new FileReader();
+
+			reader.onload = function(e) {
+				const envFileContent = e.target.result;
+				const envFileName = envFile.name;
+
+				localStorage.setItem('envFileVariables', envFileContent);
+				localStorage.setItem('envFileName', envFileName);
+			};
+
+			reader.readAsText(envFile);
+			
+		} else {
+			localStorage.removeItem('envFileVariables');
+			localStorage.removeItem('envFileName');
+		}
+	}
+
+	const saveEndpoint = async () => {
+			localStorage.setItem('autoptic_endpoint', autoptic_endpoint);
+	};
+
 
 	const submitHandler = async () => {
 		if (name !== $user.name) {
@@ -59,6 +111,8 @@
 		}
 	};
 
+
+
 	onMount(async () => {
 		name = $user.name;
 		profileImageUrl = $user.profile_image_url;
@@ -67,11 +121,22 @@
 			console.log(error);
 			return '';
 		});
+
+		const storedEndpoint = localStorage.getItem('autoptic_endpoint');
+			if (storedEndpoint) {
+				autoptic_endpoint = storedEndpoint;
+			}
+
+			const storedEnvName = localStorage.getItem('envFileName');
+			if (storedEnvName) {
+				placeholderText = storedEnvName;
+				}
+
 	});
 </script>
 
 <div class="flex flex-col h-full justify-between text-sm">
-	<div class=" space-y-3 pr-1.5 overflow-y-scroll max-h-[25rem]">
+	<div class=" space-y-3 pr-1.5 overflow-y-scroll max-h-[50rem]">
 		<input
 			id="profile-image-input"
 			bind:this={profileImageInputElement}
@@ -312,7 +377,7 @@
 									JWTTokenCopied = false;
 								}, 2000);
 							}}
-						>
+							>
 							{#if JWTTokenCopied}
 								<svg
 									xmlns="http://www.w3.org/2000/svg"
@@ -486,12 +551,104 @@
 				</div>
 			</div>
 		{/if}
+
+		<hr class=" dark:border-gray-850 my-4" />
+		
+			<div class="flex justify-between items-center text-sm">
+				<div class="  font-medium">{$i18n.t('Autoptic keys')}</div>
+				<button
+					class=" text-xs font-medium text-gray-500"
+					type="button"
+					on:click={() => {
+						showAutopticKeys = !showAutopticKeys;
+					}}>{showAutopticKeys ? $i18n.t('Hide') : $i18n.t('Show')}</button
+				>
+			</div>
+
+		{#if showAutopticKeys}
+			<div class="flex flex-col gap-4">
+				<div class="justify-between w-full">
+					<div class="flex justify-between w-full">
+						<div class="self-center text-xs font-medium">{$i18n.t('Autoptic endpoint')}</div>
+					</div>
+
+					<div class="flex mt-2">
+						<div class="flex w-full">
+							<input
+								class="w-full rounded py-1.5 pl-4 text-sm bg-white dark:text-gray-300 dark:bg-gray-850 outline-none"
+								placeholder='Enter your Endpoint'
+								bind:value={autoptic_endpoint}
+							/>
+
+						</div>
+
+						<button
+							class="ml-1.5 px-1.5 py-1 dark:hover:bg-gray-850 transition rounded-lg"
+							on:click={() => {
+								if (autoptic_endpoint != '') {
+								autoptic_endpoint=''
+								toast.success($i18n.t('Autoptic endpoint deleted. Please save your config!'));
+								}
+							}}
+							>
+							<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash3" viewBox="0 0 16 16">
+								<path d="M6.5 1h3a.5.5 0 0 1 .5.5v1H6v-1a.5.5 0 0 1 .5-.5M11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3A1.5 1.5 0 0 0 5 1.5v1H1.5a.5.5 0 0 0 0 1h.538l.853 10.66A2 2 0 0 0 4.885 16h6.23a2 2 0 0 0 1.994-1.84l.853-10.66h.538a.5.5 0 0 0 0-1zm1.958 1-.846 10.58a1 1 0 0 1-.997.92h-6.23a1 1 0 0 1-.997-.92L3.042 3.5zm-7.487 1a.5.5 0 0 1 .528.47l.5 8.5a.5.5 0 0 1-.998.06L5 5.03a.5.5 0 0 1 .47-.53Zm5.058 0a.5.5 0 0 1 .47.53l-.5 8.5a.5.5 0 1 1-.998-.06l.5-8.5a.5.5 0 0 1 .528-.47M8 4.5a.5.5 0 0 1 .5.5v8.5a.5.5 0 0 1-1 0V5a.5.5 0 0 1 .5-.5"/>
+							</svg>
+						</button>
+					</div>
+				</div>
+				<div class="flex flex-col gap-4">
+					<div class="justify-between w-full">
+						<div class="flex justify-between w-full">
+							<div class="self-center text-xs font-medium">{$i18n.t('Environment JSON file')}</div>
+						</div>
+	
+						<div class="flex mt-2">
+							<div class="flex w-full">
+								<input
+								type="file"
+								accept=".JSON"
+								class="hidden"
+								id="file-upload"
+								name="myfile"
+								on:change="{handleFileChange}"
+							/>
+								<label
+									for="file-upload"
+									class="w-full rounded py-1.5 pl-4 text-sm bg-white dark:text-gray-300 dark:bg-gray-850 cursor-pointer"
+								>
+									<span>{placeholderText}</span>
+								</label>
+							</div>
+	
+							<button
+								class="ml-1.5 px-1.5 py-1 dark:hover:bg-gray-850 transition rounded-lg"
+								on:click={() => {
+								if (placeholderText != "Environment file here.") {
+									placeholderText='Environment file here.'
+									toast.success($i18n.t('Environment file deleted. Please save your config!'));	
+									}
+								}}>
+								<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash3" viewBox="0 0 16 16">
+									<path d="M6.5 1h3a.5.5 0 0 1 .5.5v1H6v-1a.5.5 0 0 1 .5-.5M11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3A1.5 1.5 0 0 0 5 1.5v1H1.5a.5.5 0 0 0 0 1h.538l.853 10.66A2 2 0 0 0 4.885 16h6.23a2 2 0 0 0 1.994-1.84l.853-10.66h.538a.5.5 0 0 0 0-1zm1.958 1-.846 10.58a1 1 0 0 1-.997.92h-6.23a1 1 0 0 1-.997-.92L3.042 3.5zm-7.487 1a.5.5 0 0 1 .528.47l.5 8.5a.5.5 0 0 1-.998.06L5 5.03a.5.5 0 0 1 .47-.53Zm5.058 0a.5.5 0 0 1 .47.53l-.5 8.5a.5.5 0 1 1-.998-.06l.5-8.5a.5.5 0 0 1 .528-.47M8 4.5a.5.5 0 0 1 .5.5v8.5a.5.5 0 0 1-1 0V5a.5.5 0 0 1 .5-.5"/>
+								</svg>
+							</button>
+						</div>
+					</div>
+					
+				</div>
+			</div>
+		{/if}
+
+
 	</div>
 
 	<div class="flex justify-end pt-3 text-sm font-medium">
 		<button
 			class="  px-4 py-2 bg-emerald-700 hover:bg-emerald-800 text-gray-100 transition rounded-lg"
 			on:click={async () => {
+				saveEndpoint();
+				saveEnvContent();
 				const res = await submitHandler();
 
 				if (res) {
