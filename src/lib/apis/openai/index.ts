@@ -453,3 +453,4 @@ export const generateSearchQuery = async (
 
 	return res?.choices[0]?.message?.content.replace(/["']/g, '') ?? undefined;
 };
+

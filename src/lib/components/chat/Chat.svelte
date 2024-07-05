@@ -3,6 +3,7 @@
 	import { toast } from 'svelte-sonner';
 	import mermaid from 'mermaid';
 
+
 	import { getContext, onMount, tick } from 'svelte';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
@@ -60,7 +61,7 @@
 	import { error } from '@sveltejs/kit';
 
 	const i18n: Writable<i18nType> = getContext('i18n');
-
+	
 	export let chatIdProp = '';
 	let loaded = false;
 
@@ -131,6 +132,7 @@
 		}
 	});
 
+
 	//////////////////////////
 	// Web functions
 	//////////////////////////
@@ -184,7 +186,7 @@
 		setTimeout(() => chatInput?.focus(), 0);
 	};
 
-	const loadChat = async () => {
+	export const loadChat = async () => {
 		chatId.set(chatIdProp);
 		chat = await getChatById(localStorage.token, $chatId).catch(async (error) => {
 			await goto('/');
@@ -196,7 +198,6 @@
 			const chatContent = chat.chat;
 
 			if (chatContent) {
-				console.log(chatContent);
 
 				selectedModels =
 					(chatContent?.models ?? undefined) !== undefined
@@ -237,7 +238,7 @@
 		}
 	};
 
-	const scrollToBottom = async () => {
+	export const scrollToBottom = async () => {
 		await tick();
 		if (messagesContainerElement) {
 			messagesContainerElement.scrollTop = messagesContainerElement.scrollHeight;
@@ -286,7 +287,7 @@
 		}
 	};
 
-	const getChatEventEmitter = async (modelId: string, chatId: string = '') => {
+	export const getChatEventEmitter = async (modelId: string, chatId: string = '') => {
 		return setInterval(() => {
 			$socket?.emit('usage', {
 				action: 'chat',
@@ -365,6 +366,7 @@
 
 			// Send prompt
 			_responses = await sendPrompt(userPrompt, userMessageId);
+
 		}
 
 		return _responses;
@@ -436,6 +438,7 @@
 				await chatId.set(chat.id);
 			} else {
 				await chatId.set('local');
+
 			}
 			await tick();
 		}
@@ -728,7 +731,6 @@
 
 					for (const line of lines) {
 						if (line !== '') {
-							console.log(line);
 							let data = JSON.parse(line);
 
 							if ('citations' in data) {
@@ -859,6 +861,7 @@
 
 		return _response;
 	};
+
 
 	const sendPromptOpenAI = async (model, userPrompt, responseMessageId, _chatId) => {
 		let _response = null;
@@ -1110,7 +1113,7 @@
 		messages = messages;
 	};
 
-	const stopResponse = () => {
+	export const stopResponse = () => {
 		stopResponseFlag = true;
 		console.log('stopResponse');
 	};
@@ -1196,6 +1199,152 @@
 			return [];
 		});
 	};
+
+	// const submitQuery = async (userQuery, _user = null) => {
+
+	// 	let _responses = [];
+
+	// 	selectedModels = selectedModels.map((modelId) =>
+	// 		$models.map((m) => m.id).includes(modelId) ? modelId : ''
+	// 	);
+
+	// 		let userMessageId = uuidv4();
+	// 		let userMessage = {
+	// 			id: userMessageId,
+	// 			parentId: messages.length !== 0 ? messages.at(-1).id : null,
+	// 			childrenIds: [],
+	// 			role: 'user',
+	// 			user: _user ?? undefined,
+	// 			content: userQuery,
+	// 			timestamp: Math.floor(Date.now() / 1000), // Unix epoch
+	// 			models: selectedModels.filter((m, mIdx) => selectedModels.indexOf(m) === mIdx)
+	// 		};
+
+	// 		console.log('models', userMessage.models);
+
+	// 		// Add message to history and Set currentId to messageId
+	// 		history.messages[userMessageId] = userMessage;
+	// 		history.currentId = userMessageId;
+
+	// 		// Append messageId to childrenIds of parent message
+	// 		if (messages.length !== 0) {
+	// 			history.messages[messages.at(-1).id].childrenIds.push(userMessageId);
+	// 		}
+	// 		// Wait until history/message have been updated
+	// 		await tick();
+
+	// 		// Send query
+	// 		_responses = await sendQuery(userQuery,userMessageId);
+	// 	//}
+		
+		
+	// 	return _responses;
+	// };
+
+	// const sendQuery = async (userQuery, parentId, modelId = null , newChat = true) => {
+	// 	let _responses = [];
+		
+	// 	let selectedModelIds = modelId
+	// 		? [modelId]
+	// 		: atSelectedModel !== undefined
+	// 		? [atSelectedModel.id]
+	// 		: selectedModels;
+
+	// 	// Create response messages for each selected model
+	// 	const responseMessageIds = {};
+	// 	for (const modelId of selectedModelIds) {
+	// 		const model = $models.filter((m) => m.id === modelId).at(0);
+
+	// 		if (modelId) {
+	// 			let responseMessageId = uuidv4();
+	// 			let responseMessage = {
+	// 				parentId: parentId,
+	// 				id: responseMessageId,
+	// 				childrenIds: [],
+	// 				role: 'assistant',
+	// 				content: '',
+	// 				model: modelId,
+	// 				modelName: modelId,
+	// 				userContext: null,
+	// 				timestamp: Math.floor(Date.now() / 1000) // Unix epoch
+	// 			};
+
+	// 			// Add message to history and Set currentId to messageId
+	// 			history.messages[responseMessageId] = responseMessage;
+	// 			history.currentId = responseMessageId;
+
+	// 			// Append messageId to childrenIds of parent message
+	// 			if (parentId !== null) {
+	// 				history.messages[parentId].childrenIds = [
+	// 					...history.messages[parentId].childrenIds,
+	// 					responseMessageId
+	// 				];
+	// 			}
+
+	// 			responseMessageIds[modelId] = responseMessageId;
+	// 		}
+	// 	}
+	// 	await tick();
+
+	// 	const _chatId = JSON.parse(JSON.stringify($chatId));
+
+	// 	await Promise.all(
+	// 		selectedModelIds.map(async (modelId) => {
+	// 			console.log('modelId', modelId);
+	// 			const model = $models.filter((m) => m.id === modelId).at(0);
+
+	// 			if (model) {
+
+	// 						let responseMessageId = responseMessageIds[modelId];
+	// 						let responseMessage = history.messages[responseMessageId];
+
+	// 						let userContext = null;
+
+	// 						responseMessage.userContext = userContext;
+
+	// 						let _response = null;
+
+	// 						_response = await generateQueryResponse(userQuery, responseMessageId, _chatId);
+							
+
+	// 						_responses.push(_response);
+	// 						console.log('_responses',_responses)
+
+	// 			}
+	// 			})
+	// 	);
+
+	// 	await chats.set(await getChatList(localStorage.token));
+
+	// 	return _responses;
+	// };
+
+	// const generateQueryResponse = async (userQuery, responseMessageId, _chatId) => {
+	// 	let _response = null;
+	// 	const responseMessage = history.messages[responseMessageId];
+	// 	responseMessage.content = await sendToAPI(json_env,userQuery);
+	// 	responseMessage.done = true;
+	// 	messages = messages;
+	// 	stopResponseFlag = false;
+	// 	await tick();
+		
+	// 	scrollToBottom();
+		
+	// 	chat = await updateChatById(localStorage.token, _chatId, {
+	// 		messages: messages,
+	// 		history: history,
+	// 		models: selectedModels
+	// 	});
+
+	// 	await chats.set(await getChatList(localStorage.token));
+
+	// 	_response=responseMessage.content
+
+	// 	console.log('_response',_response)
+		
+	// 	return _response;
+	// };
+
 </script>
 
 <svelte:head>
@@ -1272,6 +1421,7 @@
 						bind:prompt
 						bottomPadding={files.length > 0}
 						{sendPrompt}
+						{submitPrompt}
 						{continueGeneration}
 						{regenerateResponse}
 					/>

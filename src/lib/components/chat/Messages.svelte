@@ -23,6 +23,11 @@
 	export let continueGeneration: Function;
 	export let regenerateResponse: Function;
 
+	export let submitPrompt: Function;
+
+	//export let submitQuery: Function;
+	export let generateJustQueryResponse: Function;
+
 	export let user = $_user;
 	export let prompt;
 	export let processing = '';
@@ -318,6 +323,7 @@
 										{confirmEditResponseMessage}
 										{showPreviousMessage}
 										{showNextMessage}
+										{submitPrompt}
 										{rateMessage}
 										copyToClipboard={copyToClipboardWithToast}
 										{continueGeneration}

@@ -52,6 +52,9 @@
 						class="text-xs text-center w-full mt-2 text-gray-400 underline"
 						on:click={async () => {
 							localStorage.removeItem('token');
+							localStorage.removeItem('envFileContent')
+							localStorage.removeItem('envFileName')
+							localStorage.removeItem('autoptic_endpoint')
 							location.href = '/auth';
 						}}>{$i18n.t('Sign Out')}</button
 					>

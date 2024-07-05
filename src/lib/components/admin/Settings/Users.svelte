@@ -58,11 +58,11 @@
 				<button
 					class="p-1 px-3 text-xs flex rounded transition"
 					on:click={() => {
-						permissions.chat.deletion = !(permissions?.chat?.deletion ?? true);
+						permissions.chat.deletion = !permissions.chat.deletion;
 					}}
 					type="button"
 				>
-					{#if permissions?.chat?.deletion ?? true}
+					{#if permissions.chat.deletion}
 						<svg
 							xmlns="http://www.w3.org/2000/svg"
 							viewBox="0 0 16 16"
