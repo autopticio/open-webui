@@ -75,10 +75,12 @@
 			localStorage.removeItem('envFileVariables');
 			localStorage.removeItem('envFileName');
 		}
+		toast.success($i18n.t('Autoptic endpoint saved!'));
 	}
 
 	const saveEndpoint = async () => {
 			localStorage.setItem('autoptic_endpoint', autoptic_endpoint);
+			toast.success($i18n.t('Autoptic endpoint saved!'));
 	};
 
 
