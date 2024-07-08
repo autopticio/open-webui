@@ -447,8 +447,6 @@
 		await tick();
 		renderStyling();
 
-		console.log('montando')
-
 		await mermaid.run({
 			querySelector: '.mermaid'
 		});
