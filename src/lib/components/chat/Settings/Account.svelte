@@ -46,7 +46,6 @@
 	function handleFileChange(event) {
 		
 		const fileInput = event.target;
-		// const placeholderText = document.getElementById('placeholder-envfile');
 		
 		if (fileInput.files.length > 0) {
 			envFile = fileInput.files[0]

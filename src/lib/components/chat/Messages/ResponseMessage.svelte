@@ -50,9 +50,6 @@
 	export let submitPrompt: Function;
 
 	export let submitQuery: Function;
-	// export let generateJustQueryResponse: Function;
-	
-	//import { submitQuery } from '../new-feature';
 
 	export let isLastMessage = true;
 
@@ -449,8 +446,6 @@
 	onMount(async () => {
 		await tick();
 		renderStyling();
-
-		console.log('montando')
 
 		await mermaid.run({
 			querySelector: '.mermaid'
