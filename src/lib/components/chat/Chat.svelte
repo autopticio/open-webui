@@ -237,7 +237,7 @@
 		}
 	};
 
-	const scrollToBottom = async () => {
+	export const scrollToBottom = async () => {
 		await tick();
 		if (messagesContainerElement) {
 			messagesContainerElement.scrollTop = messagesContainerElement.scrollHeight;

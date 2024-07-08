@@ -7,9 +7,13 @@
 	import 'katex/dist/katex.min.css';
 	import mermaid from 'mermaid';
 
+
 	import { fade } from 'svelte/transition';
 	import { createEventDispatcher } from 'svelte';
 	import { onMount, tick, getContext } from 'svelte';
+
+	import { generateJustQueryResponse } from '$lib/apis/autoptic'; 
+
 
 	const i18n = getContext('i18n');
 
@@ -26,6 +30,8 @@
 	} from '$lib/utils';
 	import { WEBUI_BASE_URL } from '$lib/constants';
 
+
+	import { chatId } from '$lib/stores';
 	import Name from './Name.svelte';
 	import ProfileImage from './ProfileImage.svelte';
 	import Skeleton from './Skeleton.svelte';
@@ -37,8 +43,13 @@
 	import Spinner from '$lib/components/common/Spinner.svelte';
 	import WebSearchResults from './ResponseMessage/WebSearchResults.svelte';
 
+
 	export let message;
 	export let siblings;
+
+	export let submitPrompt: Function;
+
+	export let submitQuery: Function;
 
 	export let isLastMessage = true;
 
@@ -368,6 +379,70 @@
 		})();
 	}
 
+    async function handleClick() {
+		
+		const storedEndpoint = localStorage.getItem('autoptic_endpoint');
+		const storedEnvVariables = localStorage.getItem('envFileVariables');
+
+		if (storedEndpoint == '' && storedEnvVariables == null){
+			toast.error($i18n.t('The endpoint and the environment variables are empty!'));
+			return null
+		} else if (storedEnvVariables == null){
+			toast.error($i18n.t('The environment variables are empty!'));
+			return null
+		} else if (storedEndpoint == ''){
+			toast.error($i18n.t('The endpoint is empty!'));
+			return null
+		} else{
+			let html_to_render = await generateJustQueryResponse(message.content);
+			insertIframe(message.id, html_to_render);
+    		}
+	}
+
+    // Function to create and insert the iframe
+    function insertIframe(messageId, html_to_render) {
+        let responseDiv = document.getElementById("message-" + messageId);
+
+        if (!responseDiv) return;
+
+        let iframeID = "iframe-" + messageId;
+        let existingIframe = document.getElementById(iframeID);
+        if (existingIframe) {
+            existingIframe.parentNode?.removeChild(existingIframe);
+        }
+
+        var iframe = document.createElement('iframe');
+        iframe.id = iframeID;
+        iframe.height = "907px";
+        iframe.width = "100%";
+
+        var html = `
+            <div style="position: relative;">
+            	${html_to_render}
+            </div>
+        `;
+
+        responseDiv.parentNode.insertBefore(iframe, responseDiv.nextSibling);
+
+        iframe.contentWindow.document.open();
+        iframe.contentWindow.document.write(html);
+        iframe.contentWindow.document.close();
+
+
+        storeIframeContent(messageId, html);
+    }
+
+    // Function to store iframe content in localStorage
+    function storeIframeContent(messageId, content) {
+        localStorage.setItem(`iframeContent-${messageId}`, content);
+    }
+
+    // Function to load iframe content from localStorage
+    function loadIframeContent(messageId) {
+		console.log('messageId',messageId)
+        return localStorage.getItem(`iframeContent-${messageId}`);
+    }
+
 	onMount(async () => {
 		await tick();
 		renderStyling();
@@ -375,6 +450,12 @@
 		await mermaid.run({
 			querySelector: '.mermaid'
 		});
+		
+        let storedContent = loadIframeContent(message.id);
+        
+		if (storedContent) {
+            insertIframe(message.id, storedContent);
+        }
 	});
 </script>
 
@@ -640,6 +721,22 @@
 									{/if}
 
 									{#if message.done}
+										{#if !readOnly}
+											<Tooltip content={$i18n.t('Run PQL')} placement="bottom">
+												<button
+													class="{isLastMessage
+														? 'visible'
+														: 'invisible group-hover:visible'} p-1.5 hover:bg-black/5 dark:hover:bg-white/5 rounded-lg dark:hover:text-white hover:text-black transition"
+													on:click={ handleClick } 
+												>
+													<!-- https://icons.getbootstrap.com -->
+													<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-file-bar-graph" viewBox="0 0 16 16">
+														<path d="M4.5 12a.5.5 0 0 1-.5-.5v-2a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.5.5zm3 0a.5.5 0 0 1-.5-.5v-4a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v4a.5.5 0 0 1-.5.5zm3 0a.5.5 0 0 1-.5-.5v-6a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-.5.5z"/>
+														<path d="M4 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2zm0 1h8a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1"/>
+													  </svg>
+												</button>
+											</Tooltip>
+										{/if}
 										{#if !readOnly}
 											<Tooltip content={$i18n.t('Edit')} placement="bottom">
 												<button

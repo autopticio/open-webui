@@ -1464,3 +1464,27 @@ else:
     log.warning(
         f"Frontend build directory not found at '{FRONTEND_BUILD_DIR}'. Serving API only."
     )
+
+
+class PQLquery(BaseModel):
+    vars: str
+    pql: str
+
+class PayloadQuery(BaseModel):
+    query: PQLquery
+    endpoint: str
+
+@app.post("/api/runPQL")    
+async def sentToAutoptic(Payload: PayloadQuery):
+    try:
+        async with aiohttp.ClientSession(trust_env=True) as session:
+            response = await session.post(
+                f"https://autoptic.io/pql/ep/{Payload.endpoint}/run",
+                json=Payload.query.dict()
+            )
+        assert response.status == 200
+        text= await response.text()
+        return text
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))

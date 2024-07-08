@@ -26,5 +26,11 @@ export default defineConfig({
 	},
 	worker: {
 		format: 'es'
-	}
+	},
+	server: {
+		watch: {
+			usePolling: true
+				}
+			}
+
 });
