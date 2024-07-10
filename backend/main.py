@@ -1449,23 +1449,6 @@ async def get_opensearch_xml():
 async def healthcheck():
     return {"status": True}
 
-
-app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
-app.mount("/cache", StaticFiles(directory=CACHE_DIR), name="cache")
-
-if os.path.exists(FRONTEND_BUILD_DIR):
-    mimetypes.add_type("text/javascript", ".js")
-    app.mount(
-        "/",
-        SPAStaticFiles(directory=FRONTEND_BUILD_DIR, html=True),
-        name="spa-static-files",
-    )
-else:
-    log.warning(
-        f"Frontend build directory not found at '{FRONTEND_BUILD_DIR}'. Serving API only."
-    )
-
-
 class PQLquery(BaseModel):
     vars: str
     pql: str
@@ -1488,3 +1471,19 @@ async def sentToAutoptic(Payload: PayloadQuery):
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
+app.mount("/cache", StaticFiles(directory=CACHE_DIR), name="cache")
+
+if os.path.exists(FRONTEND_BUILD_DIR):
+    mimetypes.add_type("text/javascript", ".js")
+    app.mount(
+        "/",
+        SPAStaticFiles(directory=FRONTEND_BUILD_DIR, html=True),
+        name="spa-static-files",
+    )
+else:
+    log.warning(
+        f"Frontend build directory not found at '{FRONTEND_BUILD_DIR}'. Serving API only."
+    )
