@@ -42,10 +42,11 @@
 	let profileImageInputElement: HTMLInputElement;
 
 	let envFile = null;
+	let newEnvFile= false;
 
 	let placeholderText = "Environment file here.";
 
-	function handleFileChange(event) {
+	function handleEnvFileChange(event) {
 		
 		const fileInput = event.target;
 		
@@ -56,6 +57,7 @@
 		} else {
 			placeholderText = 'Envinroment file here';
 			}	
+		newEnvFile=true;
 	}
 
 	const saveEnvContent = async() => {
@@ -621,7 +623,7 @@
 								class="hidden"
 								id="file-upload"
 								name="myfile"
-								on:change="{handleFileChange}"
+								on:change="{handleEnvFileChange}"
 							/>
 								<label
 									for="file-upload"
@@ -657,10 +659,13 @@
 		<button
 			class="  px-4 py-2 bg-emerald-700 hover:bg-emerald-800 text-gray-100 transition rounded-lg"
 			on:click={async () => {
-				saveEndpoint();
-				saveEnvContent();
+				if (autoptic_endpoint != localStorage.autoptic_endpoint) {
+					saveEndpoint();
+				}
+				if (newEnvFile){
+					saveEnvContent();
+				}
 				const res = await submitHandler();
-
 				if (res) {
 					saveHandler();
 				}
