@@ -3,7 +3,14 @@
 	import { onMount, getContext } from 'svelte';
 
 	import { user } from '$lib/stores';
-	import { updateUserProfile, createAPIKey, getAPIKey } from '$lib/apis/auths';
+	import { updateUserProfile,
+			 createAPIKey,
+			 getAPIKey,
+			 updateAutopticEndpoint,
+			 deleteAutopticEndpoint,
+			 updateAutopticEnvironment,
+			 deleteAutopticEnvironment,
+				} from '$lib/apis/auths';
 
 	import UpdatePassword from './Account/UpdatePassword.svelte';
 	import { getGravatarUrl } from '$lib/apis/utils';
@@ -11,8 +18,6 @@
 	import { copyToClipboard } from '$lib/utils';
 	import Plus from '$lib/components/icons/Plus.svelte';
 	import Tooltip from '$lib/components/common/Tooltip.svelte';
-
-	import { writable } from 'svelte/store';
 
 	const i18n = getContext('i18n');
 
@@ -24,9 +29,7 @@
 	let showAPIKeys = false;
 	
 	let showAutopticKeys = false;
-	let showAutopticEP = false;
 	let autoptic_endpoint = '';
-	let AutopticEPCopied = false;
 
 
 	let showJWTToken = false;
@@ -38,7 +41,6 @@
 
 	let profileImageInputElement: HTMLInputElement;
 
-	const fileContent = writable('');
 	let envFile = null;
 
 	let placeholderText = "Environment file here.";
@@ -47,7 +49,7 @@
 		
 		const fileInput = event.target;
 		
-		if (fileInput.files.length > 0) {
+		if (fileInput.files.length > 0) { // JERE: probar qué pasa con un archivo vacío
 			envFile = fileInput.files[0]
 			const fileName = fileInput.files[0].name;
 			placeholderText = fileName; 
@@ -56,32 +58,41 @@
 			}	
 	}
 
-	function saveEnvContent() {
+	const saveEnvContent = async() => {
+		// JERE: Revisando, no me gustó tanto esta forma de manejar las cosas. Podría ver si se puede cambiar.
 		if (placeholderText != "Environment file here.") {
 			const reader = new FileReader();
 
 			reader.onload = function(e) {
+								
 				const envFileContent = e.target.result;
 				const envFileName = envFile.name;
-
-				localStorage.setItem('envFileVariables', envFileContent);
-				localStorage.setItem('envFileName', envFileName);
+			
+				updateAutopticEnvironment(localStorage.token,envFileContent,envFileName)
+				localStorage.autoptic_environment = envFileContent
+				localStorage.envFileName = envFileName;
+							
 			};
 
 			reader.readAsText(envFile);
 			
 		} else {
-			localStorage.removeItem('envFileVariables');
+			deleteAutopticEnvironment(localStorage.token)
+			localStorage.removeItem('autoptic_environment');
 			localStorage.removeItem('envFileName');
 		}
-		toast.success($i18n.t('Autoptic endpoint saved!'));
+		toast.success($i18n.t('Autoptic environment saved!'));
 	}
 
 	const saveEndpoint = async () => {
-			localStorage.setItem('autoptic_endpoint', autoptic_endpoint);
-			toast.success($i18n.t('Autoptic endpoint saved!'));
-	};
-
+		if (autoptic_endpoint != ''){
+            await updateAutopticEndpoint(localStorage.token,autoptic_endpoint)
+		} else {
+			await deleteAutopticEndpoint(localStorage.token)
+		}
+		localStorage.autoptic_endpoint=autoptic_endpoint;
+		toast.success($i18n.t('Autoptic endpoint saved!'));
+        };
 
 	const submitHandler = async () => {
 		if (name !== $user.name) {
@@ -112,8 +123,6 @@
 		}
 	};
 
-
-
 	onMount(async () => {
 		name = $user.name;
 		profileImageUrl = $user.profile_image_url;
@@ -128,7 +137,7 @@
 				autoptic_endpoint = storedEndpoint;
 			}
 
-			const storedEnvName = localStorage.getItem('envFileName');
+		const storedEnvName = localStorage.getItem('envFileName');
 			if (storedEnvName) {
 				placeholderText = storedEnvName;
 				}

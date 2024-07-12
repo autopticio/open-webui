@@ -382,7 +382,9 @@
     async function handleClick() {
 		
 		const storedEndpoint = localStorage.getItem('autoptic_endpoint');
-		const storedEnvVariables = localStorage.getItem('envFileVariables');
+		const storedEnvVariables = localStorage.getItem('autoptic_environment');
+
+		
 
 		if (storedEndpoint == '' && storedEnvVariables == null){
 			toast.error($i18n.t('The endpoint and the environment variables are empty!'));
@@ -744,6 +746,7 @@
 														? 'visible'
 														: 'invisible group-hover:visible'} p-1.5 hover:bg-black/5 dark:hover:bg-white/5 rounded-lg dark:hover:text-white hover:text-black transition"
 													on:click={() => {
+														console.log(localStorage.token)
 														editMessageHandler();
 													}}
 												>
