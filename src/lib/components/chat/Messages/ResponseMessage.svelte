@@ -417,24 +417,40 @@
 			iframe.height = "907px";
 			iframe.width = "100%";
 
-			var html = `
-				<div style="position: relative;">
-					${html_to_render}
-				</div>
-			`;
+			let closeButtonHtml = `
+				<button id="closeButton-${iframeID}" style="position: absolute; top: -40px; right: 10px; background: #FF3A3A; border: 0.5px solid #323232; cursor: pointer; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center">
+					<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+						<path d="M6 18L18 6M6 6l12 12" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+					</svg>
+				</button>
+        	`;
+
+			if (!html_to_render.includes(`id="closeButton-${iframeID}"`)) {
+				html_to_render = `
+					<div style="position: relative; top: 40px">
+						${html_to_render}
+						${closeButtonHtml}
+					</div>
+				`;
+			}
 
 			responseDiv.parentNode.insertBefore(iframe, responseDiv.nextSibling);
 
 			iframe.contentWindow.document.open();
-			iframe.contentWindow.document.write(html);
+			iframe.contentWindow.document.write(html_to_render);
 			iframe.contentWindow.document.close();
 
+			iframe.onload = () => {
+				iframe.contentWindow.document.getElementById(`closeButton-${iframeID}`).addEventListener('click', function() {
+						responseDiv.parentNode.removeChild(iframe);
+						localStorage.removeItem(`iframeContent-${chatId}-${messageId}`);
+					});
+			};
+
 			if (!localStorage.getItem(`iframeContent-${chatId}-${messageId}`)) {
-				storeIframeContent(chatId , messageId, html);
+				storeIframeContent(chatId , messageId, html_to_render);
 			}
 		
-		responseDiv = null;
-			
 		}
 	}
 
