@@ -752,17 +752,8 @@
 														: 'invisible group-hover:visible'} p-1.5 hover:bg-black/5 dark:hover:bg-white/5 rounded-lg dark:hover:text-white hover:text-black transition"
 													on:click={ async() => {
 														runningPQL=true;
-														try {
-															await handleClick();
-															runningPQL=false;
-														} catch (e) {
-															if (e.message.includes("not valid JSON")) {
-															toast.error("Environment file invalid!");
-																console.log(e)
-																runningPQL=false;
-															}
-														}
-
+														await handleClick();
+														runningPQL=false;
 															} }
 												>
 													<!-- https://icons.getbootstrap.com -->

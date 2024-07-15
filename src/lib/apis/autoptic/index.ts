@@ -1,11 +1,9 @@
-import { WEBUI_BASE_URL } from '$lib/constants';
+import { AUTOPTIC_BASE_URL , WEBUI_BASE_URL } from '$lib/constants';
 
 export const generateJustQueryResponse = async (Query) => {
 	let _response = null;
 
 	_response = await sendToAPI(Query);
-
-	//console.log('_response',_response)
 	
 	return _response;
 };
@@ -25,6 +23,7 @@ const sendToAPI = async (mensaje) => {
 	const mensajebase64Encoded = btoa(mensaje)
 
 	const res = await fetch(`${WEBUI_BASE_URL}/api/runPQL`, {
+//	const res = await fetch(`${AUTOPTIC_BASE_URL}/api/runPQL`, {
 		method: 'POST',
 		headers: {
 			'Content-Type': 'application/json',
