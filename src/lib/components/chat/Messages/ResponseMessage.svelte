@@ -31,7 +31,6 @@
 	import { WEBUI_BASE_URL } from '$lib/constants';
 
 
-	import { chatId } from '$lib/stores';
 	import Name from './Name.svelte';
 	import ProfileImage from './ProfileImage.svelte';
 	import Skeleton from './Skeleton.svelte';
@@ -45,11 +44,12 @@
 
 
 	export let message;
+
+	export let chatId;
+
 	export let siblings;
 
-	export let submitPrompt: Function;
-
-	export let submitQuery: Function;
+//	export let submitQuery: Function;
 
 	export let isLastMessage = true;
 
@@ -397,51 +397,55 @@
 			return null
 		} else{
 			let html_to_render = await generateJustQueryResponse(message.content);
-			await insertIframe(message.id, html_to_render);
+			await insertIframe(chatId,message.id, html_to_render);
     		}
 	}
 
-    const insertIframe = async (messageId, html_to_render) => {
+    const insertIframe = async (chatId,messageId, html_to_render) => {
         let responseDiv = document.getElementById("message-" + messageId);
 
-        if (!responseDiv) return;
+        if (responseDiv) {
 
-        let iframeID = "iframe-" + messageId;
-        let existingIframe = document.getElementById(iframeID);
-        if (existingIframe) {
-            existingIframe.parentNode?.removeChild(existingIframe);
-        }
+			let iframeID = "iframe-" + chatId + messageId;
+			let existingIframe = document.getElementById(iframeID);
+			if (existingIframe) {
+				existingIframe.parentNode?.removeChild(existingIframe);
+			}
 
-        var iframe = document.createElement('iframe');
-        iframe.id = iframeID;
-        iframe.height = "907px";
-        iframe.width = "100%";
+			var iframe = document.createElement('iframe');
+			iframe.id = iframeID;
+			iframe.height = "907px";
+			iframe.width = "100%";
 
-        var html = `
-            <div style="position: relative;">
-            	${html_to_render}
-            </div>
-        `;
+			var html = `
+				<div style="position: relative;">
+					${html_to_render}
+				</div>
+			`;
 
-        responseDiv.parentNode.insertBefore(iframe, responseDiv.nextSibling);
+			responseDiv.parentNode.insertBefore(iframe, responseDiv.nextSibling);
 
-        iframe.contentWindow.document.open();
-        iframe.contentWindow.document.write(html);
-        iframe.contentWindow.document.close();
+			iframe.contentWindow.document.open();
+			iframe.contentWindow.document.write(html);
+			iframe.contentWindow.document.close();
 
-
-        storeIframeContent(messageId, html);
-    }
+			if (!localStorage.getItem(`iframeContent-${chatId}-${messageId}`)) {
+				storeIframeContent(chatId , messageId, html);
+			}
+		
+		responseDiv = null;
+			
+		}
+	}
 
     // Function to store iframe content in localStorage
-    function storeIframeContent(messageId, content) {
-        localStorage.setItem(`iframeContent-${messageId}`, content);
+    function storeIframeContent(chatId ,messageId, content) {
+        localStorage.setItem(`iframeContent-${chatId}-${messageId}`, content);
     }
 
     // Function to load iframe content from localStorage
-    function loadIframeContent(messageId) {
-		console.log('messageId',messageId)
-        return localStorage.getItem(`iframeContent-${messageId}`);
+    function loadIframeContent(chatId ,messageId) {
+        return localStorage.getItem(`iframeContent-${chatId}-${messageId}`);
     }
 
 	onMount(async () => {
@@ -452,11 +456,13 @@
 			querySelector: '.mermaid'
 		});
 		
-        let storedContent = loadIframeContent(message.id);
-        
-		if (storedContent) {
-            insertIframe(message.id, storedContent);
-        }
+		if (localStorage.getItem(`iframeContent-${chatId}-${message.id}`)) {
+        	let storedContent = loadIframeContent(chatId,message.id);
+			if (storedContent) {
+				insertIframe(chatId,message.id, storedContent);
+			}
+		}
+
 	});
 </script>
 

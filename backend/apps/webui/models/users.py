@@ -59,8 +59,6 @@ class UserModel(BaseModel):
 
     autoptic_endpoint: Optional[str] = None
 
-# JERE: todavía no estoy seguro qué influye esto, voy a revisarlo antes del almuerzo
-
     autoptic_environment: Optional[str] = None
 
     envFileName : Optional[str] = None
