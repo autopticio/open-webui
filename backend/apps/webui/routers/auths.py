@@ -393,7 +393,7 @@ async def get_api_key(user=Depends(get_current_user)):
 # Autoptic Keys
 ############################
 
-#JERE: Las funciones están hechas, pero debería managear los posibles errores
+#JERE: the functions are ok, but I need to manage errors in the next version.
 
 #update autoptic endpoint
 @router.post("/new_autoptic_endpoint")
@@ -428,7 +428,7 @@ async def delete_autoptic_endpoint(user=Depends(get_current_user)):
     success = Users.update_user_autoptic_endpoint_by_id(user.id, None)
     return success
 
-# JERE: Cuando están vacíos hay errores 404, lo cual no es del todo correcto. Se suele arreglar esto?
+# JERE: When the keys are empty there is a 404 error (even with the original OWUI API key). Maybe I can fix this.
 
 class AutopticEnvironment(BaseModel):
     autoptic_environment: str

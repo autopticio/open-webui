@@ -61,7 +61,7 @@
 	}
 
 	const saveEnvContent = async() => {
-		// JERE: Revisando, no me gustó tanto esta forma de manejar las cosas. Podría ver si se puede cambiar.
+		// JERE: I will look to improve this if.
 		if (placeholderText != "Environment file here.") {
 			const reader = new FileReader();
 
