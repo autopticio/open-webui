@@ -42,6 +42,7 @@ from apps.audio.main import app as audio_app
 from apps.images.main import app as images_app
 from apps.rag.main import app as rag_app
 from apps.webui.main import app as webui_app
+from apps.autoptic.main import app as autoptic_app
 
 
 from pydantic import BaseModel
@@ -590,6 +591,7 @@ app.mount("/audio/api/v1", audio_app)
 app.mount("/rag/api/v1", rag_app)
 
 app.mount("/api/v1", webui_app)
+app.mount("/api/runPQL", autoptic_app)
 
 webui_app.state.EMBEDDING_FUNCTION = rag_app.state.EMBEDDING_FUNCTION
 

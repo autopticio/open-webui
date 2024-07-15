@@ -22,8 +22,8 @@ const sendToAPI = async (mensaje) => {
 
 	const mensajebase64Encoded = btoa(mensaje)
 
-	const res = await fetch(`${WEBUI_BASE_URL}/api/runPQL`, {
-//	const res = await fetch(`${AUTOPTIC_BASE_URL}/api/runPQL`, {
+//	const res = await fetch(`${WEBUI_BASE_URL}/api/runPQL`, {
+	const res = await fetch(`${AUTOPTIC_BASE_URL}/api/runPQL`, {
 		method: 'POST',
 		headers: {
 			'Content-Type': 'application/json',

@@ -13,6 +13,23 @@ from pydantic import BaseModel
 from contextlib import asynccontextmanager
 
 from config import (
+    SRC_LOG_LEVELS,
+    CACHE_DIR,
+    UPLOAD_DIR,
+    WHISPER_MODEL,
+    WHISPER_MODEL_DIR,
+    WHISPER_MODEL_AUTO_UPDATE,
+    DEVICE_TYPE,
+    AUDIO_STT_OPENAI_API_BASE_URL,
+    AUDIO_STT_OPENAI_API_KEY,
+    AUDIO_TTS_OPENAI_API_BASE_URL,
+    AUDIO_TTS_OPENAI_API_KEY,
+    AUDIO_STT_ENGINE,
+    AUDIO_STT_MODEL,
+    AUDIO_TTS_ENGINE,
+    AUDIO_TTS_MODEL,
+    AUDIO_TTS_VOICE,
+    AppConfig,
     ENV
 )
 
@@ -23,6 +40,10 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     docs_url="/docs" if ENV == "dev" else None, redoc_url=None, lifespan=lifespan
 )
+
+@app.get("/")
+def read_root():
+    return {"message": "This is the Autoptic app"}
 
 origins = ["*"]
 
