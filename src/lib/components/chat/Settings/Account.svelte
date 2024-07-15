@@ -61,30 +61,44 @@
 	}
 
 	const saveEnvContent = async() => {
-		// JERE: I will look to improve this if.
+		// JERE: I will improve this if.
 		if (placeholderText != "Environment file here.") {
 			const reader = new FileReader();
 
-			reader.onload = function(e) {
-								
-				const envFileContent = e.target.result;
-				const envFileName = envFile.name;
-			
-				updateAutopticEnvironment(localStorage.token,envFileContent,envFileName)
-				localStorage.autoptic_environment = envFileContent
-				localStorage.envFileName = envFileName;
-							
+			const readEnvFile = () => {
+				return new Promise((resolve,reject) => {
+					reader.onload = function(e) {
+						const envFileContent = e.target.result;
+						const envFileName = envFile.name;
+						try {
+							JSON.parse(envFileContent)
+							resolve({ envFileContent , envFileName })
+						} catch (e) {
+							toast.error($i18n.t('Environment file invalid. Your config will not be saved.'));
+							placeholderText = "Environment file here."
+							reject();
+						}
+					};
+
+					reader.onerror = () => reject();
+					reader.readAsText(envFile);
+
+				});
 			};
 
-			reader.readAsText(envFile);
-			
+			const { envFileContent , envFileName } = await readEnvFile();
+			updateAutopticEnvironment(localStorage.token,envFileContent,envFileName)
+			localStorage.autoptic_environment = envFileContent
+			localStorage.envFileName = envFileName;
+			toast.success($i18n.t('Autoptic environment saved!'));
+
 		} else {
 			deleteAutopticEnvironment(localStorage.token)
 			localStorage.removeItem('autoptic_environment');
 			localStorage.removeItem('envFileName');
+			toast.success($i18n.t('Autoptic environment deleted!'));
 		}
-		toast.success($i18n.t('Autoptic environment saved!'));
-	}
+	};
 
 	const saveEndpoint = async () => {
 		if (autoptic_endpoint != ''){
