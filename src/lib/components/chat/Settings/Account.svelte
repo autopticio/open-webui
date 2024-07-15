@@ -50,7 +50,7 @@
 		
 		const fileInput = event.target;
 		
-		if (fileInput.files.length > 0) { // JERE: with an empty or a not valid json doesn't work and it need to be fixed.
+		if (fileInput.files.length > 0) {
 			envFile = fileInput.files[0]
 			const fileName = fileInput.files[0].name;
 			placeholderText = fileName; 
