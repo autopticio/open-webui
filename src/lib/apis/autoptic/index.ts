@@ -256,7 +256,7 @@ export const getAutopticEnvironment = async (token: string) => {
 export const deleteAutopticEnvironment = async (token: string) => {
 	let error = null;
 
-	const res = await fetch(`${WEBUI_API_BASE_URL}/auths/delete_autoptic_environment`, {
+	const res = await fetch(`${AUTOPTIC_BASE_URL}/delete_autoptic_environment`, {
 		method: 'DELETE',
 		headers: {
 			'Content-Type': 'application/json',
