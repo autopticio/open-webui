@@ -12,7 +12,7 @@
 	import { createEventDispatcher } from 'svelte';
 	import { onMount, tick, getContext } from 'svelte';
 
-	import { generateJustQueryResponse } from '$lib/apis/autoptic'; 
+	import { deleteIframeContent, generateJustQueryResponse , insertIframe , loadIframeContent } from '$lib/apis/autoptic'; 
 
 
 	const i18n = getContext('i18n');
@@ -48,8 +48,6 @@
 	export let chatId;
 
 	export let siblings;
-
-//	export let submitQuery: Function;
 
 	export let isLastMessage = true;
 
@@ -381,7 +379,7 @@
 		})();
 	}
 
-    const handleClick = async () => {
+    const runPQL = async () => {
 		
 		const storedEndpoint = localStorage.getItem('autoptic_endpoint');
 		const storedEnvVariables = localStorage.getItem('autoptic_environment');
@@ -397,72 +395,14 @@
 			return null
 		} else{
 			let html_to_render = await generateJustQueryResponse(message.content);
-			await insertIframe(chatId,message.id, html_to_render);
-    		}
-	}
-
-    const insertIframe = async (chatId,messageId, html_to_render) => {
-        let responseDiv = document.getElementById("message-" + messageId);
-
-        if (responseDiv) {
-
-			let iframeID = "iframe-" + chatId + messageId;
-			let existingIframe = document.getElementById(iframeID);
-			if (existingIframe) {
-				existingIframe.parentNode?.removeChild(existingIframe);
+			if (typeof html_to_render == 'string') {
+				await insertIframe(chatId,message.id, html_to_render);
+			} else {
+				toast.error($i18n.t('There is an error.'));
+				deleteIframeContent("iframe-" + chatId + message.id, chatId,message.id);
 			}
-
-			var iframe = document.createElement('iframe');
-			iframe.id = iframeID;
-			iframe.height = "907px";
-			iframe.width = "100%";
-
-			let closeButtonHtml = `
-				<button id="closeButton-${iframeID}" style="position: absolute; top: -40px; right: 10px; background: #FF3A3A; border: 0.5px solid #323232; cursor: pointer; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center">
-					<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-						<path d="M6 18L18 6M6 6l12 12" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-					</svg>
-				</button>
-        	`;
-
-			if (!html_to_render.includes(`id="closeButton-${iframeID}"`)) {
-				html_to_render = `
-					<div style="position: relative; top: 40px">
-						${html_to_render}
-						${closeButtonHtml}
-					</div>
-				`;
-			}
-
-			responseDiv.parentNode.insertBefore(iframe, responseDiv.nextSibling);
-
-			iframe.contentWindow.document.open();
-			iframe.contentWindow.document.write(html_to_render);
-			iframe.contentWindow.document.close();
-
-			iframe.onload = () => {
-				iframe.contentWindow.document.getElementById(`closeButton-${iframeID}`).addEventListener('click', function() {
-						responseDiv.parentNode.removeChild(iframe);
-						localStorage.removeItem(`iframeContent-${chatId}-${messageId}`);
-					});
-			};
-
-			if (!localStorage.getItem(`iframeContent-${chatId}-${messageId}`)) {
-				storeIframeContent(chatId , messageId, html_to_render);
-			}
-		
 		}
 	}
-
-    // Function to store iframe content in localStorage
-    function storeIframeContent(chatId ,messageId, content) {
-        localStorage.setItem(`iframeContent-${chatId}-${messageId}`, content);
-    }
-
-    // Function to load iframe content from localStorage
-    function loadIframeContent(chatId ,messageId) {
-        return localStorage.getItem(`iframeContent-${chatId}-${messageId}`);
-    }
 
 	onMount(async () => {
 		await tick();
@@ -752,15 +692,47 @@
 														: 'invisible group-hover:visible'} p-1.5 hover:bg-black/5 dark:hover:bg-white/5 rounded-lg dark:hover:text-white hover:text-black transition"
 													on:click={ async() => {
 														runningPQL=true;
-														await handleClick();
+														await runPQL();
 														runningPQL=false;
 															} }
 												>
 													<!-- https://icons.getbootstrap.com -->
 													{#if runningPQL}
-														<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-gear" viewBox="0 0 16 16">
+													<!-- https://github.com/n3r4zzurr0/svg-spinners?tab=readme-ov-file -->
+														<!-- <img id="loading-spinner" style="width: 16; height: 16" src="/12-dots-scale-rotate.svg" class="animate-pulse-fast" /> -->
+														<!-- <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-gear" viewBox="0 0 16 16">
 															<path d="M8 4.754a3.246 3.246 0 1 0 0 6.492 3.246 3.246 0 0 0 0-6.492M5.754 8a2.246 2.246 0 1 1 4.492 0 2.246 2.246 0 0 1-4.492 0"/>
 															<path d="M9.796 1.343c-.527-1.79-3.065-1.79-3.592 0l-.094.319a.873.873 0 0 1-1.255.52l-.292-.16c-1.64-.892-3.433.902-2.54 2.541l.159.292a.873.873 0 0 1-.52 1.255l-.319.094c-1.79.527-1.79 3.065 0 3.592l.319.094a.873.873 0 0 1 .52 1.255l-.16.292c-.892 1.64.901 3.434 2.541 2.54l.292-.159a.873.873 0 0 1 1.255.52l.094.319c.527 1.79 3.065 1.79 3.592 0l.094-.319a.873.873 0 0 1 1.255-.52l.292.16c1.64.893 3.434-.902 2.54-2.541l-.159-.292a.873.873 0 0 1 .52-1.255l.319-.094c1.79-.527 1.79-3.065 0-3.592l-.319-.094a.873.873 0 0 1-.52-1.255l.16-.292c.893-1.64-.902-3.433-2.541-2.54l-.292.159a.873.873 0 0 1-1.255-.52zm-2.633.283c.246-.835 1.428-.835 1.674 0l.094.319a1.873 1.873 0 0 0 2.693 1.115l.291-.16c.764-.415 1.6.42 1.184 1.185l-.159.292a1.873 1.873 0 0 0 1.116 2.692l.318.094c.835.246.835 1.428 0 1.674l-.319.094a1.873 1.873 0 0 0-1.115 2.693l.16.291c.415.764-.42 1.6-1.185 1.184l-.291-.159a1.873 1.873 0 0 0-2.693 1.116l-.094.318c-.246.835-1.428.835-1.674 0l-.094-.319a1.873 1.873 0 0 0-2.692-1.115l-.292.16c-.764.415-1.6-.42-1.184-1.185l.159-.291A1.873 1.873 0 0 0 1.945 8.93l-.319-.094c-.835-.246-.835-1.428 0-1.674l.319-.094A1.873 1.873 0 0 0 3.06 4.377l-.16-.292c-.415-.764.42-1.6 1.185-1.184l.292.159a1.873 1.873 0 0 0 2.692-1.115z"/>
+														</svg> -->
+														<svg width="16" height="16" fill="currentColor" 
+															viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+															<style>
+															.spinner_EUy1{animation:spinner_grm3 1.2s infinite}
+															.spinner_f6oS{animation-delay:.1s}
+															.spinner_g3nX{animation-delay:.2s}.spinner_nvEs{animation-delay:.3s}.spinner_MaNM{animation-delay:.4s}
+															.spinner_4nle{animation-delay:.5s}.spinner_ZETM{animation-delay:.6s}.spinner_HXuO{animation-delay:.7s}
+															.spinner_YaQo{animation-delay:.8s}.spinner_GOx1{animation-delay:.9s}.spinner_4vv9{animation-delay:1s}
+															.spinner_NTs9{animation-delay:1.1s}
+															.spinner_auJJ{transform-origin:center;animation:spinner_T3O6 6s linear infinite}
+															@keyframes spinner_grm3{0%,50%{animation-timing-function:cubic-bezier(.27,.42,.37,.99);r:1px}
+															25%{animation-timing-function:cubic-bezier(.53,0,.61,.73);r:2px}}
+															@keyframes spinner_T3O6{
+															0%{transform:rotate(360deg)}
+															100%{transform:rotate(0deg)}}</style>
+															<g class="spinner_auJJ">
+															<circle class="spinner_EUy1" cx="12" cy="3" r="1"/>
+															<circle class="spinner_EUy1 spinner_f6oS" cx="16.50" cy="4.21" r="1"/>
+															<circle class="spinner_EUy1 spinner_NTs9" cx="7.50" cy="4.21" r="1"/>
+															<circle class="spinner_EUy1 spinner_g3nX" cx="19.79" cy="7.50" r="1"/>
+															<circle class="spinner_EUy1 spinner_4vv9" cx="4.21" cy="7.50" r="1"/>
+															<circle class="spinner_EUy1 spinner_nvEs" cx="21.00" cy="12.00" r="1"/>
+															<circle class="spinner_EUy1 spinner_GOx1" cx="3.00" cy="12.00" r="1"/>
+															<circle class="spinner_EUy1 spinner_MaNM" cx="19.79" cy="16.50" r="1"/>
+															<circle class="spinner_EUy1 spinner_YaQo" cx="4.21" cy="16.50" r="1"/>
+															<circle class="spinner_EUy1 spinner_4nle" cx="16.50" cy="19.79" r="1"/>
+															<circle class="spinner_EUy1 spinner_HXuO" cx="7.50" cy="19.79" r="1"/>
+															<circle class="spinner_EUy1 spinner_ZETM" cx="12" cy="21" r="1"/>
+															</g>
 														</svg>
 													{:else}
 														<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-file-bar-graph" viewBox="0 0 16 16">
@@ -1115,6 +1087,7 @@
 														: 'invisible group-hover:visible'} p-1.5 hover:bg-black/5 dark:hover:bg-white/5 rounded-lg dark:hover:text-white hover:text-black transition regenerate-response-button"
 													on:click={() => {
 														showRateComment = false;
+														deleteIframeContent("iframe-" + chatId + message.id, chatId,message.id);
 														regenerateResponse(message);
 													}}
 												>
