@@ -591,7 +591,7 @@ app.mount("/audio/api/v1", audio_app)
 app.mount("/rag/api/v1", rag_app)
 
 app.mount("/api/v1", webui_app)
-app.mount("/api/runPQL", autoptic_app)
+app.mount("/autoptic", autoptic_app)
 
 webui_app.state.EMBEDDING_FUNCTION = rag_app.state.EMBEDDING_FUNCTION
 
@@ -1450,29 +1450,6 @@ async def get_opensearch_xml():
 @app.get("/health")
 async def healthcheck():
     return {"status": True}
-
-class PQLquery(BaseModel):
-    vars: str
-    pql: str
-
-class PayloadQuery(BaseModel):
-    query: PQLquery
-    endpoint: str
-
-@app.post("/api/runPQL")    
-async def sentToAutoptic(Payload: PayloadQuery):
-    try:
-        async with aiohttp.ClientSession(trust_env=True) as session:
-            response = await session.post(
-                f"https://autoptic.io/pql/ep/{Payload.endpoint}/run",
-                json=Payload.query.dict()
-            )
-        assert response.status == 200
-        text= await response.text()
-        return text
-
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
 
 
 app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
