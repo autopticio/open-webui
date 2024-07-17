@@ -56,4 +56,5 @@ async def sentToAutoptic(Payload: PayloadQuery):
             text = await response.text()
             return text
     except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        print(f"Invalid keys for Autoptic. Error: {str(e)}")
+        raise HTTPException(status_code=403, detail="Invalid keys for Autoptic.")
