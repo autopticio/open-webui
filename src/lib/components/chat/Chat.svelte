@@ -196,6 +196,7 @@
 			const chatContent = chat.chat;
 
 			if (chatContent) {
+				console.log(chatContent);
 
 				selectedModels =
 					(chatContent?.models ?? undefined) !== undefined
@@ -727,6 +728,7 @@
 
 					for (const line of lines) {
 						if (line !== '') {
+							console.log(line);
 							let data = JSON.parse(line);
 
 							if ('citations' in data) {
@@ -1195,8 +1197,6 @@
 		});
 	};
 </script>
-
-
 
 <svelte:head>
 	<title>

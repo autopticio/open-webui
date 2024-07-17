@@ -16,7 +16,7 @@ const sendToAPI = async (mensaje) => {
 
 	const endpoint = localStorage.getItem('autoptic_endpoint');
 
-	let json_env = localStorage.getItem('autoptic_environment');
+	let json_env = localStorage.getItem('envFileVariables');
 	json_env= JSON.parse(json_env)
 	json_env = JSON.stringify(json_env);
 
