@@ -1,28 +1,14 @@
 import aiohttp
 import re
-from fastapi import FastAPI, Request, Depends, APIRouter
-from fastapi.staticfiles import StaticFiles
-from fastapi.responses import JSONResponse
+from fastapi import FastAPI
 from fastapi import HTTPException
-from fastapi.middleware.wsgi import WSGIMiddleware
-from fastapi.middleware.cors import CORSMiddleware
-from starlette.exceptions import HTTPException as StarletteHTTPException
-from starlette.middleware.base import BaseHTTPMiddleware
-from starlette.responses import StreamingResponse, Response
 from pydantic import BaseModel
 from contextlib import asynccontextmanager
-
-from apps.webui.models.users import Users
-
-from utils.utils import (
-    get_current_user,
-)
+from .keys import router as keys_router
 
 from config import (
     ENV
 )
-
-router = APIRouter()
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -31,6 +17,8 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     docs_url="/docs" if ENV == "dev" else None, redoc_url=None, lifespan=lifespan
 )
+
+app.include_router(keys_router, prefix="/keys", tags=["autoptic_keys"])
 
 origins = ["*"]
 
@@ -42,6 +30,8 @@ class PayloadQuery(BaseModel):
     query: PQLquery
     endpoint: str
 
+# Maybe we can use something like this to check is the EP is correctly written in the config before save,
+# but there is a few things to talk about that part of the UI/UX
 
 def extract_id_from_url(url: str) -> str:
     pattern = r'^(?:(https?://)?autoptic\.io/pql/ep/([a-zA-Z0-9-]+)/run|([a-zA-Z0-9-]+))$'
@@ -67,9 +57,3 @@ async def sentToAutoptic(Payload: PayloadQuery):
             return text
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
-
-# delete autoptic variables
-@router.delete("/delete_autoptic_environment")
-async def delete_autoptic_environment(user=Depends(get_current_user)):
-    success = Users.update_user_autoptic_environment_by_id(user.id, None,None)
-    return success

@@ -6,11 +6,14 @@
 	import { updateUserProfile,
 			 createAPIKey,
 			 getAPIKey,
-			 updateAutopticEndpoint,
+				} from '$lib/apis/auths';
+
+	import {
+			updateAutopticEndpoint,
 			 deleteAutopticEndpoint,
 			 updateAutopticEnvironment,
 			 deleteAutopticEnvironment,
-				} from '$lib/apis/auths';
+				} from '$lib/apis/autoptic';
 
 	import UpdatePassword from './Account/UpdatePassword.svelte';
 	import { getGravatarUrl } from '$lib/apis/utils';

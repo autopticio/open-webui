@@ -1,4 +1,4 @@
-import { AUTOPTIC_BASE_URL , WEBUI_API_BASE_URL } from '$lib/constants';
+import { AUTOPTIC_BASE_URL } from '$lib/constants';
 
 export const generateJustQueryResponse = async (Query) => {
 	let _response = null;
@@ -43,7 +43,6 @@ const sendToAPI = async (mensaje) => {
 		throw error;
 	}
 	result = await res.json()
-	console.log(result)
 	return result;
 };
 
@@ -122,8 +121,7 @@ export function loadIframeContent(chatId ,messageId) {
 
 export const updateAutopticEndpoint = async (token: string, autoptic_endpoint: string) => {
 	let error = null;
-	console.log(JSON.stringify({ autoptic_endpoint }))
-	const res = await fetch(`${WEBUI_API_BASE_URL}/auths/new_autoptic_endpoint`, {
+	const res = await fetch(`${AUTOPTIC_BASE_URL}/keys/new_autoptic_endpoint`, {
 		method: 'POST',
 		headers: {
 			'Content-Type': 'application/json',
@@ -144,14 +142,13 @@ export const updateAutopticEndpoint = async (token: string, autoptic_endpoint: s
 	if (error) {
 		throw error;
 	}
-	console.log(res)
 	return res.autoptic_endpoint;
 };
 
 export const getAutopticEndpoint = async (token: string) => {
 	let error = null;
 
-	const res = await fetch(`${WEBUI_API_BASE_URL}/auths/get_autoptic_endpoint`, {
+	const res = await fetch(`${AUTOPTIC_BASE_URL}/keys/get_autoptic_endpoint`, {
 		method: 'GET',
 		headers: {
 			'Content-Type': 'application/json',
@@ -178,7 +175,7 @@ export const getAutopticEndpoint = async (token: string) => {
 export const deleteAutopticEndpoint = async (token: string) => {
 	let error = null;
 
-	const res = await fetch(`${WEBUI_API_BASE_URL}/auths/delete_autoptic_endpoint`, {
+	const res = await fetch(`${AUTOPTIC_BASE_URL}/keys/delete_autoptic_endpoint`, {
 		method: 'DELETE',
 		headers: {
 			'Content-Type': 'application/json',
@@ -202,7 +199,7 @@ export const deleteAutopticEndpoint = async (token: string) => {
 
 export const updateAutopticEnvironment = async (token: string, autoptic_environment: string, envFileName: string) => {
 	let error = null;
-	const res = await fetch(`${WEBUI_API_BASE_URL}/auths/new_autoptic_environment`, {
+	const res = await fetch(`${AUTOPTIC_BASE_URL}/keys/new_autoptic_environment`, {
 		method: 'POST',
 		headers: {
 			'Content-Type': 'application/json',
@@ -229,7 +226,7 @@ export const updateAutopticEnvironment = async (token: string, autoptic_environm
 export const getAutopticEnvironment = async (token: string) => {
 	let error = null;
 
-	const res = await fetch(`${WEBUI_API_BASE_URL}/auths/get_autoptic_environment`, {
+	const res = await fetch(`${AUTOPTIC_BASE_URL}/keys/get_autoptic_environment`, {
 		method: 'GET',
 		headers: {
 			'Content-Type': 'application/json',
@@ -256,7 +253,7 @@ export const getAutopticEnvironment = async (token: string) => {
 export const deleteAutopticEnvironment = async (token: string) => {
 	let error = null;
 
-	const res = await fetch(`${AUTOPTIC_BASE_URL}/delete_autoptic_environment`, {
+	const res = await fetch(`${AUTOPTIC_BASE_URL}/keys/delete_autoptic_environment`, {
 		method: 'DELETE',
 		headers: {
 			'Content-Type': 'application/json',
@@ -281,7 +278,7 @@ export const deleteAutopticEnvironment = async (token: string) => {
 export const getEnvFileName = async (token: string) => {
 	let error = null;
 
-	const res = await fetch(`${WEBUI_API_BASE_URL}/auths/get_envFileName`, {
+	const res = await fetch(`${AUTOPTIC_BASE_URL}/keys/get_envFileName`, {
 		method: 'GET',
 		headers: {
 			'Content-Type': 'application/json',

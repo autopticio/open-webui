@@ -745,7 +745,6 @@
 														? 'visible'
 														: 'invisible group-hover:visible'} p-1.5 hover:bg-black/5 dark:hover:bg-white/5 rounded-lg dark:hover:text-white hover:text-black transition"
 													on:click={() => {
-														console.log(localStorage.token)
 														editMessageHandler();
 													}}
 												>
@@ -948,7 +947,6 @@
 														? 'visible'
 														: 'invisible group-hover:visible'} p-1.5 hover:bg-black/5 dark:hover:bg-white/5 rounded-lg dark:hover:text-white hover:text-black transition whitespace-pre-wrap"
 													on:click={() => {
-														console.log(message);
 													}}
 													id="info-{message.id}"
 												>
