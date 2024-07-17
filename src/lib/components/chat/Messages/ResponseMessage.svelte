@@ -691,6 +691,7 @@
 														? 'visible'
 														: 'invisible group-hover:visible'} p-1.5 hover:bg-black/5 dark:hover:bg-white/5 rounded-lg dark:hover:text-white hover:text-black transition"
 													on:click={ async() => {
+														deleteIframeContent("iframe-" + chatId + message.id, chatId,message.id);
 														runningPQL=true;
 														await runPQL();
 														runningPQL=false;
