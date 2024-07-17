@@ -3,7 +3,14 @@
 	import { onMount, getContext } from 'svelte';
 
 	import { user } from '$lib/stores';
-	import { updateUserProfile, createAPIKey, getAPIKey } from '$lib/apis/auths';
+	import { updateUserProfile,
+			 createAPIKey,
+			 getAPIKey,
+			 updateAutopticEndpoint,
+			 deleteAutopticEndpoint,
+			 updateAutopticEnvironment,
+			 deleteAutopticEnvironment,
+				} from '$lib/apis/auths';
 
 	import UpdatePassword from './Account/UpdatePassword.svelte';
 	import { getGravatarUrl } from '$lib/apis/utils';
@@ -11,8 +18,6 @@
 	import { copyToClipboard } from '$lib/utils';
 	import Plus from '$lib/components/icons/Plus.svelte';
 	import Tooltip from '$lib/components/common/Tooltip.svelte';
-
-	import { writable } from 'svelte/store';
 
 	const i18n = getContext('i18n');
 
@@ -24,9 +29,7 @@
 	let showAPIKeys = false;
 	
 	let showAutopticKeys = false;
-	let showAutopticEP = false;
 	let autoptic_endpoint = '';
-	let AutopticEPCopied = false;
 
 
 	let showJWTToken = false;
@@ -38,12 +41,12 @@
 
 	let profileImageInputElement: HTMLInputElement;
 
-	const fileContent = writable('');
 	let envFile = null;
+	let newEnvFile= false;
 
 	let placeholderText = "Environment file here.";
 
-	function handleFileChange(event) {
+	function handleEnvFileChange(event) {
 		
 		const fileInput = event.target;
 		
@@ -54,34 +57,58 @@
 		} else {
 			placeholderText = 'Envinroment file here';
 			}	
+		newEnvFile=true;
 	}
 
-	function saveEnvContent() {
+	const saveEnvContent = async() => {
+		// JERE: I will improve this if.
 		if (placeholderText != "Environment file here.") {
 			const reader = new FileReader();
 
-			reader.onload = function(e) {
-				const envFileContent = e.target.result;
-				const envFileName = envFile.name;
+			const readEnvFile = () => {
+				return new Promise((resolve,reject) => {
+					reader.onload = function(e) {
+						const envFileContent = e.target.result;
+						const envFileName = envFile.name;
+						try {
+							JSON.parse(envFileContent)
+							resolve({ envFileContent , envFileName })
+						} catch (e) {
+							toast.error($i18n.t('Environment file invalid. Your config will not be saved.'));
+							placeholderText = "Environment file here."
+							reject();
+						}
+					};
 
-				localStorage.setItem('envFileVariables', envFileContent);
-				localStorage.setItem('envFileName', envFileName);
+					reader.onerror = () => reject();
+					reader.readAsText(envFile);
+
+				});
 			};
 
-			reader.readAsText(envFile);
-			
-		} else {
-			localStorage.removeItem('envFileVariables');
-			localStorage.removeItem('envFileName');
-		}
-		toast.success($i18n.t('Autoptic endpoint saved!'));
-	}
+			const { envFileContent , envFileName } = await readEnvFile();
+			updateAutopticEnvironment(localStorage.token,envFileContent,envFileName)
+			localStorage.autoptic_environment = envFileContent
+			localStorage.envFileName = envFileName;
+			toast.success($i18n.t('Autoptic environment saved!'));
 
-	const saveEndpoint = async () => {
-			localStorage.setItem('autoptic_endpoint', autoptic_endpoint);
-			toast.success($i18n.t('Autoptic endpoint saved!'));
+		} else {
+			deleteAutopticEnvironment(localStorage.token)
+			localStorage.removeItem('autoptic_environment');
+			localStorage.removeItem('envFileName');
+			toast.success($i18n.t('Autoptic environment deleted!'));
+		}
 	};
 
+	const saveEndpoint = async () => {
+		if (autoptic_endpoint != ''){
+            await updateAutopticEndpoint(localStorage.token,autoptic_endpoint)
+		} else {
+			await deleteAutopticEndpoint(localStorage.token)
+		}
+		localStorage.autoptic_endpoint=autoptic_endpoint;
+		toast.success($i18n.t('Autoptic endpoint saved!'));
+        };
 
 	const submitHandler = async () => {
 		if (name !== $user.name) {
@@ -112,8 +139,6 @@
 		}
 	};
 
-
-
 	onMount(async () => {
 		name = $user.name;
 		profileImageUrl = $user.profile_image_url;
@@ -128,7 +153,7 @@
 				autoptic_endpoint = storedEndpoint;
 			}
 
-			const storedEnvName = localStorage.getItem('envFileName');
+		const storedEnvName = localStorage.getItem('envFileName');
 			if (storedEnvName) {
 				placeholderText = storedEnvName;
 				}
@@ -612,7 +637,7 @@
 								class="hidden"
 								id="file-upload"
 								name="myfile"
-								on:change="{handleFileChange}"
+								on:change="{handleEnvFileChange}"
 							/>
 								<label
 									for="file-upload"
@@ -648,10 +673,13 @@
 		<button
 			class="  px-4 py-2 bg-emerald-700 hover:bg-emerald-800 text-gray-100 transition rounded-lg"
 			on:click={async () => {
-				saveEndpoint();
-				saveEnvContent();
+				if (autoptic_endpoint != localStorage.autoptic_endpoint) {
+					saveEndpoint();
+				}
+				if (newEnvFile){
+					saveEnvContent();
+				}
 				const res = await submitHandler();
-
 				if (res) {
 					saveHandler();
 				}
