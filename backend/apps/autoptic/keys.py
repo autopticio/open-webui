@@ -1,3 +1,5 @@
+import logging
+
 from fastapi import Depends, APIRouter
 from fastapi import HTTPException
 from pydantic import BaseModel
@@ -10,13 +12,16 @@ from utils.utils import (
 
 router = APIRouter()
 
-class AutopticEnvironment(BaseModel):
-    autoptic_environment: str
-    envFileName: str
+logger = logging.getLogger(__name__)
+
 
 ############################
 # Autoptic Keys
 ############################
+
+class AutopticEnvironment(BaseModel):
+    autoptic_environment: str
+    envFileName: str
 
 # Endpoint
 
@@ -30,7 +35,7 @@ async def update_autoptic_endpoint(autoptic_endpoint: dict, user=Depends(get_cur
                 "autoptic_endpoint": autoptic_endpoint["autoptic_endpoint"],
             }
     except Exception as e:
-        print(f"Failed to update Autoptic endpoint. Error: {str(e)}")
+        logger.error(" Failed to update Autoptic endpoint. %s", e)
         raise HTTPException(status_code=404, detail=f"Failed to update Autoptic endpoint. Error: {str(e)}")
     
 # get autoptic endpoint
@@ -43,7 +48,7 @@ async def get_autoptic_endpoint(user=Depends(get_current_user)):
                 "autoptic_endpoint": autoptic_endpoint,
             }
     except Exception as e:
-        print(f"Failed to get Autoptic endpoint. Error: {str(e)}")
+        logger.error(" Failed to get Autoptic endpoint. %s", e)
         raise HTTPException(status_code=404, detail=f"Failed to get Autoptic endpoint. Error: {str(e)}")
 
 # delete autoptic endpoint
@@ -66,7 +71,7 @@ async def update_autoptic_environment(environment_update : AutopticEnvironment, 
                 "autoptic_environment": environment_update.autoptic_environment,
             }
     except Exception as e:
-        print(f"Failed to update Autoptic environment file. Error: {str(e)}")
+        logger.error(" Failed to update Autoptic environment file. %s", e)
         raise HTTPException(status_code=404, detail=f"Failed to update Autoptic environment file. Error: {str(e)}")
 
 # get autoptic environment
@@ -79,7 +84,7 @@ async def get_autoptic_environment(user=Depends(get_current_user)):
                 "autoptic_environment": autoptic_environment,
             }
     except Exception as e:
-        print(f"Failed to get Autoptic environment file. Error: {str(e)}")
+        logger.error(" Failed to get Autoptic environment file. %s", e)
         raise HTTPException(status_code=404, detail=f"Failed to get Autoptic environment file. Error: {str(e)}")  
 
 # delete autoptic variables
@@ -98,6 +103,6 @@ async def get_envFileName(user=Depends(get_current_user)):
                 "envFileName": envFileName,
             }
     except Exception as e:
-        print(f"Failed to get Autoptic environment file name. Error: {str(e)}")
+        logger.error(" Failed to get Autoptic environment file name. %s", e)
         raise HTTPException(status_code=404, detail=f"Failed to get Autoptic environment file name. Error: {str(e)}")  
     

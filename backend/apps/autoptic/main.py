@@ -1,5 +1,7 @@
 import aiohttp
 import re
+import logging
+
 from fastapi import FastAPI
 from fastapi import HTTPException
 from pydantic import BaseModel
@@ -9,6 +11,8 @@ from .keys import router as keys_router
 from config import (
     ENV
 )
+
+logger = logging.getLogger(__name__)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -56,5 +60,5 @@ async def sentToAutoptic(Payload: PayloadQuery):
             text = await response.text()
             return text
     except Exception as e:
-        print(f"Invalid keys for Autoptic. Error: {str(e)}")
+        logger.error(" Invalid keys for Autoptic. %s", e)
         raise HTTPException(status_code=403, detail="Invalid keys for Autoptic.")
