@@ -655,6 +655,7 @@
 								on:click={() => {
 								if (placeholderText != "Environment file here.") {
 									placeholderText='Environment file here.'
+									newEnvFile= true
 									toast.success($i18n.t('Environment file deleted. Please save your config!'));	
 									}
 								}}>
