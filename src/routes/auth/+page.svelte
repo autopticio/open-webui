@@ -1,6 +1,6 @@
 <script>
 	import { goto } from '$app/navigation';
-	import { userSignIn, userSignUp } from '$lib/apis/auths';
+	import { getEnvFileName , getAutopticEndpoint, getAutopticEnvironment, userSignIn, userSignUp } from '$lib/apis/auths';
 	import Spinner from '$lib/components/common/Spinner.svelte';
 	import { WEBUI_API_BASE_URL, WEBUI_BASE_URL } from '$lib/constants';
 	import { WEBUI_NAME, config, user, socket } from '$lib/stores';
@@ -24,6 +24,11 @@
 			localStorage.token = sessionUser.token;
 
 			$socket.emit('user-join', { auth: { token: sessionUser.token } });
+
+			localStorage.autoptic_endpoint = await getAutopticEndpoint(localStorage.token)
+			localStorage.autoptic_environment = await getAutopticEnvironment(localStorage.token)
+			localStorage.envFileName = await getEnvFileName(localStorage.token)
+
 			await user.set(sessionUser);
 			goto('/');
 		}

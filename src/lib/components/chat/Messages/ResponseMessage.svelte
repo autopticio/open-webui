@@ -12,7 +12,7 @@
 	import { createEventDispatcher } from 'svelte';
 	import { onMount, tick, getContext } from 'svelte';
 
-	import { generateJustQueryResponse } from '$lib/apis/autoptic'; 
+	import { deleteIframeContent, generateJustQueryResponse , insertIframe , loadIframeContent } from '$lib/apis/autoptic'; 
 
 
 	const i18n = getContext('i18n');
@@ -31,7 +31,6 @@
 	import { WEBUI_BASE_URL } from '$lib/constants';
 
 
-	import { chatId } from '$lib/stores';
 	import Name from './Name.svelte';
 	import ProfileImage from './ProfileImage.svelte';
 	import Skeleton from './Skeleton.svelte';
@@ -45,11 +44,10 @@
 
 
 	export let message;
+
+	export let chatId;
+
 	export let siblings;
-
-	export let submitPrompt: Function;
-
-	export let submitQuery: Function;
 
 	export let isLastMessage = true;
 
@@ -84,6 +82,8 @@
 	let showCitationModal = false;
 
 	let selectedCitation = null;
+
+	let runningPQL = false;
 
 	$: tokens = marked.lexer(sanitizeResponseContent(message?.content));
 
@@ -379,10 +379,10 @@
 		})();
 	}
 
-    async function handleClick() {
+    const runPQL = async () => {
 		
 		const storedEndpoint = localStorage.getItem('autoptic_endpoint');
-		const storedEnvVariables = localStorage.getItem('envFileVariables');
+		const storedEnvVariables = localStorage.getItem('autoptic_environment');
 
 		if (storedEndpoint == '' && storedEnvVariables == null){
 			toast.error($i18n.t('The endpoint and the environment variables are empty!'));
@@ -395,53 +395,14 @@
 			return null
 		} else{
 			let html_to_render = await generateJustQueryResponse(message.content);
-			insertIframe(message.id, html_to_render);
-    		}
+			if (typeof html_to_render == 'string') {
+				await insertIframe(chatId,message.id, html_to_render);
+			} else {
+				toast.error($i18n.t('There is an error.'));
+				deleteIframeContent("iframe-" + chatId + message.id, chatId,message.id);
+			}
+		}
 	}
-
-    // Function to create and insert the iframe
-    function insertIframe(messageId, html_to_render) {
-        let responseDiv = document.getElementById("message-" + messageId);
-
-        if (!responseDiv) return;
-
-        let iframeID = "iframe-" + messageId;
-        let existingIframe = document.getElementById(iframeID);
-        if (existingIframe) {
-            existingIframe.parentNode?.removeChild(existingIframe);
-        }
-
-        var iframe = document.createElement('iframe');
-        iframe.id = iframeID;
-        iframe.height = "907px";
-        iframe.width = "100%";
-
-        var html = `
-            <div style="position: relative;">
-            	${html_to_render}
-            </div>
-        `;
-
-        responseDiv.parentNode.insertBefore(iframe, responseDiv.nextSibling);
-
-        iframe.contentWindow.document.open();
-        iframe.contentWindow.document.write(html);
-        iframe.contentWindow.document.close();
-
-
-        storeIframeContent(messageId, html);
-    }
-
-    // Function to store iframe content in localStorage
-    function storeIframeContent(messageId, content) {
-        localStorage.setItem(`iframeContent-${messageId}`, content);
-    }
-
-    // Function to load iframe content from localStorage
-    function loadIframeContent(messageId) {
-		console.log('messageId',messageId)
-        return localStorage.getItem(`iframeContent-${messageId}`);
-    }
 
 	onMount(async () => {
 		await tick();
@@ -451,11 +412,13 @@
 			querySelector: '.mermaid'
 		});
 		
-        let storedContent = loadIframeContent(message.id);
-        
-		if (storedContent) {
-            insertIframe(message.id, storedContent);
-        }
+		if (localStorage.getItem(`iframeContent-${chatId}-${message.id}`)) {
+        	let storedContent = loadIframeContent(chatId,message.id);
+			if (storedContent) {
+				insertIframe(chatId,message.id, storedContent);
+			}
+		}
+
 	});
 </script>
 
@@ -727,13 +690,51 @@
 													class="{isLastMessage
 														? 'visible'
 														: 'invisible group-hover:visible'} p-1.5 hover:bg-black/5 dark:hover:bg-white/5 rounded-lg dark:hover:text-white hover:text-black transition"
-													on:click={ handleClick } 
+													on:click={ async() => {
+														runningPQL=true;
+														await runPQL();
+														runningPQL=false;
+															} }
 												>
-													<!-- https://icons.getbootstrap.com -->
-													<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-file-bar-graph" viewBox="0 0 16 16">
-														<path d="M4.5 12a.5.5 0 0 1-.5-.5v-2a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.5.5zm3 0a.5.5 0 0 1-.5-.5v-4a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v4a.5.5 0 0 1-.5.5zm3 0a.5.5 0 0 1-.5-.5v-6a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-.5.5z"/>
-														<path d="M4 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2zm0 1h8a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1"/>
-													  </svg>
+													{#if runningPQL}
+													<!-- https://github.com/n3r4zzurr0/svg-spinners?tab=readme-ov-file -->
+														<svg width="16" height="16" fill="currentColor" 
+															viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+															<style>
+															.spinner_EUy1{animation:spinner_grm3 1.2s infinite}
+															.spinner_f6oS{animation-delay:.1s}
+															.spinner_g3nX{animation-delay:.2s}.spinner_nvEs{animation-delay:.3s}.spinner_MaNM{animation-delay:.4s}
+															.spinner_4nle{animation-delay:.5s}.spinner_ZETM{animation-delay:.6s}.spinner_HXuO{animation-delay:.7s}
+															.spinner_YaQo{animation-delay:.8s}.spinner_GOx1{animation-delay:.9s}.spinner_4vv9{animation-delay:1s}
+															.spinner_NTs9{animation-delay:1.1s}
+															.spinner_auJJ{transform-origin:center;animation:spinner_T3O6 6s linear infinite}
+															@keyframes spinner_grm3{0%,50%{animation-timing-function:cubic-bezier(.27,.42,.37,.99);r:1px}
+															25%{animation-timing-function:cubic-bezier(.53,0,.61,.73);r:2px}}
+															@keyframes spinner_T3O6{
+															0%{transform:rotate(360deg)}
+															100%{transform:rotate(0deg)}}</style>
+															<g class="spinner_auJJ">
+															<circle class="spinner_EUy1" cx="12" cy="3" r="1"/>
+															<circle class="spinner_EUy1 spinner_f6oS" cx="16.50" cy="4.21" r="1"/>
+															<circle class="spinner_EUy1 spinner_NTs9" cx="7.50" cy="4.21" r="1"/>
+															<circle class="spinner_EUy1 spinner_g3nX" cx="19.79" cy="7.50" r="1"/>
+															<circle class="spinner_EUy1 spinner_4vv9" cx="4.21" cy="7.50" r="1"/>
+															<circle class="spinner_EUy1 spinner_nvEs" cx="21.00" cy="12.00" r="1"/>
+															<circle class="spinner_EUy1 spinner_GOx1" cx="3.00" cy="12.00" r="1"/>
+															<circle class="spinner_EUy1 spinner_MaNM" cx="19.79" cy="16.50" r="1"/>
+															<circle class="spinner_EUy1 spinner_YaQo" cx="4.21" cy="16.50" r="1"/>
+															<circle class="spinner_EUy1 spinner_4nle" cx="16.50" cy="19.79" r="1"/>
+															<circle class="spinner_EUy1 spinner_HXuO" cx="7.50" cy="19.79" r="1"/>
+															<circle class="spinner_EUy1 spinner_ZETM" cx="12" cy="21" r="1"/>
+															</g>
+														</svg>
+													{:else}
+														<!-- https://icons.getbootstrap.com -->
+														<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-file-bar-graph" viewBox="0 0 16 16">
+															<path d="M4.5 12a.5.5 0 0 1-.5-.5v-2a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.5.5zm3 0a.5.5 0 0 1-.5-.5v-4a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v4a.5.5 0 0 1-.5.5zm3 0a.5.5 0 0 1-.5-.5v-6a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-.5.5z"/>
+															<path d="M4 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2zm0 1h8a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1"/>
+														</svg>
+													{/if}
 												</button>
 											</Tooltip>
 										{/if}
@@ -946,7 +947,6 @@
 														? 'visible'
 														: 'invisible group-hover:visible'} p-1.5 hover:bg-black/5 dark:hover:bg-white/5 rounded-lg dark:hover:text-white hover:text-black transition whitespace-pre-wrap"
 													on:click={() => {
-														console.log(message);
 													}}
 													id="info-{message.id}"
 												>
@@ -1080,6 +1080,7 @@
 														: 'invisible group-hover:visible'} p-1.5 hover:bg-black/5 dark:hover:bg-white/5 rounded-lg dark:hover:text-white hover:text-black transition regenerate-response-button"
 													on:click={() => {
 														showRateComment = false;
+														deleteIframeContent("iframe-" + chatId + message.id, chatId,message.id);
 														regenerateResponse(message);
 													}}
 												>

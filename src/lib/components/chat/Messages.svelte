@@ -310,6 +310,7 @@
 							{:else if $mobile || (history.messages[message.parentId]?.models?.length ?? 1) === 1}
 								{#key message.id}
 									<ResponseMessage
+										{chatId}
 										{message}
 										siblings={history.messages[message.parentId]?.childrenIds ?? []}
 										isLastMessage={messageIdx + 1 === messages.length}
