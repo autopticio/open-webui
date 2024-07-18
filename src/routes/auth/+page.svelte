@@ -1,6 +1,7 @@
 <script>
 	import { goto } from '$app/navigation';
-	import { getEnvFileName , getAutopticEndpoint, getAutopticEnvironment, userSignIn, userSignUp } from '$lib/apis/auths';
+	import { userSignIn, userSignUp } from '$lib/apis/auths';
+	import { getEnvFileName , getAutopticEndpoint, getAutopticEnvironment } from '$lib/apis/autoptic';
 	import Spinner from '$lib/components/common/Spinner.svelte';
 	import { WEBUI_API_BASE_URL, WEBUI_BASE_URL } from '$lib/constants';
 	import { WEBUI_NAME, config, user, socket } from '$lib/stores';
