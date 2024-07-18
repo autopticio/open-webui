@@ -15,6 +15,7 @@ Open WebUI is an [extensible](https://github.com/open-webui/pipelines), feature-
 
 ![Open WebUI Demo](./demo.gif)
 
+
 ## Key Features of Open WebUI ⭐
 
 - 🚀 **Effortless Setup**: Install seamlessly using Docker or Kubernetes (kubectl, kustomize or helm) for a hassle-free experience with support for both `:ollama` and `:cuda` tagged images.
