@@ -89,6 +89,10 @@
 
 	const renderer = new marked.Renderer();
 
+	renderer.em = (text) => {
+	  return "*" + text + "*";
+	};
+
 	// For code blocks with simple backticks
 	renderer.codespan = (code) => {
 		return `<code>${code.replaceAll('&amp;', '&')}</code>`;
