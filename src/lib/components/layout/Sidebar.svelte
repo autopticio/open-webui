@@ -58,70 +58,25 @@
 
 	let filteredChatList = [];
 
-	let selectedPeriod = 'All'
-
-		// Helper function to determine if the chat is within the time range
-	const isWithinTimeRange = (chatDate) => {
-	const now = new Date();
-	const chatTime = new Date(chatDate); // Assuming chat has a date property
-
-	switch (selectedPeriod) {
-	case '1d':
-		return chatTime >= new Date(now.setDate(now.getDate() - 1));
-	case '1w':
-		return chatTime >= new Date(now.setDate(now.getDate() - 7));
-	case '1m':
-		return chatTime >= new Date(now.setMonth(now.getMonth() - 1));
-	case '1y':
-		return chatTime >= new Date(now.setFullYear(now.getFullYear() - 1));
-	default:
-		return true; // If selectedPeriod is 'all', return all chats
-	}
-	};
-
-	// Filtered chat list based on search and selectedPeriod
 	$: filteredChatList = $chats.filter((chat) => {
-	// Apply search filter
-	const searchTerms = search.toLowerCase().split(' ');
-	let title = chat.title.toLowerCase();
-	let chatTime = new Date(chat.created_at * 1000)
+		if (search === '') {
+			return true;
+		} else {
+			let title = chat.title.toLowerCase();
+			const query = search.toLowerCase();
 
-	let contentMatches = false;
-	if (chat.chat && chat.chat.messages && Array.isArray(chat.chat.messages)) {
-	contentMatches = chat.chat.messages.some((message) => {
-		if (message.content) {
-		return searchTerms.some(term => message.content.toLowerCase().includes(term));
+			let contentMatches = false;
+			// Access the messages within chat.chat.messages
+			if (chat.chat && chat.chat.messages && Array.isArray(chat.chat.messages)) {
+				contentMatches = chat.chat.messages.some((message) => {
+					// Check if message.content exists and includes the search query
+					return message.content && message.content.toLowerCase().includes(query);
+				});
+			}
+
+			return title.includes(query) || contentMatches;
 		}
 	});
-	}
-
-	const searchMatches = searchTerms.some(term => title.includes(term)) || contentMatches;
-
-	// Apply time range filter
-	const timeRangeMatches = isWithinTimeRange(chatTime); // Assuming `chat.date` is the date of the chat
-
-	return searchMatches && timeRangeMatches;
-	});
-
-	// $: filteredChatList = $chats.filter((chat) => {
-	// 	if (search === '') {
-	// 		return true;
-	// 	} else {
-	// 		let title = chat.title.toLowerCase();
-	// 		const query = search.toLowerCase();
-
-	// 		let contentMatches = false;
-	// 		// Access the messages within chat.chat.messages
-	// 		if (chat.chat && chat.chat.messages && Array.isArray(chat.chat.messages)) {
-	// 			contentMatches = chat.chat.messages.some((message) => {
-	// 				// Check if message.content exists and includes the search query
-	// 				return message.content && message.content.toLowerCase().includes(query);
-	// 			});
-	// 		}
-
-	// 		return title.includes(query) || contentMatches;
-	// 	}
-	// });
 
 	mobile;
 	const onResize = () => {
@@ -140,6 +95,7 @@
 				showSidebar.set(true);
 			}
 		});
+
 		showSidebar.set(window.innerWidth > BREAKPOINT);
 		await chats.set(await getChatList(localStorage.token));
 
@@ -399,36 +355,6 @@
 				</a>
 			</div>
 		{/if}
-
-		<div class="px-2.5 flex justify-center text-gray-800 dark:text-gray-200">
-			<a
-				class="flex-grow flex space-x-3 rounded-xl px-2.5 py-2 hover:bg-gray-100 dark:hover:bg-gray-900 transition"
-				href="/storybooks/snapshots" 
-				on:click={() => {
-					selectedChatId = null;
-					chatId.set('');
-
-					if ($mobile) {
-						showSidebar.set(false);
-					}
-				}}
-				draggable="false"
-			>
-				<div class="self-center">
-					<!-- https://icons.getbootstrap.com -->
-					<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-file-bar-graph" viewBox="0 0 16 16">
-						<path d="M4.5 12a.5.5 0 0 1-.5-.5v-2a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.5.5zm3 0a.5.5 0 0 1-.5-.5v-4a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v4a.5.5 0 0 1-.5.5zm3 0a.5.5 0 0 1-.5-.5v-6a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-.5.5z"/>
-						<path d="M4 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2zm0 1h8a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1"/>
-					</svg>
-				</div>
-
-				
-
-				<div class="flex self-center">
-					<div class=" self-center font-medium text-sm">{$i18n.t('Storybooks')}</div>
-				</div>
-			</a>
-		</div>
 
 		<div class="relative flex flex-col flex-1 overflow-y-auto">
 			{#if !($settings.saveChatHistory ?? true)}
@@ -855,4 +781,3 @@
 		visibility: hidden;
 	}
 </style>
-
