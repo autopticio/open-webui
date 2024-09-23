@@ -200,7 +200,7 @@
 		
 			<div class=" self-center w-10">
 				<div 
-					class="button-wrapper flex items-center justify-center dark:hover:bg-gray-900 hover:bg-black/5 rounded-full bg-transparent dark:bg-gray-700 border border-dashed border-gray-200 cursor-pointer"
+					class="button-wrapper flex items-center justify-center dark:hover:bg-gray-900 hover:bg-black/5 bg-transparent dark:bg-gray-700 border border-gray-200 cursor-pointer"
 					class:selected={selectedPeriod === '1d'}
 					on:click={() => selectPeriod('1d')}
 				>
@@ -210,7 +210,7 @@
 		
 			<div class=" self-center w-10">
 				<div 
-					class="button-wrapper flex items-center justify-center dark:hover:bg-gray-900 hover:bg-black/5 rounded-full bg-transparent dark:bg-gray-700 border border-dashed border-gray-200 cursor-pointer"
+					class="button-wrapper flex items-center justify-center dark:hover:bg-gray-900 hover:bg-black/5 bg-transparent dark:bg-gray-700 border border-gray-200 cursor-pointer"
 					class:selected={selectedPeriod === '1w'}
 					on:click={() => selectPeriod('1w')}
 				>
@@ -220,7 +220,7 @@
 		
 			<div class=" self-center w-10">
 				<div 
-					class="button-wrapper flex items-center justify-center dark:hover:bg-gray-900 hover:bg-black/5 rounded-full bg-transparent dark:bg-gray-700 border border-dashed border-gray-200 cursor-pointer"
+					class="button-wrapper flex items-center justify-center dark:hover:bg-gray-900 hover:bg-black/5 bg-transparent dark:bg-gray-700 border border-gray-200 cursor-pointer"
 					class:selected={selectedPeriod === '1m'}
 					on:click={() => selectPeriod('1m')}
 				>
@@ -230,7 +230,7 @@
 		
 			<div class=" self-center w-10">
 				<div 
-					class="button-wrapper flex items-center justify-center dark:hover:bg-gray-900 hover:bg-black/5 rounded-full bg-transparent dark:bg-gray-700 border border-dashed border-gray-200 cursor-pointer"
+					class="button-wrapper flex items-center justify-center dark:hover:bg-gray-900 hover:bg-black/5 bg-transparent dark:bg-gray-700 border border-gray-200 cursor-pointer"
 					class:selected={selectedPeriod === '1y'}
 					on:click={() => selectPeriod('1y')}
 				>
