@@ -22,7 +22,6 @@ async def createToken(credentials: Payload):
             response = await client.post(
                 f"{GO_AUTOPTIC_URL}/story/ep/{credentials.endpoint_id}/token/{credentials.token_id}",
             )
-            assert response.status_code == 201
             text = response.text
 
             if response.status_code != 201:
@@ -38,45 +37,62 @@ async def createToken(credentials: Payload):
 
     
 @router.get("/read_token")
-
-
 async def createToken(credentials: Payload):
     try:
-        async with aiohttp.ClientSession(trust_env=True) as session:
-            response = await session.post(
-                f"{url}/story/ep/{credentials.endpoint_id}/token/{credentials.token_id}",
+        async with httpx.AsyncClient(trust_env=True) as client:
+            response = await client.get(
+                f"{GO_AUTOPTIC_URL}/story/ep/{credentials.endpoint_id}/token/{credentials.token_id}",
             )
-            assert response.status == 200
-            text = await response.text()
+            text = response.text
+
+            if response.status_code != 200:
+                raise HTTPException(
+                    status=response.status_code,
+                    detail=f"Error from Go backend: {text}" # Change the 'Go backend'
+                )
+
             return text
+
     except Exception as e:
-        logger.error(" Invalid keys for Autoptic. %s", e)
-        raise HTTPException(status_code=500, detail="something went wrong.")
+        raise HTTPException(status_code=500, detail=f"Something went wrong on OpenWeb UI. ERROR: {e}")
+
     
 @router.delete("/delete_token")
 async def createToken(credentials: Payload):
     try:
-        async with aiohttp.ClientSession(trust_env=True) as session:
-            response = await session.post(
-                f"{url}/story/ep/{credentials.endpoint_id}/token/{credentials.token_id}",
+        async with httpx.AsyncClient(trust_env=True) as client:
+            response = await client.delete(
+                f"{GO_AUTOPTIC_URL}/story/ep/{credentials.endpoint_id}/token/{credentials.token_id}",
             )
-            assert response.status == 200
-            text = await response.text()
+            text = response.text
+
+            if response.status_code != 200:
+                raise HTTPException(
+                    status=response.status_code,
+                    detail=f"Error from Go backend: {text}" # Change the 'Go backend'
+                )
+
             return text
+
     except Exception as e:
-        logger.error(" Invalid keys for Autoptic. %s", e)
-        raise HTTPException(status_code=500, detail="something went wrong.")
+        raise HTTPException(status_code=500, detail=f"Something went wrong on OpenWeb UI. ERROR: {e}")
     
 @router.get("/read_token_list")
-async def createToken(credentials: Payload):
+async def createToken(endpoint_id: str):
     try:
-        async with aiohttp.ClientSession(trust_env=True) as session:
-            response = await session.post(
-                f"{url}/story/ep/{credentials.endpoint_id}/token",
+        async with httpx.AsyncClient(trust_env=True) as client:
+            response = await client.get(
+                f"{GO_AUTOPTIC_URL}/story/ep/{endpoint_id}/token",
             )
-            assert response.status == 200
-            text = await response.text()
+            text = response.text
+
+            if response.status_code != 200:
+                raise HTTPException(
+                    status=response.status_code,
+                    detail=f"Error from Go backend: {text}" # Change the 'Go backend'
+                )
+
             return text
+
     except Exception as e:
-        logger.error(" Invalid keys for Autoptic. %s", e)
-        raise HTTPException(status_code=500, detail="something went wrong.")
+        raise HTTPException(status_code=500, detail=f"Something went wrong on OpenWeb UI. ERROR: {e}")
