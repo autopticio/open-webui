@@ -62,3 +62,10 @@ async def sentToAutoptic(Payload: PayloadQuery):
     except Exception as e:
         logger.error(" Invalid keys for Autoptic. %s", e)
         raise HTTPException(status_code=403, detail="Invalid keys for Autoptic.")
+
+################################################################################################
+
+from .tokens.crud import router as tokens_router
+
+app.include_router(tokens_router, prefix="/token", tags=["token"])
+
