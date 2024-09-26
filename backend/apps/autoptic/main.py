@@ -6,7 +6,9 @@ from fastapi import FastAPI
 from fastapi import HTTPException
 from pydantic import BaseModel
 from contextlib import asynccontextmanager
+
 from .keys import router as keys_router
+from .tokens.crud import router as tokens_router
 
 from config import (
     ENV
@@ -23,6 +25,7 @@ app = FastAPI(
 )
 
 app.include_router(keys_router, prefix="/keys", tags=["autoptic_keys"])
+app.include_router(tokens_router, prefix="/token", tags=["token"])
 
 origins = ["*"]
 
@@ -63,9 +66,5 @@ async def sentToAutoptic(Payload: PayloadQuery):
         logger.error(" Invalid keys for Autoptic. %s", e)
         raise HTTPException(status_code=403, detail="Invalid keys for Autoptic.")
 
-################################################################################################
 
-from .tokens.crud import router as tokens_router
-
-app.include_router(tokens_router, prefix="/token", tags=["token"])
 
