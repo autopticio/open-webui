@@ -13,7 +13,7 @@ class Payload(BaseModel):
 
 router = APIRouter()
 
-logger = logging.getLogger(__name__)
+# logger = logging.getLogger(__name__)
 
 @router.post("/create_token")
 async def createToken(credentials: Payload):
@@ -37,11 +37,13 @@ async def createToken(credentials: Payload):
 
     
 @router.get("/read_token")
-async def createToken(credentials: Payload):
+# async def createToken(credentials: Payload):
+async def createToken(endpoint_id: str,token_id: str):
     try:
         async with httpx.AsyncClient(trust_env=True) as client:
             response = await client.get(
-                f"{GO_AUTOPTIC_URL}/story/ep/{credentials.endpoint_id}/token/{credentials.token_id}",
+                # f"{GO_AUTOPTIC_URL}/story/ep/{credentials.endpoint_id}/token/{credentials.token_id}",
+                f"{GO_AUTOPTIC_URL}/story/ep/{endpoint_id}/token/{token_id}",
             )
             text = response.text
 
