@@ -50,6 +50,27 @@
 			</a>
 
 			<a
+				class="min-w-fit rounded-lg p-1.5 px-3 {$page.url.pathname.includes('/storybooks/pqls')
+					? 'bg-gray-50 dark:bg-gray-850'
+					: ''} transition"
+				href="/storybooks/pqls">{$i18n.t('PQLs')}
+			</a>
+
+			<a
+				class="min-w-fit rounded-lg p-1.5 px-3 {$page.url.pathname.includes('/storybooks/environments')
+					? 'bg-gray-50 dark:bg-gray-850'
+					: ''} transition"
+				href="/storybooks/environments">{$i18n.t('Environments')}
+			</a>
+
+			<a
+				class="min-w-fit rounded-lg p-1.5 px-3 {$page.url.pathname.includes('/storybooks/tokens')
+					? 'bg-gray-50 dark:bg-gray-850'
+					: ''} transition"
+				href="/storybooks/tokens">{$i18n.t('Tokens')}
+			</a>
+
+			<a
 				class="min-w-fit rounded-lg p-1.5 px-3 {$page.url.pathname.includes('/workspace')
 					? 'bg-gray-50 dark:bg-gray-850'
 					: ''} transition"

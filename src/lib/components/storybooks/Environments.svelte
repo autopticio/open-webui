@@ -19,22 +19,18 @@
 	let filteredModels = [];
 
 	export let selectedPeriod = 'All' ;
-	let sortOrder = 'desc';
 
 	let sortable = null;
 	let search = '';
 
 	onMount(async () => {
-		console.log(sortOrder) ;
+		let selectedPeriod = '1h' ;
 	});
 
 	function selectPeriod(period) {
 		selectedPeriod = period;
 	}
 
-	function toggleSortOrder() {
-		sortOrder = sortOrder === 'asc' ? 'desc' : 'asc';
-	}
 
 	const getFilterDate = () => {
 		const now = new Date();
@@ -64,14 +60,7 @@
     };
 
 	const applyFilters = () => {
-
-		filteredModels = _models.slice().sort((a, b) => {
-			return sortOrder === 'asc'
-			? new Date(a.creation_date) - new Date(b.creation_date) // Ascending order
-			: new Date(b.creation_date) - new Date(a.creation_date); // Descending order
-		});
-
-		filteredModels = filteredModels.filter((m) => {
+		filteredModels = _models.filter((m) => {
 			// Text search filter
 			const matchesSearch = search === '' ||
 				Object.keys(m).filter((key) => ['name', 'id', 'body', 'tags'].includes(key))
@@ -89,7 +78,7 @@
 		};
 
 	// Apply filters whenever search value changes using reactive statement
-	$: applyFilters(search,selectedPeriod,selectedModelId,sortOrder); 
+	$: applyFilters(search,selectedPeriod,selectedModelId); 
 
 </script>
 
@@ -152,84 +141,86 @@
 
 <div class=" flex w-full space-x-2">
 	<div class="flex flex-1">
-
 		<!-- svelte-ignore a11y-missing-attribute -->
 		<a class=" flex justify-end space-x-4 w-full mb-2 px-2 py-1" >
+<!-- 
+			{#each ['1h', '1d', '1m', '1y', 'All'] as period}
+				<div class="self-center w-10">
+					<div
+						class={`button-wrapper flex items-center justify-center cursor-pointer bg-transparent dark:bg-gray-700 border border-gray-200 
+							${selectedPeriod === period ? 'bg-gray-200 dark:bg-gray-900 text-white' : 'hover:bg-black/5 dark:hover:bg-gray-900 text-black'}`}
+						on:click={() => selectPeriod(period)}
+					>
+						<span class="text-center">{period}</span>
+					</div>
+				</div>
+			{/each} -->
 
-			<div 
-				class="w-40 flex justify-center items-center min-w-fit rounded-lg p-1.5 px-3 
-				bg-gray-50 dark:bg-gray-850 transition cursor-pointer dark:hover:bg-gray-700 hover:bg-black/5"
-				on:click={() => {toggleSortOrder()}}
-			>
-				<span class="text-center">{sortOrder === 'asc' ? 'Sort by Newest' : 'Sort by Oldest'}</span>
-			</div>
-
-			<div 
-				class="w-10 flex justify-center items-center min-w-fit rounded-lg p-1.5 px-3 
-			bg-gray-50 dark:bg-gray-850 transition cursor-pointer dark:hover:bg-gray-700 hover:bg-black/5"
-				class:selected={selectedPeriod === '1h'}
-				on:click={() => {selectPeriod('1h')}
-							}
-			>
-				<span class="text-center">1h</span>
+			<div class=" self-center w-10 ">
+				<div 
+					class="button-wrapper flex items-center justify-center dark:hover:bg-gray-900 hover:bg-black/5 bg-transparent dark:bg-gray-700 border border-gray-200 cursor-pointer"
+					class:selected={selectedPeriod === '1h'}
+					on:click={() => {selectPeriod('1h')}
+								}
+				>
+					<span class="text-center">1h</span>
+				</div>
 			</div>
 		
-			<div 
-				class="w-10 flex justify-center items-center min-w-fit rounded-lg p-1.5 px-3 
-					bg-gray-50 dark:bg-gray-850 transition cursor-pointer dark:hover:bg-gray-700 hover:bg-black/5"
-				class:selected={selectedPeriod === '1d'}
-				on:click={() => {selectPeriod('1d')}}
-			>
-				<span class="text-center">1d</span>
+			<div class=" self-center w-10">
+				<div 
+					class="button-wrapper flex items-center justify-center dark:hover:bg-gray-900 hover:bg-black/5 bg-transparent dark:bg-gray-700 border border-gray-200 cursor-pointer"
+					class:selected={selectedPeriod === '1d'}
+					on:click={() => {selectPeriod('1d')}}
+				>
+					<span class="text-center">1d</span>
+				</div>
 			</div>
 		
-			<div 
-				class="w-10 flex justify-center items-center min-w-fit rounded-lg p-1.5 px-3 
-					bg-gray-50 dark:bg-gray-850 transition cursor-pointer dark:hover:bg-gray-700 hover:bg-black/5"
-				class:selected={selectedPeriod === '1w'}
-				on:click={() => {selectPeriod('1w')}}
-			>
-				<span class="text-center">1w</span>
-			</div>
-
-			<div 
-				class="w-10 flex justify-center items-center min-w-fit rounded-lg p-1.5 px-3 
-					bg-gray-50 dark:bg-gray-850 transition cursor-pointer dark:hover:bg-gray-700 hover:bg-black/5"
-				class:selected={selectedPeriod === '1m'}
-				on:click={() => {selectPeriod('1m')}}
-			>
-				<span class="text-center">1m</span>
+			<div class=" self-center w-10">
+				<div 
+					class="button-wrapper flex items-center justify-center dark:hover:bg-gray-900 hover:bg-black/5 bg-transparent dark:bg-gray-700 border border-gray-200 cursor-pointer"
+					class:selected={selectedPeriod === '1w'}
+					on:click={() => {selectPeriod('1w')}}
+				>
+					<span class="text-center">1w</span>
+				</div>
 			</div>
 		
-			<div 
-				class="w-10 flex justify-center items-center min-w-fit rounded-lg p-1.5 px-3 
-					bg-gray-50 dark:bg-gray-850 transition cursor-pointer dark:hover:bg-gray-700 hover:bg-black/5"
-				class:selected={selectedPeriod === '1y'}
-				on:click={() => {selectPeriod('1y')}}
-			>
-				<span class="text-center">1y</span>
+			<div class=" self-center w-10">
+				<div 
+					class="button-wrapper flex items-center justify-center dark:hover:bg-gray-900 hover:bg-black/5 bg-transparent dark:bg-gray-700 border border-gray-200 cursor-pointer"
+					class:selected={selectedPeriod === '1m'}
+					on:click={() => {selectPeriod('1m')}}
+				>
+					<span class="text-center">1m</span>
+				</div>
 			</div>
-
-			<div 
-				class="w-10 flex justify-center items-center min-w-fit rounded-lg p-1.5 px-3 
-					bg-gray-50 dark:bg-gray-850 transition cursor-pointer dark:hover:bg-gray-700 hover:bg-black/5"
-				class:selected={selectedPeriod === 'All'}
-				on:click={() => {selectPeriod('All')}}
-			>
-				<span class="text-center">All</span>
+		
+			<div class=" self-center w-10">
+				<div 
+					class="button-wrapper flex items-center justify-center dark:hover:bg-gray-900 hover:bg-black/5 bg-transparent dark:bg-gray-700 border border-gray-200 cursor-pointer"
+					class:selected={selectedPeriod === '1y'}
+					on:click={() => {selectPeriod('1y')}}
+				>
+					<span class="text-center">1y</span>
+				</div>
+			</div>
+			<div class=" self-center w-10 ">
+				<div 
+					class="button-wrapper flex items-center justify-center dark:hover:bg-gray-900 hover:bg-black/5 bg-transparent dark:bg-gray-700 border border-gray-200 cursor-pointer"
+					class:selected={selectedPeriod === 'All'}
+					on:click={() => {selectPeriod('All')}}
+				>
+					<span class="text-center">All</span>
+				</div>
 			</div>
 		
 		</a>
 	</div>
 
 </div>
-
-<!-- 		class="w-40 button-wrapper flex items-center justify-center dark:hover:bg-gray-900 hover:bg-black/5 
-		bg-transparent dark:bg-gray-700 border border-gray-200 cursor-pointer" -->
-
-
-
-
+	
 <div class=" my-2 mb-5" id="model-list">
 	<!-- {#each _models.filter((m) => search === '' ||
 		m.name && m.name.toLowerCase().includes(search.toLowerCase()) ||
@@ -318,9 +309,9 @@
 <style>
 	/* Use the same hover colors for the selected state */
 	.selected {
-		background-color: rgba(164, 164, 164, 0.417)		; /* Same as hover:bg-black/5 */
+		background-color: rgba(0, 0, 0, 0.05); /* Same as hover:bg-black/5 */
 	}
 	.dark .selected {
-		background-color: rgba(31, 41, 55, 1); /* Same as dark:hover:bg-gray-700/5 */
+		background-color: rgba(55, 65, 81, 0.05); /* Same as dark:hover:bg-gray-700/5 */
 	}
 </style>

@@ -33,8 +33,8 @@
 	// } = [];
 
 	let items = [
-		{ value: 'dwarf', label: 'pirate',tags:'ec2' },
-		{ value: 'djinn', label: 'monk',tags:'ecs'  },
+		{ value: 'pirate', label: 'pirate' },
+		{ value: 'monk', label: 'monk'  },
 		];
 
 	export let className = 'w-[30rem]';
