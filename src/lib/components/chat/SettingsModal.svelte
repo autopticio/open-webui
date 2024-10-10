@@ -261,7 +261,7 @@
 							/>
 						</svg>
 					</div>
-					<div class=" self-center">{$i18n.t('Autoptic')}</div>
+					<div class=" self-center">{$i18n.t('Autoptic settings')}</div>
 				</button>
 
 				<button

@@ -6,14 +6,75 @@
 
 	import IDSelector from '$lib/components/chat/AutopticComponents/IDSelector.svelte';
 
+	import ReadSnapModal from './Modals/ReadSnapModal.svelte';
+	import DeleteSnapModal from '$lib/components/storybooks/Modals/DeleteSnapModal.svelte';
+	import FormatSelector from '../chat/AutopticComponents/FormatSelector.svelte';
+
 	const i18n = getContext('i18n');
 
 	let selectedModelId = '';
 	let _models = [
-		{endpoint_id: 'pirate', id: "The man who would be the Pirate King" , name: "Monkey D. Luffy" ,body:"Testing",creation_date: '2024-09-30T12:00:00Z'},
-		{endpoint_id: 'pirate', id: "snapshot id" , name:'example', tags: ['ec2'], creation_date: '2024-08-15T08:30:00Z', body:'My name is Monkey D. Luffy, and I am gonna be the next Pirate King'},
-		{endpoint_id: 'monk', id: "snapshot id 2" , name:'Aang', tags: ['ec2','ecs'], creation_date: '1997-09-30T12:00:00Z', body:'At least, Roger laugh.'},
-		{endpoint_id: 'monk', id: "snapshot id 3" , name:'Tenzin', tags: ['ec2','lambda'], creation_date: '2024-10-04T12:50:00Z', body:'At least, Roger laugh.'},
+		{endpoint_id: 'pirate', id: "The man who would be the Pirate King" , format: 'JSON',  name: "Monkey D. Luffy" ,body:"Testing",creation_date: '2024-09-30T12:00:00Z'},
+		{endpoint_id: 'pirate', id: "snapshot id" , format: 'HTML' , name:'example', tags: ['ec2'], creation_date: '2024-08-15T08:30:00Z', body:'My name is Monkey D. Luffy, and I am gonna be the next Pirate King'},
+		{endpoint_id: 'monk', id: "snapshot id 2" , format: 'HTML' , name:'Aang', tags: ['ec2','ecs'], creation_date: '1997-09-30T12:00:00Z', body:'At least, Roger laugh.'},
+		{endpoint_id: 'monk', id: "snapshot id 3" , format: 'JSON' , name:'Tenzin', tags: ['ec2','lambda'], creation_date: '2024-10-04T12:50:00Z', body:'At least, Roger laugh.',content:`<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Generic HTML Page</title>
+    <link rel="stylesheet" href="styles.css"> <!-- Link to external stylesheet -->
+    <style>
+        /* Example internal CSS */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 20px;
+        }
+        h1 {
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Welcome to My Website</h1>
+        <nav>
+            <ul>
+                <li><a href="#home">Home</a></li>
+                <li><a href="#about">About</a></li>
+                <li><a href="#contact">Contact</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section id="home">
+            <h2>Home Section</h2>
+            <p>This is a generic homepage section. You can add your own content here.</p>
+        </section>
+
+        <section id="about">
+            <h2>About Section</h2>
+            <p>This is where you can describe yourself or your website.</p>
+        </section>
+
+        <section id="contact">
+            <h2>Contact Section</h2>
+            <p>Feel free to reach out!</p>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2024 Your Website. All rights reserved.</p>
+    </footer>
+
+</body>
+</html>
+`},
 	];
 
 	let filteredModels = [];
@@ -21,12 +82,7 @@
 	export let selectedPeriod = 'All' ;
 	let sortOrder = 'desc';
 
-	let sortable = null;
 	let search = '';
-
-	onMount(async () => {
-		console.log(sortOrder) ;
-	});
 
 	function selectPeriod(period) {
 		selectedPeriod = period;
@@ -35,6 +91,18 @@
 	function toggleSortOrder() {
 		sortOrder = sortOrder === 'asc' ? 'desc' : 'asc';
 	}
+
+	let showReadModal = false;
+
+	const openReadModal = () => {
+		showReadModal = true;
+	};
+
+	let showDeleteModal = false;
+
+	const openDeleteModal = () => {
+		showDeleteModal = true;
+	};
 
 	const getFilterDate = () => {
 		const now = new Date();
@@ -63,6 +131,8 @@
         return filterDate;
     };
 
+	let selectedFormat = 'Any'
+
 	const applyFilters = () => {
 
 		filteredModels = _models.slice().sort((a, b) => {
@@ -82,14 +152,17 @@
 			const matchesDate = filterDate ? new Date(m.creation_date) >= filterDate : true;
 			const matchesEndpointID = m.endpoint_id == selectedModelId;
 
-			// Return true if both conditions are met
-			return matchesSearch && matchesDate && matchesEndpointID;
-			
+			if (selectedFormat === 'Any') {
+				return matchesSearch && matchesDate && matchesEndpointID;
+			} else {
+				const matchesFormat = m.format == selectedFormat;
+				return matchesSearch && matchesDate && matchesEndpointID && matchesFormat;
+			}
     		});
 		};
 
 	// Apply filters whenever search value changes using reactive statement
-	$: applyFilters(search,selectedPeriod,selectedModelId,sortOrder); 
+	$: applyFilters(search,selectedPeriod,selectedModelId,sortOrder,selectedFormat); 
 
 </script>
 
@@ -155,6 +228,16 @@
 
 		<!-- svelte-ignore a11y-missing-attribute -->
 		<a class=" flex justify-end space-x-4 w-full mb-2 px-2 py-1" >
+
+			<div 
+				class="w-50 flex justify-center items-center min-w-fit rounded-lg p-1.5 px-3 
+				bg-gray-50 dark:bg-gray-850 transition cursor-pointer dark:hover:bg-gray-700 hover:bg-black/5"
+			>
+					<FormatSelector
+					bind:value={selectedFormat}
+					placeholder={`Format selected: ${selectedFormat}`}
+				/>
+			</div>
 
 			<div 
 				class="w-40 flex justify-center items-center min-w-fit rounded-lg p-1.5 px-3 
@@ -286,7 +369,7 @@
 				<a
 					class="self-center w-fit text-sm px-2 py-2 dark:text-gray-300 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5 rounded-xl"
 					type="button"
-					on:click={null}
+					on:click={openReadModal()}
 					>
 					<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-clipboard-data" viewBox="0 0 16 16">
 						<path d="M4 11a1 1 0 1 1 2 0v1a1 1 0 1 1-2 0zm6-4a1 1 0 1 1 2 0v5a1 1 0 1 1-2 0zM7 9a1 1 0 0 1 2 0v3a1 1 0 1 1-2 0z"/>
@@ -298,7 +381,8 @@
 				<a
 					class="self-center w-fit text-sm px-2 py-2 dark:text-gray-300 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5 rounded-xl"
 					type="button"
-					on:click={null}
+					on:click={ () => {openDeleteModal();
+							  		  }}
 					>
 					<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash3" viewBox="0 0 16 16">
 						<path d="M6.5 1h3a.5.5 0 0 1 .5.5v1H6v-1a.5.5 0 0 1 .5-.5M11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3A1.5 1.5 0 0 0 5 1.5v1H1.5a.5.5 0 0 0 0 1h.538l.853 10.66A2 2 0 0 0 4.885 16h6.23a2 2 0 0 0 1.994-1.84l.853-10.66h.538a.5.5 0 0 0 0-1zm1.958 1-.846 10.58a1 1 0 0 1-.997.92h-6.23a1 1 0 0 1-.997-.92L3.042 3.5zm-7.487 1a.5.5 0 0 1 .528.47l.5 8.5a.5.5 0 0 1-.998.06L5 5.03a.5.5 0 0 1 .47-.53Zm5.058 0a.5.5 0 0 1 .47.53l-.5 8.5a.5.5 0 1 1-.998-.06l.5-8.5a.5.5 0 0 1 .528-.47M8 4.5a.5.5 0 0 1 .5.5v8.5a.5.5 0 0 1-1 0V5a.5.5 0 0 1 .5-.5"/>
@@ -315,10 +399,13 @@
 	<div class=" text-lg font-semibold mb-3 text-right">{$i18n.t('Made by Renaiss')}</div>
 </div>
 
+<DeleteSnapModal bind:show={showDeleteModal} />
+<ReadSnapModal bind:show={showReadModal} />
+
 <style>
 	/* Use the same hover colors for the selected state */
 	.selected {
-		background-color: rgba(164, 164, 164, 0.417)		; /* Same as hover:bg-black/5 */
+		background-color: rgba(164, 164, 164, 0.417)		; 
 	}
 	.dark .selected {
 		background-color: rgba(31, 41, 55, 1); /* Same as dark:hover:bg-gray-700/5 */

@@ -2,7 +2,7 @@
 	import { DropdownMenu } from 'bits-ui';
 
 	import { flyAndScale } from '$lib/utils/transitions';
-	import { createEventDispatcher, onMount, getContext, tick } from 'svelte';
+	import { onMount, getContext, tick } from 'svelte';
 
 	import ChevronDown from '$lib/components/icons/ChevronDown.svelte';
 	import Check from '$lib/components/icons/Check.svelte';
@@ -10,27 +10,15 @@
 
 	import { deleteModel, getOllamaVersion } from '$lib/apis/ollama';
 
-	import { user, MODEL_DOWNLOAD_POOL, models, mobile } from '$lib/stores';
+	import { mobile } from '$lib/stores';
 	import { toast } from 'svelte-sonner';
-	import { capitalizeFirstLetter, sanitizeResponseContent, splitStream } from '$lib/utils';
-	import { getModels } from '$lib/apis';
-
-	import Tooltip from '$lib/components/common/Tooltip.svelte';
 
 	const i18n = getContext('i18n');
-	const dispatch = createEventDispatcher();
 
 	export let value = '';
 	export let placeholder = 'Select a your ID';
 	export let searchEnabled = true;
 	export let searchPlaceholder = $i18n.t('This is a good element? Or should I remove it?');
-
-	// export let items: {
-	// 	label: string;
-	// 	value: string;
-	// 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	// 	[key: string]: any;
-	// } = [];
 
 	let items = [
 		{ value: 'pirate', label: 'pirate' },
@@ -123,60 +111,12 @@
 						}}
 					>
 						<div class="flex flex-col">
-									<!-- This if remains from the Selector.svelte -->
-
-							<!-- {#if $mobile && (item?.model?.info?.meta?.tags ?? []).length > 0}
-								<div class="flex gap-0.5 self-start h-full mb-0.5 -translate-x-1">
-
-									{#each item.model?.info?.meta.tags as tag}
-										<div
-											class=" text-xs font-black px-1 rounded uppercase line-clamp-1 bg-gray-500/20 text-gray-700 dark:text-gray-200"
-										>
-											{tag.name}
-										</div>
-									{/each}
-								</div>
-							{/if} -->
 							<div class="flex items-center gap-2">
 								<div class="flex items-center min-w-fit">
 									<div class="line-clamp-1">
 										{item.label}
 									</div>
-									<!-- {#if item.model.owned_by === 'ollama' && (item.model.ollama?.details?.parameter_size ?? '') !== ''}
-										<div class="flex ml-1 items-center translate-y-[0.5px]">
-											<Tooltip
-												content={`${
-													item.model.ollama?.details?.quantization_level
-														? item.model.ollama?.details?.quantization_level + ' '
-														: ''
-												}${
-													item.model.ollama?.size
-														? `(${(item.model.ollama?.size / 1024 ** 3).toFixed(1)}GB)`
-														: ''
-												}`}
-												className="self-end"
-											>
-												<span
-													class=" text-xs font-medium text-gray-600 dark:text-gray-400 line-clamp-1"
-													>{item.model.ollama?.details?.parameter_size ?? ''}</span
-												>
-											</Tooltip>
-										</div>
-									{/if} -->
 								</div>
-
-								<!-- This if remains from the Selector.svelte -->
-								<!-- {#if !$mobile && (item?.model?.info?.meta?.tags ?? []).length > 0}
-									<div class="flex gap-0.5 self-center items-center h-full translate-y-[0.5px]">
-										{#each item.model?.info?.meta.tags as tag}
-											<div
-												class=" text-xs font-black px-1 rounded uppercase line-clamp-1 bg-gray-500/20 text-gray-700 dark:text-gray-200"
-											>
-												{tag.name}
-											</div>
-										{/each}
-									</div>
-								{/if} -->
 
 							</div>
 						</div>

@@ -310,3 +310,5 @@ cypress/screenshots
 cache/
 vector_db/
 webui.db
+to_do.txt
+
