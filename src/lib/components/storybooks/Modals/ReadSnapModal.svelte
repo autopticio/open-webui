@@ -4,20 +4,22 @@
 
 	import Modal from '$lib/components/common/Modal.svelte';
     import { copyToClipboard } from '$lib/utils';
+	import Snapshots from '../Snapshots.svelte';
 
 	const i18n = getContext('i18n');
 
 	export let showRead = false;
-
-	let readInput = 'https://autoptic.io/story/ep/{endpoint_id}/pql/{pql_id}/snap/{format}/{timestamp}/{snapshot_id}';
+    export let selectedSnapshot = null;
+    let readInput='';
 
 	$: if (!showRead) {
 		readInput = '';
 	}
 
+
 </script>
 
-<Modal size="m" bind:show={showRead}>
+<Modal size="m" bind:show={showRead} >
 	<div>
 		<div class=" flex justify-between dark:text-gray-300 px-5 pt-4 pb-1">
 			<div class=" text-lg font-medium self-center">{$i18n.t('Share or read directly your snapshot!')}</div>
@@ -54,7 +56,7 @@
 					<div
 						class="dark:bg-gray-800 pl-2 italic-placeholder w-full text-sm pr-4 py-1 rounded outline-none bg-transparent"
                     >
-                        {readInput}
+                        /story/ep/{selectedSnapshot.endpoint_id}/pql/{selectedSnapshot.pql_id}/snap/{selectedSnapshot.format}/{selectedSnapshot.timestamp}/{selectedSnapshot.snapshot_id}
                     </div>	
 				</div>
 

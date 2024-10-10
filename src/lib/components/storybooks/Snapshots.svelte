@@ -13,11 +13,14 @@
 	const i18n = getContext('i18n');
 
 	let selectedSnapshotId = '';
+
+	// /story/ep/{endpoint_id}/pql/{pql_id}/snap/{format}/{timestamp}/{snapshot_id}
+
 	let _snapshots = [
-		{endpoint_id: 'pirate', id: "The man who would be the Pirate King" , format: 'JSON',  name: "Monkey D. Luffy" ,body:"Testing",creation_date: '2024-09-30T12:00:00Z'},
-		{endpoint_id: 'pirate', id: "snapshot id" , format: 'HTML' , name:'example', tags: ['ec2'], creation_date: '2024-08-15T08:30:00Z', body:'My name is Monkey D. Luffy, and I am gonna be the next Pirate King'},
-		{endpoint_id: 'monk', id: "snapshot id 2" , format: 'HTML' , name:'Aang', tags: ['ec2','ecs'], creation_date: '1997-09-30T12:00:00Z', body:'At least, Roger laugh.'},
-		{endpoint_id: 'monk', id: "snapshot id 3" , format: 'JSON' , name:'Tenzin', tags: ['ec2','lambda'], creation_date: '2024-10-04T12:50:00Z', body:'At least, Roger laugh.',content:`<!DOCTYPE html>
+		{endpoint_id: 'pirate', pql_id:'1', snapshot_id: "The man who would be the Pirate King" , format: 'JSON',  name: "Monkey D. Luffy" ,body:"Testing",timestamp: '2024-09-30T12:00:00Z'},
+		{endpoint_id: 'pirate', pql_id:'1', snapshot_id: "snapshot id" , format: 'HTML' , name:'example', tags: ['ec2'], timestamp: '2024-08-15T08:30:00Z', body:'My name is Monkey D. Luffy, and I am gonna be the next Pirate King'},
+		{endpoint_id: 'monk', pql_id:'1', snapshot_id: "snapshot id 2" , format: 'HTML' , name:'Aang', tags: ['ec2','ecs'], timestamp: '1997-09-30T12:00:00Z', body:'At least, Roger laugh.'},
+		{endpoint_id: 'monk', pql_id:'1', snapshot_id: "snapshot id 3" , format: 'JSON' , name:'Tenzin', tags: ['ec2','lambda'], timestamp: '2024-10-04T12:50:00Z', body:'At least, Roger laugh.',content:`<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -93,8 +96,10 @@
 	}
 
 	let showReadModal = false;
+	let selectedSnapshot = null;
 
-	const openReadModal = () => {
+	const openReadModal = (snapshot) => {
+		selectedSnapshot = snapshot
 		showReadModal = true;
 	};
 
@@ -137,19 +142,19 @@
 
 		filteredSnapshots = _snapshots.slice().sort((a, b) => {
 			return sortOrder === 'asc'
-			? new Date(a.creation_date) - new Date(b.creation_date) // Ascending order
-			: new Date(b.creation_date) - new Date(a.creation_date); // Descending order
+			? new Date(a.timestamp) - new Date(b.timestamp) // Ascending order
+			: new Date(b.timestamp) - new Date(a.timestamp); // Descending order
 		});
 
 		filteredSnapshots = filteredSnapshots.filter((m) => {
 			// Text search filter
 			const matchesSearch = search === '' ||
-				Object.keys(m).filter((key) => ['name', 'id', 'body', 'tags'].includes(key))
+				Object.keys(m).filter((key) => ['name', 'snapshot_id', 'body', 'tags'].includes(key))
 					.some((key) => m[key] && m[key].toString().toLowerCase().includes(search.toLowerCase()));
 			
 			// Date range filter
 			const filterDate = getFilterDate();
-			const matchesDate = filterDate ? new Date(m.creation_date) >= filterDate : true;
+			const matchesDate = filterDate ? new Date(m.timestamp) >= filterDate : true;
 			const matchesEndpointID = m.endpoint_id == selectedSnapshotId;
 
 			if (selectedFormat === 'Any') {
@@ -322,13 +327,13 @@
 	{#each filteredSnapshots as snapshot}
 		<div
 			class=" flex space-x-4 cursor-pointer w-full px-3 py-2 dark:hover:bg-white/5 hover:bg-black/5 rounded-xl"
-			id="snapshot-item-{snapshot.id}"
+			id="snapshot-item-{snapshot.snapshot_id}"
 		>
 
 			<!-- First description -->
 			<a
 				class=" flex flex-1 space-x-3.5 cursor-pointer w-full"
-				href={`/?snapshots=${encodeURIComponent(snapshot.id)}`}
+				href={`/?snapshots=${encodeURIComponent(snapshot.snapshot_id)}`}
 			>
 				<div class=" self-start w-8 pt-0.5">
 					<div
@@ -347,7 +352,7 @@
 				>
 					<div class="  font-bold line-clamp-1">{snapshot.name}</div>
 					<div class=" text-xs overflow-hidden text-ellipsis line-clamp-1">
-						{!!snapshot?.info?.meta?.description ? snapshot?.info?.meta?.description : snapshot.id}
+						{!!snapshot?.info?.meta?.description ? snapshot?.info?.meta?.description : snapshot.snapshot_id}
 					</div>
 				</div>
 			</a>
@@ -356,7 +361,7 @@
 			
 			<!-- New section with creation date and tags -->
 			<div class="flex-1 flex flex-col justify-center">
-				<div class="text-sm text-gray-600">{snapshot.creation_date}</div>
+				<div class="text-sm text-gray-600">{snapshot.timestamp}</div>
 				<!-- <div class="text-xs text-gray-500">
 					{model.tags?.join(', ') ?? 'No tags available'}
 				</div> -->
@@ -370,7 +375,7 @@
 				<a
 					class="self-center w-fit text-sm px-2 py-2 dark:text-gray-300 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5 rounded-xl"
 					type="button"
-					on:click={ () => {openReadModal();
+					on:click={ () => {openReadModal(snapshot);
 							  		  }}
 					>
 					<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-clipboard-data" viewBox="0 0 16 16">
@@ -402,7 +407,7 @@
 </div>
 
 <DeleteSnapModal bind:showDelete={showDeleteModal} />
-<ReadSnapModal bind:showRead={showReadModal} />
+<ReadSnapModal bind:showRead={showReadModal} {selectedSnapshot} />
 
 <style>
 	/* Use the same hover colors for the selected state */
