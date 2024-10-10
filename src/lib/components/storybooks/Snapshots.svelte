@@ -12,8 +12,8 @@
 
 	const i18n = getContext('i18n');
 
-	let selectedModelId = '';
-	let _models = [
+	let selectedSnapshotId = '';
+	let _snapshots = [
 		{endpoint_id: 'pirate', id: "The man who would be the Pirate King" , format: 'JSON',  name: "Monkey D. Luffy" ,body:"Testing",creation_date: '2024-09-30T12:00:00Z'},
 		{endpoint_id: 'pirate', id: "snapshot id" , format: 'HTML' , name:'example', tags: ['ec2'], creation_date: '2024-08-15T08:30:00Z', body:'My name is Monkey D. Luffy, and I am gonna be the next Pirate King'},
 		{endpoint_id: 'monk', id: "snapshot id 2" , format: 'HTML' , name:'Aang', tags: ['ec2','ecs'], creation_date: '1997-09-30T12:00:00Z', body:'At least, Roger laugh.'},
@@ -77,7 +77,7 @@
 `},
 	];
 
-	let filteredModels = [];
+	let filteredSnapshots = [];
 
 	export let selectedPeriod = 'All' ;
 	let sortOrder = 'desc';
@@ -135,13 +135,13 @@
 
 	const applyFilters = () => {
 
-		filteredModels = _models.slice().sort((a, b) => {
+		filteredSnapshots = _snapshots.slice().sort((a, b) => {
 			return sortOrder === 'asc'
 			? new Date(a.creation_date) - new Date(b.creation_date) // Ascending order
 			: new Date(b.creation_date) - new Date(a.creation_date); // Descending order
 		});
 
-		filteredModels = filteredModels.filter((m) => {
+		filteredSnapshots = filteredSnapshots.filter((m) => {
 			// Text search filter
 			const matchesSearch = search === '' ||
 				Object.keys(m).filter((key) => ['name', 'id', 'body', 'tags'].includes(key))
@@ -150,7 +150,7 @@
 			// Date range filter
 			const filterDate = getFilterDate();
 			const matchesDate = filterDate ? new Date(m.creation_date) >= filterDate : true;
-			const matchesEndpointID = m.endpoint_id == selectedModelId;
+			const matchesEndpointID = m.endpoint_id == selectedSnapshotId;
 
 			if (selectedFormat === 'Any') {
 				return matchesSearch && matchesDate && matchesEndpointID;
@@ -162,7 +162,7 @@
 		};
 
 	// Apply filters whenever search value changes using reactive statement
-	$: applyFilters(search,selectedPeriod,selectedModelId,sortOrder,selectedFormat); 
+	$: applyFilters(search,selectedPeriod,selectedSnapshotId,sortOrder,selectedFormat); 
 
 
 </script>
@@ -216,7 +216,7 @@
 		/> -->
 		<IDSelector
 			placeholder={$i18n.t('Select your ID')}
-			bind:value={selectedModelId}
+			bind:value={selectedSnapshotId}
 		/>
 	</div>
 
@@ -314,40 +314,40 @@
 
 
 
-<div class=" my-2 mb-5" id="model-list">
+<div class=" my-2 mb-5" id="snapshot-list">
 	<!-- {#each _models.filter((m) => search === '' ||
 		m.name && m.name.toLowerCase().includes(search.toLowerCase()) ||
 		m.id && m.id.toString().toLowerCase().includes(search.toLowerCase()) ||
 		m.body && m.body.toLowerCase().includes(search.toLowerCase())) as model} -->
-	{#each filteredModels as model}
+	{#each filteredSnapshots as snapshot}
 		<div
 			class=" flex space-x-4 cursor-pointer w-full px-3 py-2 dark:hover:bg-white/5 hover:bg-black/5 rounded-xl"
-			id="model-item-{model.id}"
+			id="snapshot-item-{snapshot.id}"
 		>
 
 			<!-- First description -->
 			<a
 				class=" flex flex-1 space-x-3.5 cursor-pointer w-full"
-				href={`/?models=${encodeURIComponent(model.id)}`}
+				href={`/?snapshots=${encodeURIComponent(snapshot.id)}`}
 			>
 				<div class=" self-start w-8 pt-0.5">
 					<div
 						class=" rounded-full bg-stone-700 "
 					>
 						<img
-							src={model?.info?.meta?.profile_image_url ?? '/favicon.png'}
-							alt="modelfile profile"
+							src={snapshot?.info?.meta?.profile_image_url ?? '/favicon.png'}
+							alt="snapshotfile profile"
 							class=" rounded-full w-full h-auto object-cover"
 						/>
 					</div>
 				</div>
 
 				<div
-					class=" flex-1 self-center {model?.info?.meta?.hidden ?? false ? 'text-gray-500' : ''}"
+					class=" flex-1 self-center {snapshot?.info?.meta?.hidden ?? false ? 'text-gray-500' : ''}"
 				>
-					<div class="  font-bold line-clamp-1">{model.name}</div>
+					<div class="  font-bold line-clamp-1">{snapshot.name}</div>
 					<div class=" text-xs overflow-hidden text-ellipsis line-clamp-1">
-						{!!model?.info?.meta?.description ? model?.info?.meta?.description : model.id}
+						{!!snapshot?.info?.meta?.description ? snapshot?.info?.meta?.description : snapshot.id}
 					</div>
 				</div>
 			</a>
@@ -356,7 +356,7 @@
 			
 			<!-- New section with creation date and tags -->
 			<div class="flex-1 flex flex-col justify-center">
-				<div class="text-sm text-gray-600">{model.creation_date}</div>
+				<div class="text-sm text-gray-600">{snapshot.creation_date}</div>
 				<!-- <div class="text-xs text-gray-500">
 					{model.tags?.join(', ') ?? 'No tags available'}
 				</div> -->
