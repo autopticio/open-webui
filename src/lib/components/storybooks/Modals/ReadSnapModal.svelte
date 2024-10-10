@@ -1,5 +1,4 @@
 <script lang="ts">
-	import fileSaver from 'file-saver';
 
 	import { getContext } from 'svelte';
 
@@ -7,28 +6,28 @@
 
 	const i18n = getContext('i18n');
 
-	export let show = false;
+	export let showRead = false;
 
-	let deleteInput = '';
+	let readInput = '';
 
 	function deletingSnapshot() {
 		null
 	}
 
-	$: if (!show) {
-		deleteInput = '';
+	$: if (!showRead) {
+		readInput = '';
 	}
 
 </script>
 
-<Modal size="sm" bind:show>
+<Modal size="sm" bind:show={showRead}>
 	<div>
 		<div class=" flex justify-between dark:text-gray-300 px-5 pt-4 pb-1">
 			<div class=" text-lg font-medium self-center">{$i18n.t('New modal for share the URL')}</div>
 			<button
 				class="self-center"
 				on:click={() => {
-					show = false;
+					showRead = false;
 				}}
 			>
 				<svg
@@ -57,7 +56,7 @@
 				<div class="flex flex-1 pl-1">
 					<input
 						class="dark:bg-gray-800 pl-2 italic-placeholder w-full text-sm pr-4 py-1 rounded outline-none bg-transparent"
-						bind:value={deleteInput}
+						bind:value={readInput}
 						placeholder={$i18n.t('delete')}
 					/>
 				</div>
@@ -66,7 +65,7 @@
 			<div class="flex justify-end pr-2 pt-3 text-sm font-medium">
 				<button
 					class=" disabled:opacity-50 disabled:hover:bg-red-700 disabled:cursor-not-allowed px-4 py-2 bg-red-700 hover:bg-red-800 text-gray-100 transition rounded-lg"
-					disabled={deleteInput !== 'delete'}
+					disabled={readInput !== 'delete'}
 					on:click={async () => {deletingSnapshot}}
 				>
 					{$i18n.t('Delete')}

@@ -18,12 +18,12 @@
 
 	export let className = 'w-[30rem]';
 
-	let show = false;
+	let showFormat = false;
 
 </script>
 
 <DropdownMenu.Root
-	bind:open={show}
+	bind:open={showFormat}
 >
 	<DropdownMenu.Trigger class="relative w-full" aria-label={placeholder}>
 		<div
@@ -53,7 +53,7 @@
 						on:click={() => {
 							value = item;
 
-							show = false;
+							showFormat = false;
 						}}
 					>
 						<div class="flex flex-col">

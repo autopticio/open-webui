@@ -1,6 +1,4 @@
 <script lang="ts">
-	import fileSaver from 'file-saver';
-	const { saveAs } = fileSaver;
 
 	import { getContext } from 'svelte';
 
@@ -9,7 +7,7 @@
 
 	const i18n = getContext('i18n');
 
-	export let show = false;
+	export let showDelete = false;
 
 	let deleteInput = '';
 
@@ -17,20 +15,20 @@
 		null
 	}
 
-	$: if (!show) {
+	$: if (!showDelete) {
 		deleteInput = '';
 	}
 
 </script>
 
-<Modal size="sm" bind:show>
+<Modal size="sm" bind:show={showDelete}>
 	<div>
 		<div class=" flex justify-between dark:text-gray-300 px-5 pt-4 pb-1">
 			<div class=" text-lg font-medium self-center">{$i18n.t('You are about to delete a Snapshot')}</div>
 			<button
 				class="self-center"
 				on:click={() => {
-					show = false;
+					showDelete = false;
 				}}
 			>
 				<svg

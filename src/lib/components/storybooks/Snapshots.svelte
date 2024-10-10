@@ -164,6 +164,7 @@
 	// Apply filters whenever search value changes using reactive statement
 	$: applyFilters(search,selectedPeriod,selectedModelId,sortOrder,selectedFormat); 
 
+
 </script>
 
 <svelte:head>
@@ -235,7 +236,7 @@
 			>
 					<FormatSelector
 					bind:value={selectedFormat}
-					placeholder={`Format selected: ${selectedFormat}`}
+					placeholder={`Selected format: ${selectedFormat}`}
 				/>
 			</div>
 
@@ -369,7 +370,8 @@
 				<a
 					class="self-center w-fit text-sm px-2 py-2 dark:text-gray-300 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5 rounded-xl"
 					type="button"
-					on:click={openReadModal()}
+					on:click={ () => {openReadModal();
+							  		  }}
 					>
 					<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-clipboard-data" viewBox="0 0 16 16">
 						<path d="M4 11a1 1 0 1 1 2 0v1a1 1 0 1 1-2 0zm6-4a1 1 0 1 1 2 0v5a1 1 0 1 1-2 0zM7 9a1 1 0 0 1 2 0v3a1 1 0 1 1-2 0z"/>
@@ -399,8 +401,8 @@
 	<div class=" text-lg font-semibold mb-3 text-right">{$i18n.t('Made by Renaiss')}</div>
 </div>
 
-<DeleteSnapModal bind:show={showDeleteModal} />
-<ReadSnapModal bind:show={showReadModal} />
+<DeleteSnapModal bind:showDelete={showDeleteModal} />
+<ReadSnapModal bind:showRead={showReadModal} />
 
 <style>
 	/* Use the same hover colors for the selected state */
