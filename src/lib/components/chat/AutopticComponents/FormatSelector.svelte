@@ -2,7 +2,7 @@
 	import { DropdownMenu } from 'bits-ui';
 
 	import { flyAndScale } from '$lib/utils/transitions';
-	import { getContext } from 'svelte';
+	import { getContext , createEventDispatcher } from 'svelte';
 
 	import ChevronDown from '$lib/components/icons/ChevronDown.svelte';
 	import Check from '$lib/components/icons/Check.svelte';
@@ -10,15 +10,21 @@
 	import { mobile } from '$lib/stores';
 
 	const i18n = getContext('i18n');
+	const dispatch = createEventDispatcher();
 
 	export let value = '';
 	export let placeholder = '';
 
     let items = ['Any','JSON','HTML']
 
-	export let className = 'w-[30rem]';
+	export let className = 'w-60';
 
 	let showFormat = false;
+
+	const selectItem = (item: string) => {
+		dispatch('select', { value: item });
+		showFormat = false;  // Close the dropdown
+	};
 
 </script>
 
@@ -27,7 +33,7 @@
 >
 	<DropdownMenu.Trigger class="relative w-full" aria-label={placeholder}>
 		<div
-			class="flex w-full text-left px-0.5 outline-none bg-transparent text-lg font-semibold placeholder-gray-400 focus:outline-none"
+			class="flex w-full justify-center text-center px-0.5 outline-none bg-transparent text-lg font-semibold placeholder-gray-400 focus:outline-none"
 		>
 			{placeholder}
 			<ChevronDown className=" self-center ml-2 size-3" strokeWidth="2.5" />
@@ -35,12 +41,12 @@
 	</DropdownMenu.Trigger>
 
 	<DropdownMenu.Content
-		class=" z-40 {$mobile
-			? `w-full`
-			: `${className}`} max-w-[calc(100vw-1rem)] justify-start rounded-xl  bg-white dark:bg-gray-850 dark:text-white shadow-lg border border-gray-300/30 dark:border-gray-850/50  outline-none "
+		class="{$mobile
+			? `w-60`
+			: `${className}`} w-60 justify-center rounded-xl bg-white dark:bg-gray-850 dark:text-white shadow-lg border border-gray-300/30 dark:border-gray-850/50  outline-none "
 		transition={flyAndScale}
-		side={$mobile ? 'bottom' : 'bottom-start'}
-		sideOffset={4}
+		side={$mobile ? 'bottom' : 'bottom-center'}
+		sideOffset={10}
 	>
 		<slot>
 
@@ -50,11 +56,7 @@
 					<button
 						aria-label="model-item"
 						class="flex w-full text-left font-medium line-clamp-1 select-none items-center rounded-button py-2 pl-3 pr-1.5 text-sm text-gray-700 dark:text-gray-100 outline-none transition-all duration-75 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg cursor-pointer data-[highlighted]:bg-muted"
-						on:click={() => {
-							value = item;
-
-							showFormat = false;
-						}}
+						on:click={() => selectItem(item)}
 					>
 						<div class="flex flex-col">
 							<div class="flex items-center gap-2">

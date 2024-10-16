@@ -9,6 +9,9 @@ from contextlib import asynccontextmanager
 
 from .keys import router as keys_router
 from .tokens.crud import router as tokens_router
+from .snapshots.crud import router as snapshots_router
+from .pql.crud import router as pql_router
+
 
 from config import (
     ENV
@@ -25,7 +28,9 @@ app = FastAPI(
 )
 
 app.include_router(keys_router, prefix="/keys", tags=["autoptic_keys"])
-app.include_router(tokens_router, prefix="/token", tags=["token"])
+app.include_router(snapshots_router, prefix="/snapshots", tags=["snapshots"])
+app.include_router(pql_router, prefix="/pqls", tags=["pqls"])
+app.include_router(tokens_router, prefix="/tokens", tags=["token"])
 
 origins = ["*"]
 

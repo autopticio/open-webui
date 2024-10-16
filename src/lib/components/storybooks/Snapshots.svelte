@@ -3,6 +3,10 @@
 	import { onMount, getContext } from 'svelte';
 
 	import { WEBUI_NAME } from '$lib/stores';
+	import { toast } from 'svelte-sonner';
+	import { copyToClipboard } from '$lib/utils';
+
+	import { getListSnapshots } from '$lib/apis/autoptic'; 
 
 	import IDSelector from '$lib/components/chat/AutopticComponents/IDSelector.svelte';
 
@@ -12,73 +16,74 @@
 
 	const i18n = getContext('i18n');
 
-	let selectedSnapshotId = '';
+	let selectedPQLId = 'empty'; // DON'T make this a real empty string.
+	const autoptic_prefix = 'http://localhost:9999/'
 
-	// /story/ep/{endpoint_id}/pql/{pql_id}/snap/{format}/{timestamp}/{snapshot_id}
+// 	let _snapshots = [
+// 		{endpoint_id: 'pirate', pql_id:'1', snapshot_id: "The man who will be the Pirate King" , format: 'JSON',  name: "Monkey D. Luffy" ,body:"Testing",timestamp: '2024-09-30T12:00:00Z'},
+// 		{endpoint_id: 'pirate', pql_id:'1', snapshot_id: "snapshot id" , format: 'HTML' , name:'example', tags: ['ec2'], timestamp: '2024-08-15T08:30:00Z', body:'My name is Monkey D. Luffy, and I am gonna be the next Pirate King'},
+// 		{endpoint_id: 'monk', pql_id:'1', snapshot_id: "snapshot id 2" , format: 'HTML' , name:'Aang', tags: ['ec2','ecs'], timestamp: '1997-09-30T12:00:00Z', body:'At least, Roger laugh.'},
+// 		{endpoint_id: 'monk', pql_id:'1', snapshot_id: "snapshot id 3" , format: 'JSON' , name:'Tenzin', tags: ['ec2','lambda'], timestamp: '2024-10-04T12:50:00Z', body:'At least, Roger laugh.',content:`<!DOCTYPE html>
+// <html lang="en">
+// <head>
+//     <meta charset="UTF-8">
+//     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+//     <meta http-equiv="X-UA-Compatible" content="IE=edge">
+//     <title>Generic HTML Page</title>
+//     <link rel="stylesheet" href="styles.css"> <!-- Link to external stylesheet -->
+//     <style>
+//         /* Example internal CSS */
+//         body {
+//             font-family: Arial, sans-serif;
+//             background-color: #f0f0f0;
+//             margin: 0;
+//             padding: 20px;
+//         }
+//         h1 {
+//             color: #333;
+//         }
+//     </style>
+// </head>
+// <body>
 
-	let _snapshots = [
-		{endpoint_id: 'pirate', pql_id:'1', snapshot_id: "The man who would be the Pirate King" , format: 'JSON',  name: "Monkey D. Luffy" ,body:"Testing",timestamp: '2024-09-30T12:00:00Z'},
-		{endpoint_id: 'pirate', pql_id:'1', snapshot_id: "snapshot id" , format: 'HTML' , name:'example', tags: ['ec2'], timestamp: '2024-08-15T08:30:00Z', body:'My name is Monkey D. Luffy, and I am gonna be the next Pirate King'},
-		{endpoint_id: 'monk', pql_id:'1', snapshot_id: "snapshot id 2" , format: 'HTML' , name:'Aang', tags: ['ec2','ecs'], timestamp: '1997-09-30T12:00:00Z', body:'At least, Roger laugh.'},
-		{endpoint_id: 'monk', pql_id:'1', snapshot_id: "snapshot id 3" , format: 'JSON' , name:'Tenzin', tags: ['ec2','lambda'], timestamp: '2024-10-04T12:50:00Z', body:'At least, Roger laugh.',content:`<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>Generic HTML Page</title>
-    <link rel="stylesheet" href="styles.css"> <!-- Link to external stylesheet -->
-    <style>
-        /* Example internal CSS */
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f0f0f0;
-            margin: 0;
-            padding: 20px;
-        }
-        h1 {
-            color: #333;
-        }
-    </style>
-</head>
-<body>
+//     <header>
+//         <h1>Welcome to My Website</h1>
+//         <nav>
+//             <ul>
+//                 <li><a href="#home">Home</a></li>
+//                 <li><a href="#about">About</a></li>
+//                 <li><a href="#contact">Contact</a></li>
+//             </ul>
+//         </nav>
+//     </header>
 
-    <header>
-        <h1>Welcome to My Website</h1>
-        <nav>
-            <ul>
-                <li><a href="#home">Home</a></li>
-                <li><a href="#about">About</a></li>
-                <li><a href="#contact">Contact</a></li>
-            </ul>
-        </nav>
-    </header>
+//     <main>
+//         <section id="home">
+//             <h2>Home Section</h2>
+//             <p>This is a generic homepage section. You can add your own content here.</p>
+//         </section>
 
-    <main>
-        <section id="home">
-            <h2>Home Section</h2>
-            <p>This is a generic homepage section. You can add your own content here.</p>
-        </section>
+//         <section id="about">
+//             <h2>About Section</h2>
+//             <p>This is where you can describe yourself or your website.</p>
+//         </section>
 
-        <section id="about">
-            <h2>About Section</h2>
-            <p>This is where you can describe yourself or your website.</p>
-        </section>
+//         <section id="contact">
+//             <h2>Contact Section</h2>
+//             <p>Feel free to reach out!</p>
+//         </section>
+//     </main>
 
-        <section id="contact">
-            <h2>Contact Section</h2>
-            <p>Feel free to reach out!</p>
-        </section>
-    </main>
+//     <footer>
+//         <p>&copy; 2024 Your Website. All rights reserved.</p>
+//     </footer>
 
-    <footer>
-        <p>&copy; 2024 Your Website. All rights reserved.</p>
-    </footer>
+// </body>
+// </html>
+// `},
+// 	];
 
-</body>
-</html>
-`},
-	];
+	let _snapshots = [];
 
 	let filteredSnapshots = [];
 
@@ -139,36 +144,62 @@
 	let selectedFormat = 'Any'
 
 	const applyFilters = () => {
+		filteredSnapshots = _snapshots.filter((m) => {
 
-		filteredSnapshots = _snapshots.slice().sort((a, b) => {
-			return sortOrder === 'asc'
-			? new Date(a.timestamp) - new Date(b.timestamp) // Ascending order
-			: new Date(b.timestamp) - new Date(a.timestamp); // Descending order
-		});
-
-		filteredSnapshots = filteredSnapshots.filter((m) => {
-			// Text search filter
-			const matchesSearch = search === '' ||
-				Object.keys(m).filter((key) => ['name', 'snapshot_id', 'body', 'tags'].includes(key))
-					.some((key) => m[key] && m[key].toString().toLowerCase().includes(search.toLowerCase()));
-			
 			// Date range filter
-			const filterDate = getFilterDate();
-			const matchesDate = filterDate ? new Date(m.timestamp) >= filterDate : true;
-			const matchesEndpointID = m.endpoint_id == selectedSnapshotId;
-
-			if (selectedFormat === 'Any') {
-				return matchesSearch && matchesDate && matchesEndpointID;
-			} else {
-				const matchesFormat = m.format == selectedFormat;
-				return matchesSearch && matchesDate && matchesEndpointID && matchesFormat;
-			}
+			const matchesEndpointID = m.pql_id == selectedPQLId;
+			const matchesFormat = m.format == selectedFormat.toLowerCase();
+			return matchesEndpointID && matchesFormat;
+			
     		});
+
 		};
 
-	// Apply filters whenever search value changes using reactive statement
-	$: applyFilters(search,selectedPeriod,selectedSnapshotId,sortOrder,selectedFormat); 
+	// const applyFilters = () => {
 
+	// 	filteredSnapshots = _snapshots.slice().sort((a, b) => {
+	// 		return sortOrder === 'asc'
+	// 		? new Date(a.timestamp) - new Date(b.timestamp) // Ascending order
+	// 		: new Date(b.timestamp) - new Date(a.timestamp); // Descending order
+	// 	});
+
+	// 	filteredSnapshots = filteredSnapshots.filter((m) => {
+	// 		// Text search filter
+	// 		const matchesSearch = search === '' ||
+	// 			Object.keys(m).filter((key) => ['name', 'snapshot_id', 'body', 'tags'].includes(key))
+	// 				.some((key) => m[key] && m[key].toString().toLowerCase().includes(search.toLowerCase()));
+			
+	// 		// Date range filter
+	// 		const filterDate = getFilterDate();
+	// 		const matchesDate = filterDate ? new Date(m.timestamp) >= filterDate : true;
+	// 		const matchesEndpointID = m.endpoint_id == selectedPQLId;
+
+	// 		if (selectedFormat === 'Any') {
+	// 			return matchesSearch && matchesDate && matchesEndpointID;
+	// 		} else {
+	// 			const matchesFormat = m.format == selectedFormat;
+	// 			return matchesSearch && matchesDate && matchesEndpointID && matchesFormat;
+	// 		}
+    // 		});
+	// 	};
+
+
+	// Apply filters whenever search value changes using reactive statement
+	
+	let endpoint_id = 'jere-test';
+	let timestamp = '2024';
+
+	// onMount( async () => {
+	// 	const snaps=await getListSnapshots('jere-test', 'aws-api-usage', 'html', '2024');
+	// 	console.log(snaps)})
+
+	async function fetchSnapshots() {
+			_snapshots = await getListSnapshots(endpoint_id, selectedPQLId, selectedFormat.toLowerCase(), timestamp);
+	}
+
+	$: fetchSnapshots(endpoint_id, selectedPQLId, selectedFormat.toLowerCase(), timestamp); // Call the async function inside the reactive block
+	$: applyFilters(_snapshots); 
+		
 
 </script>
 
@@ -210,18 +241,9 @@
 
 	<!-- toggle for endpoint ID -->
 	<div class="flex gap-2 ">
-		<!-- <IDSelector
-			placeholder={$i18n.t('Select your ID')}
-			items={$models.map((model) => ({
-				value: model.id,
-				label: model.name,
-				model: model
-			}))}
-			bind:value={selectedModelId}
-		/> -->
 		<IDSelector
 			placeholder={$i18n.t('Select your ID')}
-			bind:value={selectedSnapshotId}
+			bind:value={selectedPQLId}
 		/>
 	</div>
 
@@ -236,12 +258,13 @@
 		<a class=" flex justify-end space-x-4 w-full mb-2 px-2 py-1" >
 
 			<div 
-				class="w-50 flex justify-center items-center min-w-fit rounded-lg p-1.5 px-3 
+				class="w-60 flex justify-center items-center min-w-fit rounded-lg p-1.5 px-3 
 				bg-gray-50 dark:bg-gray-850 transition cursor-pointer dark:hover:bg-gray-700 hover:bg-black/5"
 			>
-					<FormatSelector
+				<FormatSelector
 					bind:value={selectedFormat}
 					placeholder={`Selected format: ${selectedFormat}`}
+					on:select={(event) => selectedFormat = event.detail.value}
 				/>
 			</div>
 
@@ -340,9 +363,9 @@
 						class=" rounded-full bg-stone-700 "
 					>
 						<img
-							src={snapshot?.info?.meta?.profile_image_url ?? '/favicon.png'}
+							src={snapshot?.info?.meta?.profile_image_url ?? '/autoptic.png'}
 							alt="snapshotfile profile"
-							class=" rounded-full w-full h-auto object-cover"
+							class=" rounded-full w-full h-auto object-cover bg-white dark:bg-white"
 						/>
 					</div>
 				</div>
@@ -350,7 +373,7 @@
 				<div
 					class=" flex-1 self-center {snapshot?.info?.meta?.hidden ?? false ? 'text-gray-500' : ''}"
 				>
-					<div class="  font-bold line-clamp-1">{snapshot.name}</div>
+					<div class="  font-bold line-clamp-1">{'hello'}</div>
 					<div class=" text-xs overflow-hidden text-ellipsis line-clamp-1">
 						{!!snapshot?.info?.meta?.description ? snapshot?.info?.meta?.description : snapshot.snapshot_id}
 					</div>
@@ -372,9 +395,8 @@
 			<!-- Buttons -->
 			<div class=" flex gap-2 self-center">
 
-				<a
-					class="self-center w-fit text-sm px-2 py-2 dark:text-gray-300 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5 rounded-xl"
-					type="button"
+				<button	
+				class="self-center w-fit text-sm px-2 py-2 dark:text-gray-300 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5 rounded-xl"
 					on:click={ () => {openReadModal(snapshot);
 							  		  }}
 					>
@@ -383,18 +405,29 @@
 						<path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1z"/>
 						<path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0z"/>
 					  </svg>
-				</a>
+				</button>
 
-				<a
+				<button
 					class="self-center w-fit text-sm px-2 py-2 dark:text-gray-300 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5 rounded-xl"
-					type="button"
+					on:click={ () => {copyToClipboard(autoptic_prefix+snapshot.url);
+					toast.success($i18n.t('Snapshot URL copied.'));}
+						}
+					>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-copy" viewBox="0 0 16 16">
+                        <path fill-rule="evenodd" d="M4 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2zm2-1a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1zM2 5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-1h1v1a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h1v1z"/>
+                    </svg>
+                </button>
+
+				<button
+					class="self-center w-fit text-sm px-2 py-2 dark:text-gray-300 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5 rounded-xl"
 					on:click={ () => {openDeleteModal();
 							  		  }}
 					>
 					<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash3" viewBox="0 0 16 16">
 						<path d="M6.5 1h3a.5.5 0 0 1 .5.5v1H6v-1a.5.5 0 0 1 .5-.5M11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3A1.5 1.5 0 0 0 5 1.5v1H1.5a.5.5 0 0 0 0 1h.538l.853 10.66A2 2 0 0 0 4.885 16h6.23a2 2 0 0 0 1.994-1.84l.853-10.66h.538a.5.5 0 0 0 0-1zm1.958 1-.846 10.58a1 1 0 0 1-.997.92h-6.23a1 1 0 0 1-.997-.92L3.042 3.5zm-7.487 1a.5.5 0 0 1 .528.47l.5 8.5a.5.5 0 0 1-.998.06L5 5.03a.5.5 0 0 1 .47-.53Zm5.058 0a.5.5 0 0 1 .47.53l-.5 8.5a.5.5 0 1 1-.998-.06l.5-8.5a.5.5 0 0 1 .528-.47M8 4.5a.5.5 0 0 1 .5.5v8.5a.5.5 0 0 1-1 0V5a.5.5 0 0 1 .5-.5"/>
 					</svg>
-				</a>
+				</button>
+
 			</div>
 		</div>
 	{/each}

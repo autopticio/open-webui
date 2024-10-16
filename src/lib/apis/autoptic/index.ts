@@ -60,8 +60,8 @@ export const insertIframe = async (chatId,messageId, html_to_render) => {
 
 		var iframe = document.createElement('iframe');
 		iframe.id = iframeID;
-		iframe.height = "907px";
 		iframe.width = "100%";
+		iframe.style.border = "none";
 
 		let closeButtonHtml = `
 			<button id="closeButton-${iframeID}" style="position: absolute; top: -40px; right: 10px; background: #FF3A3A; border: 0.5px solid #323232; cursor: pointer; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center">
@@ -87,6 +87,16 @@ export const insertIframe = async (chatId,messageId, html_to_render) => {
 		iframe.contentWindow.document.close();
 
 		iframe.onload = () => {
+
+			// Let's ensure that the iframe height adjusts to fit the content
+			const adjustIframeHeight = () => {
+				const iframeDocument = iframe.contentWindow.document;
+				const contentHeight = iframeDocument.body.scrollHeight; // Calculate the content height
+				iframe.style.height = contentHeight + "px"; // Adjust the iframe height
+			};
+
+			adjustIframeHeight();
+
 			iframe.contentWindow.document.getElementById(`closeButton-${iframeID}`).addEventListener('click', function() {
 				deleteIframeContent(iframeID, chatId , messageId);
 				});
@@ -300,4 +310,87 @@ export const getEnvFileName = async (token: string) => {
 
 	return res.envFileName;
 
+};
+
+// Get List PQL: GET /story/ep/{endpoint_id}/pql
+export const getListPQL = async (endpoint_id: string) => {
+	let error = null;
+
+	const res = await fetch(`${AUTOPTIC_BASE_URL}/pqls/get_list_pql?endpoint_id=${endpoint_id}`, {
+		method: 'GET',
+		headers: {
+			'Content-Type': 'application/json',
+			// Authorization: `Bearer ${token}`
+		}
+	})
+		.then(async (res) => {
+			if (!res.ok) throw await res.json();
+			return res.json();
+		})
+		.catch((err) => {
+			console.log(err);
+			error = err.detail;
+			return null;
+		});
+	if (error) {
+		throw error;
+	}
+
+	return res;
+
+};
+
+// Get a snapshot: GET /story/ep/{endpoint_id}/pql/{pql_id}/snap/{format}/{timestamp}/{snapshot_id}
+export const getUniqueSnapshot = async (token: string, endpoint_id: string, pql_id: string, format: string, timestamp: string, snapshot_id: string) => {
+	let error = null;
+
+	const res = await fetch(`${AUTOPTIC_BASE_URL}/story/ep/${endpoint_id}/pql/${pql_id}/snap/${format}/${timestamp}/${snapshot_id}`, {
+		method: 'GET',
+		headers: {
+			'Content-Type': 'application/json',
+			Authorization: `Bearer ${token}`
+		}
+	})
+		.then(async (res) => {
+			if (!res.ok) throw await res.json();
+			return res.json();
+		})
+		.catch((err) => {
+			console.log(err);
+			error = err.detail;
+			return null;
+		});
+	if (error) {
+		throw error;
+	}
+
+	return res.envFileName;
+
+};
+
+// List snapshots: GET /story/ep/{endpoint_id}/pql/{pql_id}/snap/{format}/{timestamp}
+export const getListSnapshots = async (endpoint_id: string, pql_id: string, format: string, timestamp: string) => {
+	let error = null;
+
+	const res = await fetch(`${AUTOPTIC_BASE_URL}/snapshots/get_list_snapshot?endpoint_id=${endpoint_id}&pql_id=${pql_id}&format=${format}&timestamp=${timestamp}`, {
+		method: 'GET',
+		headers: {
+			'Content-Type': 'application/json',
+			// Authorization: `Bearer ${token}`
+		}
+	})
+		.then(async (res) => {
+			if (!res.ok) throw await res.json();
+			return res.json();
+		})
+		.catch((err) => {
+			console.log(err);
+			error = err.detail;
+			return null;
+		});
+	if (error) {
+		throw error;
+	}
+
+	return res;
 };

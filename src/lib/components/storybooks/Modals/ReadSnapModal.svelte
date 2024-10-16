@@ -1,10 +1,10 @@
 <script lang="ts">
 
 	import { getContext } from 'svelte';
+	import { toast } from 'svelte-sonner';
 
 	import Modal from '$lib/components/common/Modal.svelte';
     import { copyToClipboard } from '$lib/utils';
-	import Snapshots from '../Snapshots.svelte';
 
 	const i18n = getContext('i18n');
 
@@ -12,15 +12,26 @@
     export let selectedSnapshot = null;
     let readInput='';
 
+	const openNewTab = () => {
+		if (snapshotUrl) {
+			window.open(snapshotUrl, '_blank');
+		}
+	};
+
 	$: if (!showRead) {
 		readInput = '';
 	}
 
+	$: snapshotUrl = selectedSnapshot
+		? `https://www.autoptic.io/story/ep/${selectedSnapshot.endpoint_id}/pql/${selectedSnapshot.pql_id}/snap/${selectedSnapshot.format}/${selectedSnapshot.timestamp}/${selectedSnapshot.snapshot_id}`
+		: '';
+
+	let testURL="/sample_result.html"
 
 </script>
 
-<Modal size="m" bind:show={showRead} >
-	<div>
+<Modal size="snap" bind:show={showRead} >
+	<div class="flex flex-col h-full">
 		<div class=" flex justify-between dark:text-gray-300 px-5 pt-4 pb-1">
 			<div class=" text-lg font-medium self-center">{$i18n.t('Share or read directly your snapshot!')}</div>
 			<button
@@ -42,8 +53,9 @@
 			</button>
 		</div>
 
-		<div class="flex flex-col w-full px-5 pb-4 dark:text-gray-200">
-			<hr class=" dark:border-gray-850 my-2" />
+		<hr class=" w-[97.5%] mx-auto dark:border-gray-850 my-2" />
+
+		<div class="flex flex-col w-full h-full px-5 pb-4 dark:text-gray-200">
 
 			<div class=" flex flex-col w-full sm:flex-row sm:justify-center sm:space-x-6">
 					<div class="text-left text-sm w-full mb-3">
@@ -51,18 +63,20 @@
 					</div>
 			</div>
 
-			<div class=" flex w-full space-x-2">
+			<div class=" flex w-full space-x-2 pb-2">
 				<div class="flex flex-1 pl-1">
 					<div
 						class="dark:bg-gray-800 pl-2 italic-placeholder w-full text-sm pr-4 py-1 rounded outline-none bg-transparent"
                     >
-                        /story/ep/{selectedSnapshot.endpoint_id}/pql/{selectedSnapshot.pql_id}/snap/{selectedSnapshot.format}/{selectedSnapshot.timestamp}/{selectedSnapshot.snapshot_id}
+					{snapshotUrl}
                     </div>	
 				</div>
 
 				<button
 					class="self-center w-fit text-sm px-2 py-2 dark:text-gray-300 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5 rounded-xl"
-					on:click={ () => {copyToClipboard(readInput)}}
+					on:click={ () => {copyToClipboard(snapshotUrl);
+					toast.success($i18n.t('Snapshot URL copied.'));}
+						}
 					>
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-copy" viewBox="0 0 16 16">
                         <path fill-rule="evenodd" d="M4 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2zm2-1a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1zM2 5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-1h1v1a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h1v1z"/>
@@ -70,26 +84,26 @@
                 </button>
 
                 <button
-                class="self-center w-fit text-sm px-2 py-2 dark:text-gray-300 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5 rounded-xl"
-                on:click={ () => {console.log('hola');
-                                    }}
-                >
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-up-right-square" viewBox="0 0 16 16">
-                    <path fill-rule="evenodd" d="M15 2a1 1 0 0 0-1-1H2a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1zM0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2zm5.854 8.803a.5.5 0 1 1-.708-.707L9.243 6H6.475a.5.5 0 1 1 0-1h3.975a.5.5 0 0 1 .5.5v3.975a.5.5 0 1 1-1 0V6.707z"/>
-                </svg>
-            </button>
+					class="self-center w-fit text-sm px-2 py-2 dark:text-gray-300 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5 rounded-xl"
+					on:click={ () => {openNewTab()
+										}}
+					>
+					<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-up-right-square" viewBox="0 0 16 16">
+						<path fill-rule="evenodd" d="M15 2a1 1 0 0 0-1-1H2a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1zM0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2zm5.854 8.803a.5.5 0 1 1-.708-.707L9.243 6H6.475a.5.5 0 1 1 0-1h3.975a.5.5 0 0 1 .5.5v3.975a.5.5 0 1 1-1 0V6.707z"/>
+					</svg>
+				</button>
 
 			</div>
 
-			<!-- <div class="flex justify-end pr-2 pt-3 text-sm font-medium">
-				<button
-					class=" disabled:opacity-50 disabled:hover:bg-red-700 disabled:cursor-not-allowed px-4 py-2 bg-red-700 hover:bg-red-800 text-gray-100 transition rounded-lg"
-					disabled={readInput !== 'delete'}
-					on:click={async () => {deletingSnapshot}}
-				>
-					{$i18n.t('Delete')}
-				</button>
-			</div> -->
+			<div class=" flex-grow w-full space-x-2">
+				<iframe
+					title="snapshot"
+					src={testURL}
+					frameborder="0"
+					class="w-full h-full"
+					allowfullscreen
+				/>
+			</div>
 
 		</div>
 	</div>
