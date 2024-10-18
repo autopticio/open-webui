@@ -394,3 +394,55 @@ export const getListSnapshots = async (endpoint_id: string, pql_id: string, form
 
 	return res;
 };
+
+export const readSnapshot = async (endpoint_id: string, pql_id: string, format: string, timestamp: string, snapshot_id: string) => {
+	let error = null;
+
+	const res = await fetch(`${AUTOPTIC_BASE_URL}/snapshots/read_snapshot?endpoint_id=${endpoint_id}&pql_id=${pql_id}&format=${format}&timestamp=${timestamp}&snapshot_id=${snapshot_id}`, {
+		method: 'GET',
+		headers: {
+			'Content-Type': 'application/json',
+			// Authorization: `Bearer ${token}`
+		}
+	})
+		.then(async (res) => {
+			if (!res.ok) throw await res.text();
+			return res.text();
+		})
+		.catch((err) => {
+			console.log(err);
+			error = err.detail;
+			return null;
+		});
+	if (error) {
+		throw error;
+	}
+
+	return res;
+};
+
+export const deleteSnapshot = async (endpoint_id: string, pql_id: string, format: string, timestamp: string, snapshot_id: string) => {
+	let error = null;
+
+	const res = await fetch(`${AUTOPTIC_BASE_URL}/snapshots/delete_snapshot?endpoint_id=${endpoint_id}&pql_id=${pql_id}&format=${format}&timestamp=${timestamp}&snapshot_id=${snapshot_id}`, {
+		method: 'DELETE',
+		headers: {
+			'Content-Type': 'application/json',
+			// Authorization: `Bearer ${token}`
+		}
+	})
+		.then(async (res) => {
+			if (!res.ok) throw await res.json();
+			return res.json();
+		})
+		.catch((err) => {
+			console.log(err);
+			error = err.detail;
+			return null;
+		});
+	if (error) {
+		throw error;
+	}
+
+	return res;
+};

@@ -4,6 +4,7 @@
 
 
 	import Modal from '$lib/components/common/Modal.svelte';
+	import { deleteSnapshot } from '$lib/apis/autoptic';
 
 	const i18n = getContext('i18n');
 
@@ -11,9 +12,6 @@
 
 	let deleteInput = '';
 
-	function deletingSnapshot() {
-		null
-	}
 
 	$: if (!showDelete) {
 		deleteInput = '';
@@ -67,7 +65,7 @@
 				<button
 					class=" disabled:opacity-50 disabled:hover:bg-red-700 disabled:cursor-not-allowed px-4 py-2 bg-red-700 hover:bg-red-800 text-gray-100 transition rounded-lg"
 					disabled={deleteInput !== 'delete'}
-					on:click={async () => {deletingSnapshot}}
+					on:click={async () => {deletingSnapshot()}}
 				>
 					{$i18n.t('Delete')}
 				</button>

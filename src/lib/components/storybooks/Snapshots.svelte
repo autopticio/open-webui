@@ -4,7 +4,9 @@
 
 	import { WEBUI_NAME } from '$lib/stores';
 	import { toast } from 'svelte-sonner';
-	import { copyToClipboard } from '$lib/utils';
+	import { copyToClipboard , formatDateTime } from '$lib/utils';
+
+	import { snapshotStore } from '$lib/stores'
 
 	import { getListSnapshots } from '$lib/apis/autoptic'; 
 
@@ -13,75 +15,12 @@
 	import ReadSnapModal from './Modals/ReadSnapModal.svelte';
 	import DeleteSnapModal from '$lib/components/storybooks/Modals/DeleteSnapModal.svelte';
 	import FormatSelector from '../chat/AutopticComponents/FormatSelector.svelte';
+	import { goto } from '$app/navigation';
 
 	const i18n = getContext('i18n');
 
-	let selectedPQLId = 'empty'; // DON'T make this a real empty string.
+	let selectedPQLId = 'Any'; // DON'T make this a real empty string.
 	const autoptic_prefix = 'http://localhost:9999/'
-
-// 	let _snapshots = [
-// 		{endpoint_id: 'pirate', pql_id:'1', snapshot_id: "The man who will be the Pirate King" , format: 'JSON',  name: "Monkey D. Luffy" ,body:"Testing",timestamp: '2024-09-30T12:00:00Z'},
-// 		{endpoint_id: 'pirate', pql_id:'1', snapshot_id: "snapshot id" , format: 'HTML' , name:'example', tags: ['ec2'], timestamp: '2024-08-15T08:30:00Z', body:'My name is Monkey D. Luffy, and I am gonna be the next Pirate King'},
-// 		{endpoint_id: 'monk', pql_id:'1', snapshot_id: "snapshot id 2" , format: 'HTML' , name:'Aang', tags: ['ec2','ecs'], timestamp: '1997-09-30T12:00:00Z', body:'At least, Roger laugh.'},
-// 		{endpoint_id: 'monk', pql_id:'1', snapshot_id: "snapshot id 3" , format: 'JSON' , name:'Tenzin', tags: ['ec2','lambda'], timestamp: '2024-10-04T12:50:00Z', body:'At least, Roger laugh.',content:`<!DOCTYPE html>
-// <html lang="en">
-// <head>
-//     <meta charset="UTF-8">
-//     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-//     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-//     <title>Generic HTML Page</title>
-//     <link rel="stylesheet" href="styles.css"> <!-- Link to external stylesheet -->
-//     <style>
-//         /* Example internal CSS */
-//         body {
-//             font-family: Arial, sans-serif;
-//             background-color: #f0f0f0;
-//             margin: 0;
-//             padding: 20px;
-//         }
-//         h1 {
-//             color: #333;
-//         }
-//     </style>
-// </head>
-// <body>
-
-//     <header>
-//         <h1>Welcome to My Website</h1>
-//         <nav>
-//             <ul>
-//                 <li><a href="#home">Home</a></li>
-//                 <li><a href="#about">About</a></li>
-//                 <li><a href="#contact">Contact</a></li>
-//             </ul>
-//         </nav>
-//     </header>
-
-//     <main>
-//         <section id="home">
-//             <h2>Home Section</h2>
-//             <p>This is a generic homepage section. You can add your own content here.</p>
-//         </section>
-
-//         <section id="about">
-//             <h2>About Section</h2>
-//             <p>This is where you can describe yourself or your website.</p>
-//         </section>
-
-//         <section id="contact">
-//             <h2>Contact Section</h2>
-//             <p>Feel free to reach out!</p>
-//         </section>
-//     </main>
-
-//     <footer>
-//         <p>&copy; 2024 Your Website. All rights reserved.</p>
-//     </footer>
-
-// </body>
-// </html>
-// `},
-// 	];
 
 	let _snapshots = [];
 
@@ -103,9 +42,9 @@
 	let showReadModal = false;
 	let selectedSnapshot = null;
 
-	const openReadModal = (snapshot) => {
-		selectedSnapshot = snapshot
-		showReadModal = true;
+	const openReadSnapshot = (snapshot) => {
+		snapshotStore.set(snapshot);
+		goto('/storybooks/snapshots/read');
 	};
 
 	let showDeleteModal = false;
@@ -189,17 +128,22 @@
 	let endpoint_id = 'jere-test';
 	let timestamp = '2024';
 
-	// onMount( async () => {
-	// 	const snaps=await getListSnapshots('jere-test', 'aws-api-usage', 'html', '2024');
-	// 	console.log(snaps)})
+// OPTION 1:
 
-	async function fetchSnapshots() {
-			_snapshots = await getListSnapshots(endpoint_id, selectedPQLId, selectedFormat.toLowerCase(), timestamp);
-	}
+	// async function fetchSnapshots() {
+	// 		_snapshots = await getListSnapshots(endpoint_id, selectedPQLId, selectedFormat.toLowerCase(), timestamp);
+	// }
 
-	$: fetchSnapshots(endpoint_id, selectedPQLId, selectedFormat.toLowerCase(), timestamp); // Call the async function inside the reactive block
-	$: applyFilters(_snapshots); 
-		
+	// $: fetchSnapshots(endpoint_id, selectedPQLId, selectedFormat.toLowerCase(), timestamp); // Call the async function inside the reactive block
+	// $: applyFilters(_snapshots); 
+
+// OPTION 2:
+
+	onMount( async () => {
+		_snapshots = await getListSnapshots('jere-test', 'aws-api-usage', 'html', '2024');
+	})
+
+	$: applyFilters(endpoint_id, selectedPQLId, selectedFormat.toLowerCase(), timestamp); 
 
 </script>
 
@@ -235,23 +179,22 @@
 						}
 		/>
 	</div>
-	
-	<!-- botton cross class -->
-	<!-- px-2 py-2 rounded-xl border border-gray-200 dark:border-gray-600 dark:border-0 hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-700 transition font-medium text-sm flex items-center space-x-1 -->
-
-	<!-- toggle for endpoint ID -->
-	<div class="flex gap-2 ">
-		<IDSelector
-			placeholder={$i18n.t('Select your ID')}
-			bind:value={selectedPQLId}
-		/>
-	</div>
 
 </div>
 
 <hr class=" dark:border-gray-850 my-2.5" />
 
 <div class=" flex w-full space-x-2">
+	
+	<!-- toggle for endpoint ID -->
+	<div class="flex gap-2 ">
+		<IDSelector
+			bind:value={selectedPQLId}
+			placeholder={`Selected PQL: ${selectedPQLId}`}
+			on:select={(event) => selectedPQLId = event.detail.value}
+		/>
+	</div>
+
 	<div class="flex flex-1">
 
 		<!-- svelte-ignore a11y-missing-attribute -->
@@ -384,11 +327,17 @@
 			
 			<!-- New section with creation date and tags -->
 			<div class="flex-1 flex flex-col justify-center">
-				<div class="text-sm text-gray-600">{snapshot.timestamp}</div>
-				<!-- <div class="text-xs text-gray-500">
-					{model.tags?.join(', ') ?? 'No tags available'}
-				</div> -->
+				<div class="text-sm text-gray-600">{snapshot.pql_id}</div>
 			</div>
+
+			<!-- Vertical Divider -->
+			<div class="border-l border-gray-300 mx-4"></div>
+
+			<!-- New section with creation date and tags -->
+			<div class="flex-1 flex flex-col justify-center">
+				<div class="text-sm text-gray-600">{formatDateTime(snapshot.timestamp)}</div>
+			</div>
+
 			<!-- Vertical Divider -->
 			<div class="border-l border-gray-300 mx-4"></div>
 
@@ -397,7 +346,7 @@
 
 				<button	
 				class="self-center w-fit text-sm px-2 py-2 dark:text-gray-300 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5 rounded-xl"
-					on:click={ () => {openReadModal(snapshot);
+					on:click={ () => {openReadSnapshot(snapshot);
 							  		  }}
 					>
 					<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-clipboard-data" viewBox="0 0 16 16">

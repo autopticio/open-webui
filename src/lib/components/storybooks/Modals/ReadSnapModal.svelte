@@ -26,7 +26,7 @@
 		? `https://www.autoptic.io/story/ep/${selectedSnapshot.endpoint_id}/pql/${selectedSnapshot.pql_id}/snap/${selectedSnapshot.format}/${selectedSnapshot.timestamp}/${selectedSnapshot.snapshot_id}`
 		: '';
 
-	let testURL="/sample_result.html"
+	let testURL='/sample_result.html'
 
 </script>
 

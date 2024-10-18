@@ -21,7 +21,7 @@
 	export let searchEnabled = true;
 	export let searchPlaceholder = $i18n.t('Search for your ID');
 
-	export let className = 'w-[20rem]';
+	export let className = 'w-160';
 
 	let show = false;
 
@@ -55,24 +55,21 @@
 >
 	<DropdownMenu.Trigger class="relative w-full" aria-label={placeholder}>
 		<div
-			class="flex w-full text-left px-0.5 outline-none bg-transparent truncate text-lg font-semibold placeholder-gray-400 focus:outline-none"
+			class="flex w-full justify-center text-center px-0.5 outline-none bg-transparent text-lg font-semibold placeholder-gray-400 focus:outline-none"
 		>
-			{#if selectedModel}
-				{selectedModel}
-			{:else}
-				{placeholder}
-			{/if}
+			{placeholder}
+			
 			<ChevronDown className=" self-center ml-2 size-3" strokeWidth="2.5" />
 		</div>
 	</DropdownMenu.Trigger>
 
 	<DropdownMenu.Content
 		class="{$mobile
-			? `w-full`
-			: `${className}`} w-80 justify-start rounded-xl  bg-white dark:bg-gray-850 dark:text-white shadow-lg border border-gray-300/30 dark:border-gray-850/50  outline-none "
+			? `w-160`
+			: `${className}`} w-160 justify-start rounded-xl  bg-white dark:bg-gray-850 dark:text-white shadow-lg border border-gray-300/30 dark:border-gray-850/50  outline-none "
 		transition={flyAndScale}
 		side={$mobile ? 'bottom' : 'bottom-start'}
-		sideOffset={4}
+		sideOffset={0}
 	>
 		<slot>
 			<!-- element for the search -->
