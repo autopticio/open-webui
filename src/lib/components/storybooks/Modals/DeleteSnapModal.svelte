@@ -12,6 +12,7 @@
 
 	let deleteInput = '';
 
+	export let snapshot = null;
 
 	$: if (!showDelete) {
 		deleteInput = '';
@@ -65,7 +66,10 @@
 				<button
 					class=" disabled:opacity-50 disabled:hover:bg-red-700 disabled:cursor-not-allowed px-4 py-2 bg-red-700 hover:bg-red-800 text-gray-100 transition rounded-lg"
 					disabled={deleteInput !== 'delete'}
-					on:click={async () => {deletingSnapshot()}}
+					on:click={async () => {
+						deleteSnapshot(snapshot.endpoint_id, snapshot.pql_id, snapshot.format, snapshot.timestamp, snapshot.snapshot_id);
+						showDelete = false;
+					}}
 				>
 					{$i18n.t('Delete')}
 				</button>

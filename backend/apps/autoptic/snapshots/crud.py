@@ -73,7 +73,7 @@ async def deleteSnapshots(endpoint_id: str, pql_id: str, format: str, timestamp:
             )
             
             if response.status == 200:
-                return '', 204
+                return True
 
     except Exception as e:
         logger.error(" Invalid keys for Autoptic. %s", e)

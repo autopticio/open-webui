@@ -12,7 +12,6 @@
 
 	import IDSelector from '$lib/components/chat/AutopticComponents/IDSelector.svelte';
 
-	import ReadSnapModal from './Modals/ReadSnapModal.svelte';
 	import DeleteSnapModal from '$lib/components/storybooks/Modals/DeleteSnapModal.svelte';
 	import FormatSelector from '../chat/AutopticComponents/FormatSelector.svelte';
 	import { goto } from '$app/navigation';
@@ -39,18 +38,17 @@
 		sortOrder = sortOrder === 'asc' ? 'desc' : 'asc';
 	}
 
-	let showReadModal = false;
-	let selectedSnapshot = null;
-
 	const openReadSnapshot = (snapshot) => {
 		snapshotStore.set(snapshot);
 		goto('/storybooks/snapshots/read');
 	};
 
 	let showDeleteModal = false;
+	let snapshotData = null;
 
-	const openDeleteModal = () => {
+	const openDeleteModal = (snapshot) => {
 		showDeleteModal = true;
+		snapshotData = snapshot;
 	};
 
 	const getFilterDate = () => {
@@ -128,17 +126,6 @@
 	let endpoint_id = 'jere-test';
 	let timestamp = '2024';
 
-// OPTION 1:
-
-	// async function fetchSnapshots() {
-	// 		_snapshots = await getListSnapshots(endpoint_id, selectedPQLId, selectedFormat.toLowerCase(), timestamp);
-	// }
-
-	// $: fetchSnapshots(endpoint_id, selectedPQLId, selectedFormat.toLowerCase(), timestamp); // Call the async function inside the reactive block
-	// $: applyFilters(_snapshots); 
-
-// OPTION 2:
-
 	onMount( async () => {
 		_snapshots = await getListSnapshots('jere-test', 'aws-api-usage', 'html', '2024');
 	})
@@ -186,30 +173,36 @@
 
 <div class=" flex w-full space-x-2">
 	
-	<!-- toggle for endpoint ID -->
-	<div class="flex gap-2 ">
-		<IDSelector
-			bind:value={selectedPQLId}
-			placeholder={`Selected PQL: ${selectedPQLId}`}
-			on:select={(event) => selectedPQLId = event.detail.value}
-		/>
+	<div class=" flex justify space-x-4 w-full mb-2 px-2 py-1" >
+
+		<!-- toggle for endpoint ID -->
+		<div class="w-60 flex justify-center items-center min-w-fit rounded-lg p-1.5 px-3 
+			bg-gray-50 dark:bg-gray-850 transition cursor-pointer dark:hover:bg-gray-700 hover:bg-black/5 ">
+			<IDSelector
+				bind:value={selectedPQLId}
+				placeholder={`Selected PQL: ${selectedPQLId}`}
+				on:select={(event) => selectedPQLId = event.detail.value}
+			/>
+		</div>
+
+		<div 
+			class="w-60 flex justify-center items-center min-w-fit rounded-lg p-1.5 px-3 
+			bg-gray-50 dark:bg-gray-850 transition cursor-pointer dark:hover:bg-gray-700 hover:bg-black/5"
+		>
+			<FormatSelector
+				bind:value={selectedFormat}
+				placeholder={`Selected format: ${selectedFormat}`}
+				on:select={(event) => selectedFormat = event.detail.value}
+			/>
+		</div>
+		
 	</div>
+
 
 	<div class="flex flex-1">
 
 		<!-- svelte-ignore a11y-missing-attribute -->
 		<a class=" flex justify-end space-x-4 w-full mb-2 px-2 py-1" >
-
-			<div 
-				class="w-60 flex justify-center items-center min-w-fit rounded-lg p-1.5 px-3 
-				bg-gray-50 dark:bg-gray-850 transition cursor-pointer dark:hover:bg-gray-700 hover:bg-black/5"
-			>
-				<FormatSelector
-					bind:value={selectedFormat}
-					placeholder={`Selected format: ${selectedFormat}`}
-					on:select={(event) => selectedFormat = event.detail.value}
-				/>
-			</div>
 
 			<div 
 				class="w-40 flex justify-center items-center min-w-fit rounded-lg p-1.5 px-3 
@@ -220,26 +213,27 @@
 			</div>
 
 			<div 
-				class="w-10 flex justify-center items-center min-w-fit rounded-lg p-1.5 px-3 
-			bg-gray-50 dark:bg-gray-850 transition cursor-pointer dark:hover:bg-gray-700 hover:bg-black/5"
-				class:selected={selectedPeriod === '1h'}
-				on:click={() => {selectPeriod('1h')}
-							}
-			>
-				<span class="text-center">1h</span>
-			</div>
-		
-			<div 
-				class="w-10 flex justify-center items-center min-w-fit rounded-lg p-1.5 px-3 
+				class="w-12 flex justify-center items-center min-w-fit rounded-lg p-1.5 px-3 
 					bg-gray-50 dark:bg-gray-850 transition cursor-pointer dark:hover:bg-gray-700 hover:bg-black/5"
-				class:selected={selectedPeriod === '1d'}
-				on:click={() => {selectPeriod('1d')}}
+				class:selected={selectedPeriod === '1y'}
+				on:click={() => {selectPeriod('1y')}}
 			>
-				<span class="text-center">1d</span>
+				<span class="text-center">1y</span>
 			</div>
-		
+
+
+
 			<div 
-				class="w-10 flex justify-center items-center min-w-fit rounded-lg p-1.5 px-3 
+				class="w-12 flex justify-center items-center min-w-fit rounded-lg p-1.5 px-3 
+					bg-gray-50 dark:bg-gray-850 transition cursor-pointer dark:hover:bg-gray-700 hover:bg-black/5"
+				class:selected={selectedPeriod === '1m'}
+				on:click={() => {selectPeriod('1m')}}
+			>
+				<span class="text-center">1m</span>
+			</div>
+
+			<div 
+				class="w-12 flex justify-center items-center min-w-fit rounded-lg p-1.5 px-3 
 					bg-gray-50 dark:bg-gray-850 transition cursor-pointer dark:hover:bg-gray-700 hover:bg-black/5"
 				class:selected={selectedPeriod === '1w'}
 				on:click={() => {selectPeriod('1w')}}
@@ -248,24 +242,25 @@
 			</div>
 
 			<div 
-				class="w-10 flex justify-center items-center min-w-fit rounded-lg p-1.5 px-3 
+				class="w-12 flex justify-center items-center min-w-fit rounded-lg p-1.5 px-3 
 					bg-gray-50 dark:bg-gray-850 transition cursor-pointer dark:hover:bg-gray-700 hover:bg-black/5"
-				class:selected={selectedPeriod === '1m'}
-				on:click={() => {selectPeriod('1m')}}
+				class:selected={selectedPeriod === '1d'}
+				on:click={() => {selectPeriod('1d')}}
 			>
-				<span class="text-center">1m</span>
-			</div>
-		
-			<div 
-				class="w-10 flex justify-center items-center min-w-fit rounded-lg p-1.5 px-3 
-					bg-gray-50 dark:bg-gray-850 transition cursor-pointer dark:hover:bg-gray-700 hover:bg-black/5"
-				class:selected={selectedPeriod === '1y'}
-				on:click={() => {selectPeriod('1y')}}
-			>
-				<span class="text-center">1y</span>
+				<span class="text-center">1d</span>
 			</div>
 
 			<div 
+				class="w-12 flex justify-center items-center min-w-fit rounded-lg p-1.5 px-3 
+			bg-gray-50 dark:bg-gray-850 transition cursor-pointer dark:hover:bg-gray-700 hover:bg-black/5"
+				class:selected={selectedPeriod === '1h'}
+				on:click={() => {selectPeriod('1h')}
+							}
+			>
+				<span class="text-center">1h</span>
+			</div>
+
+			<!-- <div 
 				class="w-10 flex justify-center items-center min-w-fit rounded-lg p-1.5 px-3 
 					bg-gray-50 dark:bg-gray-850 transition cursor-pointer dark:hover:bg-gray-700 hover:bg-black/5"
 				class:selected={selectedPeriod === 'All'}
@@ -273,6 +268,7 @@
 			>
 				<span class="text-center">All</span>
 			</div>
+		-->
 		
 		</a>
 	</div>
@@ -388,8 +384,7 @@
 	<div class=" text-lg font-semibold mb-3 text-right">{$i18n.t('Made by Renaiss')}</div>
 </div>
 
-<DeleteSnapModal bind:showDelete={showDeleteModal} />
-<ReadSnapModal bind:showRead={showReadModal} {selectedSnapshot} />
+<DeleteSnapModal bind:showDelete={showDeleteModal} snapshot={snapshotData}/>
 
 <style>
 	/* Use the same hover colors for the selected state */

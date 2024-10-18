@@ -34,11 +34,11 @@
 	});
 
 	$: filteredItems = items.length > 0
-		? items.filter((item) =>
+		? ['Any',...items.filter((item) =>
 				(searchValue
 					? item.toLowerCase().includes(searchValue.toLowerCase())
 					: true) 
-		  )
+		  )]
 		: [];
 
 	let selectedModel = '';
@@ -48,10 +48,6 @@
 
 <DropdownMenu.Root
 	bind:open={show}
-	onOpenChange={async () => {
-		searchValue = '';
-		window.setTimeout(() => document.getElementById('model-search-input')?.focus(), 0);
-	}}
 >
 	<DropdownMenu.Trigger class="relative w-full" aria-label={placeholder}>
 		<div
@@ -69,7 +65,7 @@
 			: `${className}`} w-160 justify-start rounded-xl  bg-white dark:bg-gray-850 dark:text-white shadow-lg border border-gray-300/30 dark:border-gray-850/50  outline-none "
 		transition={flyAndScale}
 		side={$mobile ? 'bottom' : 'bottom-start'}
-		sideOffset={0}
+		sideOffset={10}
 	>
 		<slot>
 			<!-- element for the search -->
