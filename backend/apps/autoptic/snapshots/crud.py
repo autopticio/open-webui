@@ -6,6 +6,9 @@ from fastapi import APIRouter
 from fastapi import HTTPException
 from fastapi.responses import HTMLResponse
 
+# from ..pql.crud import getListPQL
+# from datetime import datetime
+
 # autoptic_port=os.getenv('AUTOPTIC_SERVER_PORT')
 
 router = APIRouter()
@@ -25,6 +28,11 @@ def transform_snapshot_to_dict(path):
     
     return snapshot
 
+formats = ['html','json']
+
+# now_timestamp = datetime.now().strftime("%Y%m%d%H%M")
+
+
 @router.get("/get_list_snapshot")
 async def getListSnapshots(endpoint_id: str, pql_id: str, format: str, timestamp: str):
     try:
@@ -40,6 +48,8 @@ async def getListSnapshots(endpoint_id: str, pql_id: str, format: str, timestamp
 
             for snap in response:
                 list_snapshots.append(transform_snapshot_to_dict(snap))
+
+            print(now_timestamp)
 
             return list_snapshots
         
@@ -63,7 +73,6 @@ async def readSnapshot(endpoint_id: str, pql_id: str, format: str, timestamp: st
         logger.error(" Invalid keys for Autoptic. %s", e)
         raise HTTPException(status_code=500, detail="something went wrong.")
 
-# This is not working. WHY is not working?    
 @router.delete("/delete_snapshot")
 async def deleteSnapshots(endpoint_id: str, pql_id: str, format: str, timestamp: str, snapshot_id: str):
     try:
