@@ -26,7 +26,6 @@
     snapshotDate = formatDateTime(snapshot.timestamp)
 
     let html_to_render;
-    const testURL = '/sample_results.html'
 
     onMount( async () => {
 

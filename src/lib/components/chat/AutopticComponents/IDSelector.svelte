@@ -4,7 +4,7 @@
 	import { flyAndScale } from '$lib/utils/transitions';
 	import { onMount, getContext, tick } from 'svelte';
 
-	import ChevronDown from '$lib/components/icons/ChevronDown.svelte';
+	import CustomChevronDown from '$lib/components/icons/CustomChevronDown.svelte';
 	import Check from '$lib/components/icons/Check.svelte';
 	import Search from '$lib/components/icons/Search.svelte';
 
@@ -19,7 +19,7 @@
 	export let value = '';
 	export let placeholder = 'Select a your ID';
 	export let searchEnabled = true;
-	export let searchPlaceholder = $i18n.t('Search for your ID');
+	export let searchPlaceholder = $i18n.t('Search your PQL function	');
 
 	export let className = 'w-160';
 
@@ -49,45 +49,48 @@
 <DropdownMenu.Root
 	bind:open={show}
 >
-	<DropdownMenu.Trigger class="relative w-full" aria-label={placeholder}>
-		<div
-			class="flex w-full justify-center text-center px-0.5 outline-none bg-transparent text-lg font-semibold placeholder-gray-400 focus:outline-none"
-		>
-			{placeholder}
-			
-			<ChevronDown className=" self-center ml-2 size-3" strokeWidth="2.5" />
-		</div>
+	<DropdownMenu.Trigger 
+		class="w-full" 
+		aria-label={placeholder}
+		>		
+			<div
+				class="flex w-full justify-between px-0.5 outline-none bg-transparent text-lg font-semibold placeholder-gray-400 focus:outline-none"
+			>
+				{placeholder}
+				
+				<CustomChevronDown className=" self-center ml-2 size-3" strokeWidth="2.5" />
+			</div>
 	</DropdownMenu.Trigger>
 
 	<DropdownMenu.Content
-		class="{$mobile
-			? `w-160`
-			: `${className}`} w-160 justify-start rounded-xl  bg-white dark:bg-gray-850 dark:text-white shadow-lg border border-gray-300/30 dark:border-gray-850/50  outline-none "
-		transition={flyAndScale}
-		side={$mobile ? 'bottom' : 'bottom-start'}
-		sideOffset={10}
+		class=" w-fixed overflow-x-hidden justify-center rounded-xl bg-white dark:bg-gray-850 dark:text-white shadow-lg border border-gray-300/30 dark:border-gray-850/50  outline-none "
+	style="width: 765px;"
+	transition={flyAndScale}
+	side={$mobile ? 'bottom' : 'bottom-center'}
+	sideOffset={10}
 	>
 		<slot>
 			<!-- element for the search -->
-			{#if searchEnabled}
-				<div class="flex items-center gap-2.5 px-5 mt-3.5 mb-3">
-					<Search className="size-4" strokeWidth="2.5" />
 
-					<input
-						id="model-search-input"
-						bind:value={searchValue}
-						class="w-full text-sm bg-transparent outline-none"
-						placeholder={searchPlaceholder}
-						autocomplete="off"
-					/>
-				</div>
-
-				<hr class="border-gray-100 dark:border-gray-800" />
-			{/if}
 
 			<!-- toggle list -->
 			<div class="px-3 my-2 max-h-64 overflow-y-auto scrollbar-hidden">
 				{#each filteredItems as item}
+					{#if searchEnabled}
+						<div class="flex items-center gap-2.5 px-5 mt-3.5 mb-3">	
+							<Search className="size-4" strokeWidth="2.5" />
+
+							<input
+								id="model-search-input"
+								bind:value={searchValue}
+								class="w-full text-sm bg-transparent outline-none"
+								placeholder={searchPlaceholder}
+								autocomplete="off"
+							/>
+						</div>
+
+						<hr class="border-gray-100 dark:border-gray-800" />
+					{/if}
 					<button
 						aria-label="model-item"
 						class="flex w-full text-left font-medium line-clamp-1 select-none items-center rounded-button py-2 pl-3 pr-1.5 text-sm text-gray-700 dark:text-gray-100 outline-none transition-all duration-75 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg cursor-pointer data-[highlighted]:bg-muted"
@@ -117,7 +120,7 @@
 				{:else}
 					<div>
 						<div class="block px-3 py-2 text-sm text-gray-700 dark:text-gray-100">
-							{$i18n.t('No results found')}
+							{$i18n.t('There is no PQL found')}
 						</div>
 					</div>
 				{/each}

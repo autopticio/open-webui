@@ -4,7 +4,7 @@
 	import { flyAndScale } from '$lib/utils/transitions';
 	import { getContext , createEventDispatcher } from 'svelte';
 
-	import ChevronDown from '$lib/components/icons/ChevronDown.svelte';
+	import CustomChevronDown from '$lib/components/icons/CustomChevronDown.svelte';
 	import Check from '$lib/components/icons/Check.svelte';
 
 	import { mobile } from '$lib/stores';
@@ -31,19 +31,21 @@
 <DropdownMenu.Root
 	bind:open={showFormat}
 >
-	<DropdownMenu.Trigger class="relative w-full" aria-label={placeholder}>
-		<div
-			class="flex w-full justify-center text-center px-0.5 outline-none bg-transparent text-lg font-semibold placeholder-gray-400 focus:outline-none"
-		>
-			{placeholder}
-			<ChevronDown className=" self-center ml-2 size-3" strokeWidth="2.5" />
-		</div>
+	<DropdownMenu.Trigger 
+		class="w-fixed" 
+		aria-label={placeholder} 
+		style="width: 220px;">
+			<div
+				class="flex w-full justify-between px-0.5 outline-none bg-transparent text-lg font-semibold placeholder-gray-400 focus:outline-none"
+			>
+				{placeholder}
+				<CustomChevronDown className=" self-center ml-2 size-3" strokeWidth="2.5" />
+			</div>
 	</DropdownMenu.Trigger>
 
 	<DropdownMenu.Content
-		class="{$mobile
-			? `w-60`
-			: `${className}`} w-60 justify-center rounded-xl bg-white dark:bg-gray-850 dark:text-white shadow-lg border border-gray-300/30 dark:border-gray-850/50  outline-none "
+		class=" w-fixed overflow-x-hidden justify-center rounded-xl bg-white dark:bg-gray-850 dark:text-white shadow-lg border border-gray-300/30 dark:border-gray-850/50  outline-none "
+		style="width: 244px;"
 		transition={flyAndScale}
 		side={$mobile ? 'bottom' : 'bottom-center'}
 		sideOffset={10}
@@ -94,4 +96,5 @@
 	.scrollbar-hidden::-webkit-scrollbar-thumb {
 		visibility: hidden;
 	}
+
 </style>

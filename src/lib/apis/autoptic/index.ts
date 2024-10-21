@@ -368,6 +368,32 @@ export const getUniqueSnapshot = async (token: string, endpoint_id: string, pql_
 
 };
 
+export const getDefaultListSnapshots = async (endpoint_id: string) => {
+	let error = null;
+
+	const res = await fetch(`${AUTOPTIC_BASE_URL}/snapshots/get_list_snapshot?endpoint_id=${endpoint_id}`, {
+		method: 'GET',
+		headers: {
+			'Content-Type': 'application/json',
+			// Authorization: `Bearer ${token}`
+		}
+	})
+		.then(async (res) => {
+			if (!res.ok) throw await res.json();
+			return res.json();
+		})
+		.catch((err) => {
+			console.log(err);
+			error = err.detail;
+			return null;
+		});
+	if (error) {
+		throw error;
+	}
+
+	return res;
+};
+
 // List snapshots: GET /story/ep/{endpoint_id}/pql/{pql_id}/snap/{format}/{timestamp}
 export const getListSnapshots = async (endpoint_id: string, pql_id: string, format: string, timestamp: string) => {
 	let error = null;

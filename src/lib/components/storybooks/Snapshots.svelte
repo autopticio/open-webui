@@ -25,7 +25,7 @@
 
 	let filteredSnapshots = [];
 
-	export let selectedPeriod = 'All' ;
+	export let selectedPeriod = '1h' ;
 	let sortOrder = 'desc';
 
 	let search = '';
@@ -44,9 +44,10 @@
 	};
 
 	let showDeleteModal = false;
-	let snapshotData = null;
 
-	const openDeleteModal = (snapshot) => {
+	let snapshotData = null
+
+	let openDeleteModal = (snapshot) => {
 		showDeleteModal = true;
 		snapshotData = snapshot;
 	};
@@ -176,8 +177,9 @@
 	<div class=" flex justify space-x-4 w-full mb-2 px-2 py-1" >
 
 		<!-- toggle for endpoint ID -->
-		<div class="w-60 flex justify-center items-center min-w-fit rounded-lg p-1.5 px-3 
-			bg-gray-50 dark:bg-gray-850 transition cursor-pointer dark:hover:bg-gray-700 hover:bg-black/5 ">
+		<div class="w-fixed flex justify-center items-center min-w-fit rounded-lg p-1.5 px-3 
+			bg-gray-50 dark:bg-gray-850 transition cursor-pointer dark:hover:bg-gray-700 hover:bg-black/5 "
+			style="width: 765px;">
 			<IDSelector
 				bind:value={selectedPQLId}
 				placeholder={`Selected PQL: ${selectedPQLId}`}
@@ -186,8 +188,9 @@
 		</div>
 
 		<div 
-			class="w-60 flex justify-center items-center min-w-fit rounded-lg p-1.5 px-3 
+			class="w-fixed flex justify-center items-center min-w-fit rounded-lg p-1.5 px-3 
 			bg-gray-50 dark:bg-gray-850 transition cursor-pointer dark:hover:bg-gray-700 hover:bg-black/5"
+			style="width: 220px;"
 		>
 			<FormatSelector
 				bind:value={selectedFormat}
@@ -198,6 +201,7 @@
 		
 	</div>
 
+	<div class="border-l dark:border-gray-850 mx-4"></div>
 
 	<div class="flex flex-1">
 
@@ -274,12 +278,6 @@
 	</div>
 
 </div>
-
-<!-- 		class="w-40 button-wrapper flex items-center justify-center dark:hover:bg-gray-900 hover:bg-black/5 
-		bg-transparent dark:bg-gray-700 border border-gray-200 cursor-pointer" -->
-
-
-
 
 <div class=" my-2 mb-5" id="snapshot-list">
 	<!-- {#each _models.filter((m) => search === '' ||
@@ -365,7 +363,7 @@
 
 				<button
 					class="self-center w-fit text-sm px-2 py-2 dark:text-gray-300 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5 rounded-xl"
-					on:click={ () => {openDeleteModal();
+					on:click={ () => {openDeleteModal(snapshot);
 							  		  }}
 					>
 					<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash3" viewBox="0 0 16 16">
