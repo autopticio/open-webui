@@ -71,26 +71,25 @@
 	>
 		<slot>
 			<!-- element for the search -->
+			{#if searchEnabled && filteredItems.length >0}
+				<div class="flex items-center gap-2.5 px-5 mt-3.5 mb-3">	
+					<Search className="size-4" strokeWidth="2.5" />
 
+					<input
+						id="model-search-input"
+						bind:value={searchValue}
+						class="w-full text-sm bg-transparent outline-none"
+						placeholder={searchPlaceholder}
+						autocomplete="off"
+					/>
+				</div>
+
+				<hr class="border-gray-100 dark:border-gray-800" />
+			{/if}
 
 			<!-- toggle list -->
 			<div class="px-3 my-2 max-h-64 overflow-y-auto scrollbar-hidden">
 				{#each filteredItems as item}
-					{#if searchEnabled}
-						<div class="flex items-center gap-2.5 px-5 mt-3.5 mb-3">	
-							<Search className="size-4" strokeWidth="2.5" />
-
-							<input
-								id="model-search-input"
-								bind:value={searchValue}
-								class="w-full text-sm bg-transparent outline-none"
-								placeholder={searchPlaceholder}
-								autocomplete="off"
-							/>
-						</div>
-
-						<hr class="border-gray-100 dark:border-gray-800" />
-					{/if}
 					<button
 						aria-label="model-item"
 						class="flex w-full text-left font-medium line-clamp-1 select-none items-center rounded-button py-2 pl-3 pr-1.5 text-sm text-gray-700 dark:text-gray-100 outline-none transition-all duration-75 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg cursor-pointer data-[highlighted]:bg-muted"

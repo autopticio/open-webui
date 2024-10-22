@@ -23,9 +23,13 @@
 
 	let _snapshots = [];
 
+	let defaultSnapshots = async () => {
+		await getListSnapshots('jere-test', 'aws-api-usage', 'html', '2024');
+	};
+
 	let filteredSnapshots = [];
 
-	export let selectedPeriod = '1h' ;
+	export let selectedPeriod = '1m' ;
 	let sortOrder = 'desc';
 
 	let search = '';
@@ -50,6 +54,10 @@
 	let openDeleteModal = (snapshot) => {
 		showDeleteModal = true;
 		snapshotData = snapshot;
+	};
+
+	export let refreshSnapshots = async () => {
+		await defaultSnapshots();
 	};
 
 	const getFilterDate = () => {
@@ -84,7 +92,6 @@
 	const applyFilters = () => {
 		filteredSnapshots = _snapshots.filter((m) => {
 
-			// Date range filter
 			const matchesEndpointID = m.pql_id == selectedPQLId;
 			const matchesFormat = m.format == selectedFormat.toLowerCase();
 			return matchesEndpointID && matchesFormat;
@@ -128,7 +135,7 @@
 	let timestamp = '2024';
 
 	onMount( async () => {
-		_snapshots = await getListSnapshots('jere-test', 'aws-api-usage', 'html', '2024');
+		await getListSnapshots('jere-test', 'aws-api-usage', 'html', '2024');
 	})
 
 	$: applyFilters(endpoint_id, selectedPQLId, selectedFormat.toLowerCase(), timestamp); 
@@ -382,7 +389,7 @@
 	<div class=" text-lg font-semibold mb-3 text-right">{$i18n.t('Made by Renaiss')}</div>
 </div>
 
-<DeleteSnapModal bind:showDelete={showDeleteModal} snapshot={snapshotData}/>
+<DeleteSnapModal bind:showDelete={showDeleteModal} snapshot={snapshotData} onRefresh={refreshSnapshots} />
 
 <style>
 	/* Use the same hover colors for the selected state */

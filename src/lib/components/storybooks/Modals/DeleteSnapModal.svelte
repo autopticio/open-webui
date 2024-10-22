@@ -5,10 +5,12 @@
 
 	import Modal from '$lib/components/common/Modal.svelte';
 	import { deleteSnapshot } from '$lib/apis/autoptic';
+	import { toast } from 'svelte-sonner';
 
 	const i18n = getContext('i18n');
 
 	export let showDelete = false;
+	export let refreshSnapshots;
 
 	let deleteInput = '';
 
@@ -69,6 +71,8 @@
 					on:click={async () => {
 						deleteSnapshot(snapshot.endpoint_id, snapshot.pql_id, snapshot.format, snapshot.timestamp, snapshot.snapshot_id);
 						showDelete = false;
+						toast.success('Snapshot deleted!')
+						refreshSnapshots();
 					}}
 				>
 					{$i18n.t('Delete')}
