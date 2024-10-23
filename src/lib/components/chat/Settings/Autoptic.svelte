@@ -29,12 +29,15 @@
 
 	let showAPIKeys = false;
 	
-	let showAutopticKeys = false;
+	let showSaaSConfiguration = false;
 	let showNewKeys = false;
+	let showServerConfiguration = false;
 
 
 	let autoptic_endpoint = '';
 	let token_id = '';
+	let serverURL = '';
+	let endpointID = '';
 
 	let APIKey = '';
 
@@ -232,17 +235,17 @@
 		{/if}
 		
 		<div class="flex justify-between items-center text-sm">
-			<div class="  font-medium">{$i18n.t('API keys')}</div>
+			<div class="  font-medium">{$i18n.t('SaaS Configuration')}</div>
 			<button
 				class=" text-xs font-medium text-gray-500"
 				type="button"
 				on:click={() => {
-					showAutopticKeys = !showAutopticKeys;
-				}}>{showAutopticKeys ? $i18n.t('Hide') : $i18n.t('Show')}</button
+					showSaaSConfiguration = !showSaaSConfiguration;
+				}}>{showSaaSConfiguration ? $i18n.t('Hide') : $i18n.t('Show')}</button
 			>
 		</div>
 
-		{#if showAutopticKeys}
+		{#if showSaaSConfiguration}
 			<div class="flex flex-col gap-4">
 				<div class="justify-between w-full">
 					<div class="flex justify-between w-full">
@@ -315,6 +318,89 @@
 					</div>
 					
 				</div>
+			</div>
+		{/if}
+
+		<hr class=" dark:border-gray-850 my-4" />
+	
+		<div class="flex justify-between items-center text-sm">
+			<div class="  font-medium">{$i18n.t('Server Configuration')}</div>
+			<button
+				class=" text-xs font-medium text-gray-500"
+				type="button"
+				on:click={() => {
+					showServerConfiguration = !showServerConfiguration;
+				}}>{showServerConfiguration ? $i18n.t('Hide') : $i18n.t('Show')}</button
+			>
+		</div>
+
+		{#if showServerConfiguration}
+			<div class="flex flex-col gap-4">
+				<div class="justify-between w-full">
+					<div class="flex justify-between w-full">
+						<div class="self-center text-xs font-medium">{$i18n.t('Server URL')}</div>
+					</div>
+
+					<div class="flex mt-2">
+						<div class="flex w-full">
+							<input
+								class="w-full rounded py-1.5 pl-4 text-sm bg-white dark:text-gray-300 dark:bg-gray-850 outline-none"
+								placeholder='Enter the Server URL'
+								bind:value={serverURL}
+							/>
+
+						</div>
+
+						<button
+							class="ml-1.5 px-1.5 py-1 dark:hover:bg-gray-850 transition rounded-lg"
+							on:click={() => {
+								if (serverURL != '') {
+									serverURL=''
+									toast.success($i18n.t('Server URL deleted. Save your configuration!'));
+									}
+								}}
+							>
+							<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash3" viewBox="0 0 16 16">
+								<path d="M6.5 1h3a.5.5 0 0 1 .5.5v1H6v-1a.5.5 0 0 1 .5-.5M11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3A1.5 1.5 0 0 0 5 1.5v1H1.5a.5.5 0 0 0 0 1h.538l.853 10.66A2 2 0 0 0 4.885 16h6.23a2 2 0 0 0 1.994-1.84l.853-10.66h.538a.5.5 0 0 0 0-1zm1.958 1-.846 10.58a1 1 0 0 1-.997.92h-6.23a1 1 0 0 1-.997-.92L3.042 3.5zm-7.487 1a.5.5 0 0 1 .528.47l.5 8.5a.5.5 0 0 1-.998.06L5 5.03a.5.5 0 0 1 .47-.53Zm5.058 0a.5.5 0 0 1 .47.53l-.5 8.5a.5.5 0 1 1-.998-.06l.5-8.5a.5.5 0 0 1 .528-.47M8 4.5a.5.5 0 0 1 .5.5v8.5a.5.5 0 0 1-1 0V5a.5.5 0 0 1 .5-.5"/>
+							</svg>
+						</button>
+					</div>
+				</div>
+
+			</div>
+
+			<div class="flex flex-col gap-4">
+				<div class="justify-between w-full">
+					<div class="flex justify-between w-full">
+						<div class="self-center text-xs font-medium">{$i18n.t('Endpoint ID')}</div>
+					</div>
+
+					<div class="flex mt-2">
+						<div class="flex w-full">
+							<input
+								class="w-full rounded py-1.5 pl-4 text-sm bg-white dark:text-gray-300 dark:bg-gray-850 outline-none"
+								placeholder='Enter your Endpoint ID.'
+								bind:value={endpointID}
+							/>
+
+						</div>
+
+						<button
+							class="ml-1.5 px-1.5 py-1 dark:hover:bg-gray-850 transition rounded-lg"
+							on:click={() => {
+								if (endpointID != '') {
+									endpointID=''
+									toast.success($i18n.t('Endpoint ID deleted. Save your configuration!'));
+									}
+								}}
+							>
+							<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash3" viewBox="0 0 16 16">
+								<path d="M6.5 1h3a.5.5 0 0 1 .5.5v1H6v-1a.5.5 0 0 1 .5-.5M11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3A1.5 1.5 0 0 0 5 1.5v1H1.5a.5.5 0 0 0 0 1h.538l.853 10.66A2 2 0 0 0 4.885 16h6.23a2 2 0 0 0 1.994-1.84l.853-10.66h.538a.5.5 0 0 0 0-1zm1.958 1-.846 10.58a1 1 0 0 1-.997.92h-6.23a1 1 0 0 1-.997-.92L3.042 3.5zm-7.487 1a.5.5 0 0 1 .528.47l.5 8.5a.5.5 0 0 1-.998.06L5 5.03a.5.5 0 0 1 .47-.53Zm5.058 0a.5.5 0 0 1 .47.53l-.5 8.5a.5.5 0 1 1-.998-.06l.5-8.5a.5.5 0 0 1 .528-.47M8 4.5a.5.5 0 0 1 .5.5v8.5a.5.5 0 0 1-1 0V5a.5.5 0 0 1 .5-.5"/>
+							</svg>
+						</button>
+					</div>
+				</div>
+
 			</div>
 		{/if}
 

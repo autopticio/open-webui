@@ -24,12 +24,12 @@
 	let _snapshots = [];
 
 	let defaultSnapshots = async () => {
-		await getListSnapshots('jere-test', 'aws-api-usage', 'html', '2024');
+		_snapshots = await getListSnapshots('jere-test', 'aws-api-usage', 'html', '2024');
 	};
 
 	let filteredSnapshots = [];
 
-	export let selectedPeriod = '1m' ;
+	export let selectedPeriod = '1h' ;
 	let sortOrder = 'desc';
 
 	let search = '';
@@ -44,7 +44,7 @@
 
 	const openReadSnapshot = (snapshot) => {
 		snapshotStore.set(snapshot);
-		goto('/storybooks/snapshots/read');
+		goto(`/storybooks/snapshots/${snapshot.snapshot_id}`);
 	};
 
 	let showDeleteModal = false;
@@ -57,7 +57,7 @@
 	};
 
 	export let refreshSnapshots = async () => {
-		await defaultSnapshots();
+		_snapshots = await getListSnapshots('jere-test', 'aws-api-usage', 'html', '2024');
 	};
 
 	const getFilterDate = () => {
@@ -90,6 +90,7 @@
 	let selectedFormat = 'Any'
 
 	const applyFilters = () => {
+		console.log('hello')
 		filteredSnapshots = _snapshots.filter((m) => {
 
 			const matchesEndpointID = m.pql_id == selectedPQLId;
@@ -97,8 +98,12 @@
 			return matchesEndpointID && matchesFormat;
 			
     		});
-
-		};
+		filteredSnapshots = filteredSnapshots.sort((a, b) => {
+			return sortOrder === 'asc' ?
+			 a.timestamp.localeCompare(b.timestamp) :
+			 b.timestamp.localeCompare(a.timestamp);
+		});
+	};
 
 	// const applyFilters = () => {
 
@@ -135,10 +140,12 @@
 	let timestamp = '2024';
 
 	onMount( async () => {
-		await getListSnapshots('jere-test', 'aws-api-usage', 'html', '2024');
+		await defaultSnapshots();
+		applyFilters();
 	})
 
-	$: applyFilters(endpoint_id, selectedPQLId, selectedFormat.toLowerCase(), timestamp); 
+
+	$: applyFilters(endpoint_id, selectedPQLId, selectedFormat.toLowerCase(), timestamp,_snapshots,sortOrder); 
 
 </script>
 
@@ -389,7 +396,10 @@
 	<div class=" text-lg font-semibold mb-3 text-right">{$i18n.t('Made by Renaiss')}</div>
 </div>
 
-<DeleteSnapModal bind:showDelete={showDeleteModal} snapshot={snapshotData} onRefresh={refreshSnapshots} />
+<DeleteSnapModal 
+	bind:showDelete={showDeleteModal}
+	snapshot={snapshotData} 
+	onRefresh={refreshSnapshots} />
 
 <style>
 	/* Use the same hover colors for the selected state */

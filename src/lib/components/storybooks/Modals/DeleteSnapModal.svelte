@@ -10,7 +10,7 @@
 	const i18n = getContext('i18n');
 
 	export let showDelete = false;
-	export let refreshSnapshots;
+	export let onRefresh;
 
 	let deleteInput = '';
 
@@ -72,7 +72,7 @@
 						deleteSnapshot(snapshot.endpoint_id, snapshot.pql_id, snapshot.format, snapshot.timestamp, snapshot.snapshot_id);
 						showDelete = false;
 						toast.success('Snapshot deleted!')
-						refreshSnapshots();
+						onRefresh();
 					}}
 				>
 					{$i18n.t('Delete')}

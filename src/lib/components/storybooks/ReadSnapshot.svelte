@@ -1,31 +1,29 @@
 <script lang="ts">
 
 	import { onMount, getContext } from 'svelte';
-
 	import { WEBUI_NAME } from '$lib/stores';
 	import { toast } from 'svelte-sonner';
 	import { copyToClipboard, formatDateTime } from '$lib/utils';
-
     import { snapshotStore } from '$lib/stores';
-
     import { readSnapshot } from '$lib/apis/autoptic';
 
-
 	const i18n = getContext('i18n');
-
     const autoptic_prefix = 'http://localhost:9999/'
 
+    export let snapshot_id; 
+
     let snapshot;
+    let snapshotDate;
+    let html_to_render;
+
 
     // Subscribe to the store to get the snapshot
     snapshotStore.subscribe(value => {
         snapshot = value;
     });
-
-    let snapshotDate;
+    
     snapshotDate = formatDateTime(snapshot.timestamp)
 
-    let html_to_render;
 
     onMount( async () => {
 
@@ -67,7 +65,7 @@
 	</title>
 </svelte:head>
 
-<div class=" text-lg  font-semibold mb-3">{$i18n.t('Snapshot')}</div>
+<div class=" text-lg  font-semibold mb-3">{$i18n.t(`Snapshot ${snapshot_id}`)}</div>
 
 <div
 class=" flex space-x-4 w-full px-3 py-2 dark:bg-white/5 rounded-xl"

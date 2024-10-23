@@ -12,6 +12,8 @@ from datetime import datetime
 
 # autoptic_port=os.getenv('AUTOPTIC_SERVER_PORT')
 
+AUTOPTIC_SERVER_PREFIX = 'http://localhost:9999'
+
 def split_list(lst, n):
     for i in range(0, len(lst), n):
         yield lst[i:i + n]
@@ -54,11 +56,8 @@ def transform_snapshot_to_dict(path_list):
 
 formats = ['html','json']
 
-@router.get("/get_default_list_snapshot")
-async def getDefaultListSnapshots(endpoint_id: str):
-    
-    now_timestamp = int(datetime.now().strftime("%Y%m%d%H"))
-    default_timestamp = str(now_timestamp - 1)
+@router.post("/get_default_list_snapshot")
+async def getDefaultListSnapshots(endpoint_id: str, window: str):
     
     list_snapshots = []
 
@@ -67,8 +66,8 @@ async def getDefaultListSnapshots(endpoint_id: str):
         for pql_id in pql_ids:
             for format in formats:
                 async with aiohttp.ClientSession(trust_env=True) as session:
-                    response = await session.get(
-                        f"http://localhost:9999/story/ep/{endpoint_id}/pql/{pql_id}/snap/{format}/{default_timestamp}",
+                    response = await session.post(
+                        f"{AUTOPTIC_SERVER_PREFIX}/story/ep/{endpoint_id}/pql/{pql_id}/snap/{format}/recent?window={window}",
                     )
                     response = await response.json()
 
@@ -90,7 +89,7 @@ async def getListSnapshots(endpoint_id: str, pql_id: str, format: str, timestamp
     try:
         async with aiohttp.ClientSession(trust_env=True) as session:
             response = await session.get(
-                f"http://localhost:9999/story/ep/{endpoint_id}/pql/{pql_id}/snap/{format}/{timestamp}",
+                f"{AUTOPTIC_SERVER_PREFIX}/story/ep/{endpoint_id}/pql/{pql_id}/snap/{format}/{timestamp}",
             )
             response = await response.json()
 
@@ -110,7 +109,7 @@ async def readSnapshot(endpoint_id: str, pql_id: str, format: str, timestamp: st
     try:
         async with aiohttp.ClientSession(trust_env=True) as session:
             response = await session.get(
-                f"http://localhost:9999/story/ep/{endpoint_id}/pql/{pql_id}/snap/{format}/{timestamp}/{snapshot_id}",
+                f"{AUTOPTIC_SERVER_PREFIX}/story/ep/{endpoint_id}/pql/{pql_id}/snap/{format}/{timestamp}/{snapshot_id}",
             )
             
             html_content = await response.text()
@@ -126,7 +125,7 @@ async def deleteSnapshots(endpoint_id: str, pql_id: str, format: str, timestamp:
     try:
         async with aiohttp.ClientSession(trust_env=True) as session:
             response = await session.delete(
-                f"http://localhost:9999/story/ep/{endpoint_id}/pql/{pql_id}/snap/{format}/{timestamp}/{snapshot_id}",
+                f"{AUTOPTIC_SERVER_PREFIX}/story/ep/{endpoint_id}/pql/{pql_id}/snap/{format}/{timestamp}/{snapshot_id}",
             )
             
             if response.status == 200:
