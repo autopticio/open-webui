@@ -43,7 +43,6 @@
 	}
 
 	const openReadSnapshot = (snapshot) => {
-		snapshotStore.set(snapshot);
 		goto(`/storybooks/snapshots/${snapshot.endpoint_id}/${snapshot.pql_id}/${snapshot.format}/${snapshot.timestamp}/${snapshot.snapshot_id}`);
 	};
 
@@ -90,7 +89,6 @@
 	let selectedFormat = 'Any'
 
 	const applyFilters = () => {
-		console.log('hello')
 		filteredSnapshots = _snapshots.filter((m) => {
 
 			const matchesEndpointID = m.pql_id == selectedPQLId;
@@ -305,37 +303,35 @@
 		>
 
 			<!-- First description -->
-			<a
-				class=" flex flex-1 space-x-3.5 cursor-pointer w-full"
-				href={`/?snapshots=${encodeURIComponent(snapshot.snapshot_id)}`}
-			>
-				<div class=" self-start w-8 pt-0.5">
-					<div
-						class=" rounded-full bg-stone-700 "
-					>
+			<div class="flex flex-1 space-x-3.5 w-full cursor-pointer">
+				<!-- Imagen comentada opcional -->
+				<!-- <div class="self-start w-8 pt-0.5">
+					<div class="rounded-full bg-stone-700">
 						<img
 							src={snapshot?.info?.meta?.profile_image_url ?? '/autoptic.png'}
 							alt="snapshotfile profile"
-							class=" rounded-full w-full h-auto object-cover bg-white dark:bg-white"
+							class="rounded-full w-full h-auto object-cover bg-white dark:bg-white"
 						/>
 					</div>
-				</div>
-
+				</div> -->
+			
+				<!-- svelte-ignore a11y-click-events-have-key-events -->
+				<!-- svelte-ignore a11y-no-static-element-interactions -->
 				<div
-					class=" flex-1 self-center {snapshot?.info?.meta?.hidden ?? false ? 'text-gray-500' : ''}"
+					class="flex-1 self-center {snapshot?.info?.meta?.hidden ?? false ? 'text-gray-500' : ''}"
+					on:click={() => openReadSnapshot(snapshot)}
 				>
-					<div class="  font-bold line-clamp-1">{'hello'}</div>
-					<div class=" text-xs overflow-hidden text-ellipsis line-clamp-1">
-						{!!snapshot?.info?.meta?.description ? snapshot?.info?.meta?.description : snapshot.snapshot_id}
+					<div class="font-bold line-clamp-1">
+						{formatDateTime(snapshot.timestamp)}
 					</div>
 				</div>
-			</a>
+			</div>
 			<!-- Vertical Divider -->
 			<div class="border-l border-gray-300 mx-4"></div>
 			
 			<!-- New section with creation date and tags -->
 			<div class="flex-1 flex flex-col justify-center">
-				<div class="text-sm text-gray-600">{snapshot.pql_id}</div>
+				<div class="text-m">{snapshot.pql_id}</div>
 			</div>
 
 			<!-- Vertical Divider -->
@@ -343,7 +339,7 @@
 
 			<!-- New section with creation date and tags -->
 			<div class="flex-1 flex flex-col justify-center">
-				<div class="text-sm text-gray-600">{formatDateTime(snapshot.timestamp)}</div>
+				<div class="text-sm text-gray-600">{snapshot.snapshot_id}</div>
 			</div>
 
 			<!-- Vertical Divider -->

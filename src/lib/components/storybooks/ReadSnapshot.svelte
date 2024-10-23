@@ -74,25 +74,11 @@ id="snapshot-item-{snapshot_id}"
     <div
         class=" flex flex-1 space-x-3.5 w-full"
     >
-        <div class=" self-start w-8 pt-0.5">
-            <div
-                class=" rounded-full bg-stone-700 "
-            >
-                <img
-                    src={'/autoptic.png'}
-                    alt="snapshotfile profile"
-                    class=" rounded-full w-full h-auto object-cover bg-white dark:bg-white"
-                />
-            </div>
-        </div>
 
         <div
             class=" flex-1 self-center "
         >
-            <div class="  font-bold line-clamp-1">{'hello'}</div>
-            <div class=" text-xs overflow-hidden text-ellipsis line-clamp-1">
-                {snapshot_id}
-            </div>
+            <div class=" font-bold line-clamp-1">{snapshotDate}</div>
         </div>
     </div>
     <!-- Vertical Divider -->
@@ -100,7 +86,7 @@ id="snapshot-item-{snapshot_id}"
 
     <!-- New section with creation date and tags -->
     <div class="flex-1 flex flex-col justify-center">
-        <div class="text-sm text-gray-600">{pql_id}</div>
+        <div class="text-m ">{pql_id}</div>
     </div>
 
     <!-- Vertical Divider -->
@@ -108,7 +94,7 @@ id="snapshot-item-{snapshot_id}"
 
     <!-- New section with creation date and tags -->
     <div class="flex-1 flex flex-col justify-center">
-        <div class="text-sm text-gray-600">{snapshotDate}</div>
+        <div class="text-sm text-gray-600">{snapshot_id}</div>
     </div>
 
     <!-- Vertical Divider -->
