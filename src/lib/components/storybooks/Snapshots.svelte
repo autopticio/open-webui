@@ -44,7 +44,7 @@
 
 	const openReadSnapshot = (snapshot) => {
 		snapshotStore.set(snapshot);
-		goto(`/storybooks/snapshots/${snapshot.snapshot_id}`);
+		goto(`/storybooks/snapshots/${snapshot.endpoint_id}/${snapshot.pql_id}/${snapshot.format}/${snapshot.timestamp}/${snapshot.snapshot_id}`);
 	};
 
 	let showDeleteModal = false;

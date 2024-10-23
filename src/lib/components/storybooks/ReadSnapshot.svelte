@@ -10,24 +10,22 @@
 	const i18n = getContext('i18n');
     const autoptic_prefix = 'http://localhost:9999/'
 
+    export let endpoint_id; 
+    export let pql_id; 
+    export let format; 
+    export let timestamp; 
     export let snapshot_id; 
+    export let url;
 
-    let snapshot;
     let snapshotDate;
     let html_to_render;
-
-
-    // Subscribe to the store to get the snapshot
-    snapshotStore.subscribe(value => {
-        snapshot = value;
-    });
     
-    snapshotDate = formatDateTime(snapshot.timestamp)
+    snapshotDate = formatDateTime(timestamp)
 
 
     onMount( async () => {
 
-        html_to_render = await readSnapshot(snapshot.endpoint_id, snapshot.pql_id, snapshot.format, snapshot.timestamp, snapshot.snapshot_id)
+        html_to_render = await readSnapshot(endpoint_id, pql_id, format, timestamp, snapshot_id)
 
         const iframe = document.getElementById('iframe');
         if (iframe) {
@@ -69,7 +67,7 @@
 
 <div
 class=" flex space-x-4 w-full px-3 py-2 dark:bg-white/5 rounded-xl"
-id="snapshot-item-{snapshot.snapshot_id}"
+id="snapshot-item-{snapshot_id}"
 >
 
     <!-- First description -->
@@ -93,7 +91,7 @@ id="snapshot-item-{snapshot.snapshot_id}"
         >
             <div class="  font-bold line-clamp-1">{'hello'}</div>
             <div class=" text-xs overflow-hidden text-ellipsis line-clamp-1">
-                {snapshot.snapshot_id}
+                {snapshot_id}
             </div>
         </div>
     </div>
@@ -102,7 +100,7 @@ id="snapshot-item-{snapshot.snapshot_id}"
 
     <!-- New section with creation date and tags -->
     <div class="flex-1 flex flex-col justify-center">
-        <div class="text-sm text-gray-600">{snapshot.pql_id}</div>
+        <div class="text-sm text-gray-600">{pql_id}</div>
     </div>
 
     <!-- Vertical Divider -->
@@ -121,7 +119,7 @@ id="snapshot-item-{snapshot.snapshot_id}"
 
         <button
             class="self-center text-sm px-2 py-2 dark:text-gray-300 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5 rounded-xl"
-            on:click={ () => {copyToClipboard(autoptic_prefix+snapshot.url);
+            on:click={ () => {copyToClipboard(url);
             toast.success($i18n.t('Snapshot URL copied.'));}
                 }
             >
