@@ -33,6 +33,10 @@ class User(Model):
 
     envFileName = CharField()
 
+    serverURL = CharField()
+    serverEndpointID = CharField()
+    accessToken = CharField ()
+
     class Meta:
         database = DB
 
@@ -61,7 +65,11 @@ class UserModel(BaseModel):
 
     autoptic_environment: Optional[str] = None
 
-    envFileName : Optional[str] = None
+    envFileName: Optional[str] = None
+
+    serverURL: Optional[str] = None
+    serverEndpointID: Optional[str] = None
+    accessToken: Optional[str] = None
 
 ####################
 # Forms
@@ -265,6 +273,23 @@ class UsersTable:
         try:
             user = User.get(User.id == id)
             return user.envFileName
+        except:
+            return None
+        
+    def update_user_serverURL_by_id(self, id: str, serverURL: str) -> str:
+        try:
+            query = User.update(serverURL=serverURL).where(User.id == id)
+            result = query.execute()
+
+            return True if result == 1 else False
+        except Exception as e:
+            print(f"Exception occurred: {e}")
+            return False
+        
+    def get_user_serverURL_by_id(self, id: str) -> Optional[str]:
+        try:
+            user = User.get(User.id == id)
+            return user.serverURL
         except:
             return None
         
