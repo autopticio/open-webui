@@ -37,12 +37,15 @@ with suppress(ImportError):
 def migrate(migrator: Migrator, database: pw.Database, *, fake=False):
     """Write your migrations here."""
 
-    migrator.add_fields(
-        "user", serverURL=pw.TextField(null=True)
-    )
+    migrator.add_fields("user", serverURL=pw.TextField(null=True))
+    migrator.add_fields("user", serverEndpointID=pw.TextField(null=True))
+    migrator.add_fields("user", accessToken=pw.TextField(null=True))
 
 
 def rollback(migrator: Migrator, database: pw.Database, *, fake=False):
     """Write your rollback migrations here."""
 
     migrator.remove_fields("user", "serverURL")
+    migrator.remove_fields("user", "serverEndpointID")
+    migrator.remove_fields("user", "accessToken")
+
