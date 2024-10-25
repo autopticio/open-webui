@@ -25,68 +25,64 @@ class AutopticEnvironment(BaseModel):
 
 # Server URL
 
-#update autoptic endpoint
 @router.post("/new_serverURL")
-async def update_serverURL(autoptic_endpoint: dict, user=Depends(get_current_user)):
+async def update_serverURL(serverURL: dict, user=Depends(get_current_user)):
     try:
-        success = Users.update_user_serverURL_by_id(user.id, autoptic_endpoint["autoptic_endpoint"])
+        print(serverURL)
+        success = Users.update_user_serverURL_by_id(user.id, serverURL["serverURL"])
+        print(success)
         if success:
             return {
-                "autoptic_endpoint": autoptic_endpoint["autoptic_endpoint"],
+                "serverURL": serverURL["serverURL"],
             }
     except Exception as e:
-        logger.error(" Failed to update Autoptic endpoint. %s", e)
-        raise HTTPException(status_code=404, detail=f"Failed to update Autoptic endpoint. Error: {str(e)}")
+        logger.error(" Failed to update server URL. %s", e)
+        raise HTTPException(status_code=404, detail=f"Failed to update server URL. Error: {str(e)}")
     
-# get autoptic endpoint
-@router.get("/get_autoptic_endpoint")
-async def get_autoptic_endpoint(user=Depends(get_current_user)):
+@router.get("/get_serverURL")
+async def get_serverURL(user=Depends(get_current_user)):
     try:
-        autoptic_endpoint = Users.get_user_autoptic_endpoint_by_id(user.id)
-        if autoptic_endpoint:
+        serverURL = Users.get_user_serverURL_by_id(user.id)
+        if serverURL:
             return {
-                "autoptic_endpoint": autoptic_endpoint,
+                "serverURL": serverURL,
             }
     except Exception as e:
-        logger.error(" Failed to get Autoptic endpoint. %s", e)
-        raise HTTPException(status_code=404, detail=f"Failed to get Autoptic endpoint. Error: {str(e)}")
+        logger.error(" Failed to get server URL. %s", e)
+        raise HTTPException(status_code=404, detail=f"Failed to get server URL. Error: {str(e)}")
 
-# delete autoptic endpoint
-@router.delete("/delete_autoptic_endpoint")
-async def delete_autoptic_endpoint(user=Depends(get_current_user)):
-    success = Users.update_user_autoptic_endpoint_by_id(user.id, None)
+@router.delete("/delete_serverURL")
+async def delete_serverURL(user=Depends(get_current_user)):
+    success = Users.update_user_serverURL_by_id(user.id, None)
     return success
 
 # Endpoint
 
-#update autoptic endpoint
-@router.post("/new_autoptic_endpoint")
-async def update_autoptic_endpoint(autoptic_endpoint: dict, user=Depends(get_current_user)):
+@router.post("/new_endpointID")
+async def update_autoptic_endpoint(endpointID: dict, user=Depends(get_current_user)):
     try:
-        success = Users.update_user_autoptic_endpoint_by_id(user.id, autoptic_endpoint["autoptic_endpoint"])
+        success = Users.update_user_endpointID_by_id(user.id, endpointID["endpointID"])
         if success:
             return {
-                "autoptic_endpoint": autoptic_endpoint["autoptic_endpoint"],
+                "endpointID": endpointID["endpointID"],
             }
     except Exception as e:
-        logger.error(" Failed to update Autoptic endpoint. %s", e)
-        raise HTTPException(status_code=404, detail=f"Failed to update Autoptic endpoint. Error: {str(e)}")
+        logger.error(" Failed to update endpoint ID. %s", e)
+        raise HTTPException(status_code=404, detail=f"Failed to update endpoint ID. Error: {str(e)}")
     
-# get autoptic endpoint
-@router.get("/get_autoptic_endpoint")
-async def get_autoptic_endpoint(user=Depends(get_current_user)):
+@router.get("/get_endpointID")
+async def get_endpointID(user=Depends(get_current_user)):
     try:
-        autoptic_endpoint = Users.get_user_autoptic_endpoint_by_id(user.id)
-        if autoptic_endpoint:
+        endpointID = Users.get_user_endpointID_by_id(user.id)
+        if endpointID:
             return {
-                "autoptic_endpoint": autoptic_endpoint,
+                "endpointID": endpointID,
             }
     except Exception as e:
         logger.error(" Failed to get Autoptic endpoint. %s", e)
-        raise HTTPException(status_code=404, detail=f"Failed to get Autoptic endpoint. Error: {str(e)}")
+        raise HTTPException(status_code=404, detail=f"Failed to get endpoint ID. Error: {str(e)}")
 
-# delete autoptic endpoint
-@router.delete("/delete_autoptic_endpoint")
-async def delete_autoptic_endpoint(user=Depends(get_current_user)):
-    success = Users.update_user_autoptic_endpoint_by_id(user.id, None)
+@router.delete("/delete_endpointID")
+async def delete_endpointID(user=Depends(get_current_user)):
+    success = Users.update_user_endpointID_by_id(user.id, None)
     return success

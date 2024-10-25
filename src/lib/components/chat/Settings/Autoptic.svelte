@@ -13,6 +13,10 @@
 			deleteAutopticEndpoint,
 			updateAutopticEnvironment,
 			deleteAutopticEnvironment,
+			updateServerURL,
+			deleteServerURL,
+			updateEndpointID,
+			deleteEndpointID
 				} from '$lib/apis/autoptic';
 
 	import { generateInitialsImage, canvasPixelTest } from '$lib/utils';
@@ -43,7 +47,7 @@
 	let APIKey = '';
 
 	let envFile = null;
-	let newEnvFile= false;
+	let newEnvFile = false;
 
 	let placeholderText = "Environment file here.";
 
@@ -91,13 +95,10 @@
 			updateAutopticEnvironment(localStorage.token,envFileContent,envFileName)
 			localStorage.autoptic_environment = envFileContent
 			localStorage.envFileName = envFileName;
-			toast.success($i18n.t('Environment configuration saved!'));
-
 		} else {
 			deleteAutopticEnvironment(localStorage.token)
 			localStorage.removeItem('autoptic_environment');
 			localStorage.removeItem('envFileName');
-			toast.success($i18n.t('Environment configuration deleted!'));
 		}
 	};
 
@@ -108,7 +109,25 @@
 			await deleteAutopticEndpoint(localStorage.token)
 		}
 		localStorage.autoptic_endpoint=autoptic_endpoint;
-		toast.success($i18n.t('Autoptic endpoint saved!'));
+        };
+
+	const saveServerURL = async () => {
+		if (serverURL != ''){
+            await updateServerURL(localStorage.token,serverURL)
+		} else {
+			await deleteServerURL(localStorage.token)
+		}
+		localStorage.serverURL=serverURL;
+        };
+
+	const saveEndpointID = async () => {
+		if (endpointID != ''){
+            await updateEndpointID(localStorage.token,endpointID)
+		} 
+		else {
+			await deleteEndpointID(localStorage.token)
+		}
+		localStorage.endpointID=endpointID;
         };
 
 	const submitHandler = async () => {
@@ -135,11 +154,6 @@
 		name = $user.name;
 		profileImageUrl = $user.profile_image_url;
 
-		APIKey = await getAPIKey(localStorage.token).catch((error) => {
-			console.log(error);
-			return '';
-		});
-
 		const storedEndpoint = localStorage.getItem('autoptic_endpoint');
 			if (storedEndpoint) {
 				autoptic_endpoint = storedEndpoint;
@@ -149,6 +163,16 @@
 			if (storedEnvName) {
 				placeholderText = storedEnvName;
 				}
+
+		const storedServerURL= localStorage.getItem('serverURL');
+			if (storedServerURL) {
+				serverURL = storedServerURL;
+			}
+
+		const storedEndpointID= localStorage.getItem('endpointID');
+			if (storedEndpointID) {
+				endpointID = storedEndpointID;
+			}
 
 	});
 </script>
@@ -219,7 +243,7 @@
 								on:click={() => {
 									if (token_id != '') {
 										token_id=''
-									toast.success($i18n.t('Token saved. Please save your config!'));
+									toast.success($i18n.t('Token deleted. Please save your config!'));
 									}
 								}}
 								>
@@ -250,14 +274,14 @@
 			<div class="flex flex-col gap-4">
 				<div class="justify-between w-full">
 					<div class="flex justify-between w-full">
-						<div class="self-center text-xs font-medium">{$i18n.t('API endpoint')}</div>
+						<div class="self-center text-xs font-medium">{$i18n.t('API URL')}</div>
 					</div>
 
 					<div class="flex mt-2">
 						<div class="flex w-full">
 							<input
 								class="w-full rounded py-1.5 pl-4 text-sm bg-white dark:text-gray-300 dark:bg-gray-850 outline-none"
-								placeholder='Enter your Endpoint'
+								placeholder='Enter your API URL'
 								bind:value={autoptic_endpoint}
 							/>
 
@@ -268,7 +292,7 @@
 							on:click={() => {
 								if (autoptic_endpoint != '') {
 								autoptic_endpoint=''
-								toast.success($i18n.t('API endpoint deleted. Please save your config!'));
+								toast.success($i18n.t('API URL deleted. Please save your config!'));
 								}
 							}}
 							>
@@ -308,7 +332,7 @@
 								if (placeholderText != "Environment file here.") {
 									placeholderText='Environment file here.'
 									newEnvFile= true
-									toast.success($i18n.t('Environment file deleted. Please save your config!'));	
+									toast.success($i18n.t('Environment file deleted. Please save your configuration!'));	
 									}
 								}}>
 								<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash3" viewBox="0 0 16 16">
@@ -357,7 +381,7 @@
 							on:click={() => {
 								if (serverURL != '') {
 									serverURL=''
-									toast.success($i18n.t('Server URL deleted. Save your configuration!'));
+									toast.success($i18n.t('Server URL deleted. Please save your configuration!'));
 									}
 								}}
 							>
@@ -391,7 +415,7 @@
 							on:click={() => {
 								if (endpointID != '') {
 									endpointID=''
-									toast.success($i18n.t('Endpoint ID deleted. Save your configuration!'));
+									toast.success($i18n.t('Endpoint ID deleted. Please save your configuration!'));
 									}
 								}}
 							>
@@ -414,8 +438,9 @@
 						<div class="flex w-full">
 							<input
 								class="w-full rounded py-1.5 pl-4 text-sm bg-white dark:text-gray-300 dark:bg-gray-850 outline-none"
-								placeholder='Enter your Access Token.'
+								placeholder='Enter your Access Token... Soon!'
 								bind:value={accessToken}
+								disabled={true}
 							/>
 
 						</div>
@@ -425,7 +450,7 @@
 							on:click={() => {
 								if (accessToken != '') {
 									accessToken=''
-									toast.success($i18n.t('Access Token deleted. Save your configuration!'));
+									toast.success($i18n.t('Access Token deleted. Please save your configuration!'));
 									}
 								}}
 							>
@@ -450,6 +475,12 @@
 				}
 				if (newEnvFile){
 					saveEnvContent();
+				}
+				if (serverURL != localStorage.serverURL) {
+					saveServerURL();
+				}
+				if (endpointID != localStorage.endpointID) {
+					saveEndpointID();
 				}
 				const res = await submitHandler();
 				if (res) {

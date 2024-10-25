@@ -312,6 +312,168 @@ export const getEnvFileName = async (token: string) => {
 
 };
 
+
+export const updateServerURL = async (token: string, serverURL: string) => {
+	let error = null;
+	const res = await fetch(`${AUTOPTIC_BASE_URL}/serverconfig/new_serverURL`, {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/json',
+			Authorization: `Bearer ${token}`
+		},
+		body: JSON.stringify({ serverURL })
+	})
+		.then(async (res) => {
+			if (!res.ok) throw await res.json();
+			return res.json(); 
+		})
+		.catch((err) => {
+			console.log(err);
+			error = err.detail;
+			console.log(error)
+			return null;
+		});
+	if (error) {
+		throw error;
+	}
+	return res.serverURL;
+};
+
+export const getServerURL = async (token: string) => {
+	let error = null;
+
+	const res = await fetch(`${AUTOPTIC_BASE_URL}/serverconfig/get_serverURL`, {
+		method: 'GET',
+		headers: {
+			'Content-Type': 'application/json',
+			Authorization: `Bearer ${token}`
+		}
+	})
+		.then(async (res) => {
+			if (!res.ok) throw await res.json();
+			return res.json();
+		})
+		.catch((err) => {
+			console.log(err);
+			error = err.detail;
+			return null;
+		});
+	if (error) {
+		throw error;
+	}
+
+	return res.serverURL;
+
+};
+
+export const deleteServerURL = async (token: string) => {
+	let error = null;
+
+	const res = await fetch(`${AUTOPTIC_BASE_URL}/serverconfig/delete_serverURL`, {
+		method: 'DELETE',
+		headers: {
+			'Content-Type': 'application/json',
+			Authorization: `Bearer ${token}`
+		}
+	})
+		.then(async (res) => {
+			if (!res.ok) throw await res.json();
+			return res.json();
+		})
+		.catch((err) => {
+			console.log(err);
+			error = err.detail;
+			return null;
+		});
+	if (error) {
+		throw error;
+	}
+	return res;
+};
+
+export const updateEndpointID = async (token: string, endpointID: string) => {
+	let error = null;
+	const res = await fetch(`${AUTOPTIC_BASE_URL}/serverconfig/new_endpointID`, {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/json',
+			Authorization: `Bearer ${token}`
+		},
+		body: JSON.stringify({ endpointID })
+	})
+		.then(async (res) => {
+			if (!res.ok) throw await res.json();
+			return res.json(); 
+		})
+		.catch((err) => {
+			console.log(err);
+			error = err.detail;
+			console.log(error)
+			return null;
+		});
+	if (error) {
+		throw error;
+	}
+	return res.endpointID;
+};
+
+export const getEndpointID = async (token: string) => {
+	let error = null;
+
+	const res = await fetch(`${AUTOPTIC_BASE_URL}/serverconfig/get_endpointID`, {
+		method: 'GET',
+		headers: {
+			'Content-Type': 'application/json',
+			Authorization: `Bearer ${token}`
+		}
+	})
+		.then(async (res) => {
+			if (!res.ok) throw await res.json();
+			return res.json();
+		})
+		.catch((err) => {
+			console.log(err);
+			error = err.detail;
+			return null;
+		});
+	if (error) {
+		throw error;
+	}
+
+	return res.endpointID;
+
+};
+
+export const deleteEndpointID = async (token: string) => {
+	let error = null;
+
+	const res = await fetch(`${AUTOPTIC_BASE_URL}/serverconfig/delete_endpointID`, {
+		method: 'DELETE',
+		headers: {
+			'Content-Type': 'application/json',
+			Authorization: `Bearer ${token}`
+		}
+	})
+		.then(async (res) => {
+			if (!res.ok) throw await res.json();
+			return res.json();
+		})
+		.catch((err) => {
+			console.log(err);
+			error = err.detail;
+			return null;
+		});
+	if (error) {
+		throw error;
+	}
+	return res;
+};
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////
+// GO SERVER FUNCTIONS
+//////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
 // Get List PQL: GET /story/ep/{endpoint_id}/pql
 export const getListPQL = async (endpoint_id: string) => {
 	let error = null;
