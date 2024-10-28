@@ -12,7 +12,6 @@ from datetime import datetime
 
 # autoptic_port=os.getenv('AUTOPTIC_SERVER_PORT')
 
-AUTOPTIC_SERVER_PREFIX = 'http://localhost:9999'
 
 def split_list(lst, n):
     for i in range(0, len(lst), n):
@@ -42,7 +41,7 @@ def transform_snapshot_to_dict(path_list):
     snapshot_in_dict_list=[]
     for path in path_list:
         segments = path.split('/')
-        
+
         snapshot = { 
                     'url': path,
                     'endpoint_id': segments[2],
@@ -50,46 +49,45 @@ def transform_snapshot_to_dict(path_list):
                     'format': segments[6],
                     'timestamp': segments[7],
                     'snapshot_id': segments[8]}
+
         snapshot_in_dict_list.append(snapshot)
     
     return snapshot_in_dict_list
 
 formats = ['html','json']
 
-@router.post("/get_default_list_snapshot")
-async def getDefaultListSnapshots(endpoint_id: str, window: str):
+@router.get("/get_default_list_snapshot")
+async def getDefaultListSnapshots(endpoint_id: str, window: str, serverURL: str):
     
     list_snapshots = []
+    pql_ids = await getListPQL(endpoint_id, serverURL)
 
-    try:
-        pql_ids = await getListPQL(endpoint_id)
-        for pql_id in pql_ids:
-            for format in formats:
+    for pql_id in pql_ids:
+        for format in formats:
+
+            try:
                 async with aiohttp.ClientSession(trust_env=True) as session:
                     response = await session.post(
-                        f"{AUTOPTIC_SERVER_PREFIX}/story/ep/{endpoint_id}/pql/{pql_id}/snap/{format}/recent?window={window}",
+                        f"{serverURL}/story/ep/{endpoint_id}/pql/{pql_id}/snap/{format}/recent?window={window}",
                     )
                     response = await response.json()
-
                     if response:
-                        for snap in response:
-                            list_snapshots.append(transform_snapshot_to_dict(snap))
+                        list_snapshots.extend(execute_transformation(response))                
+
+            except Exception as e:
+                raise HTTPException(status_code=500, detail="something went wrong.")
 
         return list_snapshots
-        
-    except Exception as e:
-        logger.error(" Invalid keys for Autoptic. %s", e)
-        raise HTTPException(status_code=500, detail="something went wrong.")
 
 @router.get("/get_list_snapshot")
-async def getListSnapshots(endpoint_id: str, pql_id: str, format: str, timestamp: str):
+async def getListSnapshots(endpoint_id: str, pql_id: str, format: str, timestamp: str, serverURL: str):
     
     list_snapshots = []
     
     try:
         async with aiohttp.ClientSession(trust_env=True) as session:
             response = await session.get(
-                f"{AUTOPTIC_SERVER_PREFIX}/story/ep/{endpoint_id}/pql/{pql_id}/snap/{format}/{timestamp}",
+                f"{serverURL}/story/ep/{endpoint_id}/pql/{pql_id}/snap/{format}/{timestamp}",
             )
             response = await response.json()
 
@@ -105,11 +103,11 @@ async def getListSnapshots(endpoint_id: str, pql_id: str, format: str, timestamp
         raise HTTPException(status_code=500, detail="something went wrong.")
 
 @router.get("/read_snapshot")
-async def readSnapshot(endpoint_id: str, pql_id: str, format: str, timestamp: str, snapshot_id: str):
+async def readSnapshot(endpoint_id: str, pql_id: str, format: str, timestamp: str, snapshot_id: str, serverURL: str):
     try:
         async with aiohttp.ClientSession(trust_env=True) as session:
             response = await session.get(
-                f"{AUTOPTIC_SERVER_PREFIX}/story/ep/{endpoint_id}/pql/{pql_id}/snap/{format}/{timestamp}/{snapshot_id}",
+                f"{serverURL}/story/ep/{endpoint_id}/pql/{pql_id}/snap/{format}/{timestamp}/{snapshot_id}",
             )
             
             html_content = await response.text()
@@ -121,11 +119,11 @@ async def readSnapshot(endpoint_id: str, pql_id: str, format: str, timestamp: st
         raise HTTPException(status_code=500, detail="something went wrong.")
 
 @router.delete("/delete_snapshot")
-async def deleteSnapshots(endpoint_id: str, pql_id: str, format: str, timestamp: str, snapshot_id: str):
+async def deleteSnapshots(endpoint_id: str, pql_id: str, format: str, timestamp: str, snapshot_id: str, serverURL: str):
     try:
         async with aiohttp.ClientSession(trust_env=True) as session:
             response = await session.delete(
-                f"{AUTOPTIC_SERVER_PREFIX}/story/ep/{endpoint_id}/pql/{pql_id}/snap/{format}/{timestamp}/{snapshot_id}",
+                f"{serverURL}/story/ep/{endpoint_id}/pql/{pql_id}/snap/{format}/{timestamp}/{snapshot_id}",
             )
             
             if response.status == 200:

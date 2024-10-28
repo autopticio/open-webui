@@ -84,7 +84,6 @@ if WEBUI_NAME != "Open WebUI":
     WEBUI_NAME += " (Open WebUI)"
 
 WEBUI_URL = os.environ.get("WEBUI_URL", "http://localhost:3000")
-GO_AUTOPTIC_URL = os.environ.get("GO_AUTOPTIC_URL", "http://localhost:9999")
 
 WEBUI_FAVICON_URL = "https://openwebui.com/favicon.png"
 

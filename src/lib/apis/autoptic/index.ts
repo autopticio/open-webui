@@ -475,10 +475,14 @@ export const deleteEndpointID = async (token: string) => {
 
 
 // Get List PQL: GET /story/ep/{endpoint_id}/pql
-export const getListPQL = async (endpoint_id: string) => {
+export const getListPQL = async () => {
+
+	const serverURL = localStorage.getItem('serverURL');
+	const endpoint_id = localStorage.getItem('endpointID');
+
 	let error = null;
 
-	const res = await fetch(`${AUTOPTIC_BASE_URL}/pqls/get_list_pql?endpoint_id=${endpoint_id}`, {
+	const res = await fetch(`${AUTOPTIC_BASE_URL}/pqls/get_list_pql?endpoint_id=${endpoint_id}&serverURL=${encodeURIComponent(serverURL)}`, {
 		method: 'GET',
 		headers: {
 			'Content-Type': 'application/json',
@@ -502,9 +506,13 @@ export const getListPQL = async (endpoint_id: string) => {
 
 };
 
+
+// Why I did this? Think about it
 // Get a snapshot: GET /story/ep/{endpoint_id}/pql/{pql_id}/snap/{format}/{timestamp}/{snapshot_id}
-export const getUniqueSnapshot = async (token: string, endpoint_id: string, pql_id: string, format: string, timestamp: string, snapshot_id: string) => {
+export const getUniqueSnapshot = async (token: string, pql_id: string, format: string, timestamp: string, snapshot_id: string) => {
 	let error = null;
+
+	const endpoint_id = localStorage.getItem('endpointID');
 
 	const res = await fetch(`${AUTOPTIC_BASE_URL}/story/ep/${endpoint_id}/pql/${pql_id}/snap/${format}/${timestamp}/${snapshot_id}`, {
 		method: 'GET',
@@ -530,10 +538,13 @@ export const getUniqueSnapshot = async (token: string, endpoint_id: string, pql_
 
 };
 
-export const getDefaultListSnapshots = async (endpoint_id: string) => {
+export const getDefaultListSnapshots = async (window: string) => {
 	let error = null;
 
-	const res = await fetch(`${AUTOPTIC_BASE_URL}/snapshots/get_list_snapshot?endpoint_id=${endpoint_id}`, {
+	const serverURL = localStorage.getItem('serverURL');
+	const endpoint_id = localStorage.getItem('endpointID');
+
+	const res = await fetch(`${AUTOPTIC_BASE_URL}/snapshots/get_default_list_snapshot?endpoint_id=${endpoint_id}&window=${window}&serverURL=${encodeURIComponent(serverURL)}`, {
 		method: 'GET',
 		headers: {
 			'Content-Type': 'application/json',
@@ -557,10 +568,13 @@ export const getDefaultListSnapshots = async (endpoint_id: string) => {
 };
 
 // List snapshots: GET /story/ep/{endpoint_id}/pql/{pql_id}/snap/{format}/{timestamp}
-export const getListSnapshots = async (endpoint_id: string, pql_id: string, format: string, timestamp: string) => {
+export const getListSnapshots = async (pql_id: string, format: string, timestamp: string) => {
 	let error = null;
 
-	const res = await fetch(`${AUTOPTIC_BASE_URL}/snapshots/get_list_snapshot?endpoint_id=${endpoint_id}&pql_id=${pql_id}&format=${format}&timestamp=${timestamp}`, {
+	const serverURL = localStorage.getItem('serverURL');
+	const endpoint_id = localStorage.getItem('endpointID');
+
+	const res = await fetch(`${AUTOPTIC_BASE_URL}/snapshots/get_list_snapshot?endpoint_id=${endpoint_id}&pql_id=${pql_id}&format=${format}&timestamp=${timestamp}&serverURL=${encodeURIComponent(serverURL)}`, {
 		method: 'GET',
 		headers: {
 			'Content-Type': 'application/json',
@@ -583,10 +597,13 @@ export const getListSnapshots = async (endpoint_id: string, pql_id: string, form
 	return res;
 };
 
-export const getWindowListSnapshots = async (endpoint_id: string, pql_id: string, format: string, timestamp: string) => {
+export const getWindowListSnapshots = async (pql_id: string, format: string, timestamp: string) => {
 	let error = null;
 
-	const res = await fetch(`${AUTOPTIC_BASE_URL}/snapshots/get_list_snapshot?endpoint_id=${endpoint_id}&pql_id=${pql_id}&format=${format}&timestamp=${timestamp}`, {
+	const serverURL = localStorage.getItem('serverURL');
+	const endpoint_id = localStorage.getItem('endpointID');
+
+	const res = await fetch(`${AUTOPTIC_BASE_URL}/snapshots/get_list_snapshot?endpoint_id=${endpoint_id}&pql_id=${pql_id}&format=${format}&timestamp=${timestamp}&serverURL=${encodeURIComponent(serverURL)}`, {
 		method: 'GET',
 		headers: {
 			'Content-Type': 'application/json',
@@ -609,10 +626,13 @@ export const getWindowListSnapshots = async (endpoint_id: string, pql_id: string
 	return res;
 };
 
-export const readSnapshot = async (endpoint_id: string, pql_id: string, format: string, timestamp: string, snapshot_id: string) => {
+export const readSnapshot = async (pql_id: string, format: string, timestamp: string, snapshot_id: string) => {
 	let error = null;
 
-	const res = await fetch(`${AUTOPTIC_BASE_URL}/snapshots/read_snapshot?endpoint_id=${endpoint_id}&pql_id=${pql_id}&format=${format}&timestamp=${timestamp}&snapshot_id=${snapshot_id}`, {
+	const serverURL = localStorage.getItem('serverURL');
+	const endpoint_id = localStorage.getItem('endpointID');
+
+	const res = await fetch(`${AUTOPTIC_BASE_URL}/snapshots/read_snapshot?endpoint_id=${endpoint_id}&pql_id=${pql_id}&format=${format}&timestamp=${timestamp}&snapshot_id=${snapshot_id}&serverURL=${encodeURIComponent(serverURL)}`, {
 		method: 'GET',
 		headers: {
 			'Content-Type': 'application/json',
@@ -635,10 +655,13 @@ export const readSnapshot = async (endpoint_id: string, pql_id: string, format: 
 	return res;
 };
 
-export const deleteSnapshot = async (endpoint_id: string, pql_id: string, format: string, timestamp: string, snapshot_id: string) => {
+export const deleteSnapshot = async (pql_id: string, format: string, timestamp: string, snapshot_id: string) => {
 	let error = null;
 
-	const res = await fetch(`${AUTOPTIC_BASE_URL}/snapshots/delete_snapshot?endpoint_id=${endpoint_id}&pql_id=${pql_id}&format=${format}&timestamp=${timestamp}&snapshot_id=${snapshot_id}`, {
+	const serverURL = localStorage.getItem('serverURL');
+	const endpoint_id = localStorage.getItem('endpointID');
+
+	const res = await fetch(`${AUTOPTIC_BASE_URL}/snapshots/delete_snapshot?endpoint_id=${endpoint_id}&pql_id=${pql_id}&format=${format}&timestamp=${timestamp}&snapshot_id=${snapshot_id}&serverURL=${encodeURIComponent(serverURL)}`, {
 		method: 'DELETE',
 		headers: {
 			'Content-Type': 'application/json',

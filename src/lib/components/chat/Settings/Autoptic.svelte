@@ -44,8 +44,6 @@
 	let endpointID = '';
 	let accessToken = '';
 
-	let APIKey = '';
-
 	let envFile = null;
 	let newEnvFile = false;
 

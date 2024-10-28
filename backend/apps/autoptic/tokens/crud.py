@@ -5,7 +5,8 @@ import httpx
 from pydantic import BaseModel
 from fastapi import APIRouter
 from fastapi import HTTPException
-from config import GO_AUTOPTIC_URL
+
+serverURL = ''
 
 class Payload(BaseModel):
     endpoint_id: str
@@ -20,7 +21,7 @@ async def createToken(credentials: Payload):
     try:
         async with httpx.AsyncClient(trust_env=True) as client:
             response = await client.post(
-                f"{GO_AUTOPTIC_URL}/story/ep/{credentials.endpoint_id}/token/{credentials.token_id}",
+                f"{serverURL}/story/ep/{credentials.endpoint_id}/token/{credentials.token_id}",
             )
             text = response.text
 
@@ -42,8 +43,8 @@ async def createToken(endpoint_id: str,token_id: str):
     try:
         async with httpx.AsyncClient(trust_env=True) as client:
             response = await client.get(
-                # f"{GO_AUTOPTIC_URL}/story/ep/{credentials.endpoint_id}/token/{credentials.token_id}",
-                f"{GO_AUTOPTIC_URL}/story/ep/{endpoint_id}/token/{token_id}",
+                # f"{serverURL}/story/ep/{credentials.endpoint_id}/token/{credentials.token_id}",
+                f"{serverURL}/story/ep/{endpoint_id}/token/{token_id}",
             )
             text = response.text
 
@@ -64,7 +65,7 @@ async def createToken(credentials: Payload):
     try:
         async with httpx.AsyncClient(trust_env=True) as client:
             response = await client.delete(
-                f"{GO_AUTOPTIC_URL}/story/ep/{credentials.endpoint_id}/token/{credentials.token_id}",
+                f"{serverURL}/story/ep/{credentials.endpoint_id}/token/{credentials.token_id}",
             )
             text = response.text
 
@@ -84,7 +85,7 @@ async def createToken(endpoint_id: str):
     try:
         async with httpx.AsyncClient(trust_env=True) as client:
             response = await client.get(
-                f"{GO_AUTOPTIC_URL}/story/ep/{endpoint_id}/token",
+                f"{serverURL}/story/ep/{endpoint_id}/token",
             )
             text = response.text
 

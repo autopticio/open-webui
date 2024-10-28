@@ -4,13 +4,10 @@
 	import { WEBUI_NAME } from '$lib/stores';
 	import { toast } from 'svelte-sonner';
 	import { copyToClipboard, formatDateTime } from '$lib/utils';
-    import { snapshotStore } from '$lib/stores';
     import { readSnapshot } from '$lib/apis/autoptic';
 
 	const i18n = getContext('i18n');
-    const autoptic_prefix = 'http://localhost:9999/'
 
-    export let endpoint_id; 
     export let pql_id; 
     export let format; 
     export let timestamp; 
@@ -25,7 +22,7 @@
 
     onMount( async () => {
 
-        html_to_render = await readSnapshot(endpoint_id, pql_id, format, timestamp, snapshot_id)
+        html_to_render = await readSnapshot(pql_id, format, timestamp, snapshot_id)
 
         const iframe = document.getElementById('iframe');
         if (iframe) {

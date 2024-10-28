@@ -13,11 +13,11 @@ router = APIRouter()
 logger = logging.getLogger(__name__)
 
 @router.get("/get_list_pql")
-async def getListPQL(endpoint_id: str):
+async def getListPQL(endpoint_id: str , serverURL: str):
     try:
         async with aiohttp.ClientSession(trust_env=True) as session:
             response = await session.get(
-                f"http://localhost:9999/story/ep/{endpoint_id}/pql",
+                f"{serverURL}/story/ep/{endpoint_id}/pql",
             )
 
             return await response.json()

@@ -9,7 +9,7 @@
 	import Search from '$lib/components/icons/Search.svelte';
 
 
-	import { getListPQL } from '$lib/apis/autoptic'; 
+	import { getEndpointID, getListPQL } from '$lib/apis/autoptic'; 
 
 	import { mobile } from '$lib/stores';
 	import { toast } from 'svelte-sonner';
@@ -30,7 +30,7 @@
 	let items = [];
 	
 	onMount(async () => {
-		items = await getListPQL('jere-test');
+		items = await getListPQL();
 	});
 
 	$: filteredItems = items.length > 0

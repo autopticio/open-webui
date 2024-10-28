@@ -6,9 +6,7 @@
 	import { toast } from 'svelte-sonner';
 	import { copyToClipboard , formatDateTime } from '$lib/utils';
 
-	import { snapshotStore } from '$lib/stores'
-
-	import { getListSnapshots } from '$lib/apis/autoptic'; 
+	import { getListSnapshots , getDefaultListSnapshots } from '$lib/apis/autoptic'; 
 
 	import IDSelector from '$lib/components/chat/AutopticComponents/IDSelector.svelte';
 
@@ -19,12 +17,13 @@
 	const i18n = getContext('i18n');
 
 	let selectedPQLId = 'Any'; // DON'T make this a real empty string.
-	const autoptic_prefix = 'http://localhost:9999/'
 
+	const autoptic_prefix = localStorage.getItem('serverURL')
+	
 	let _snapshots = [];
 
 	let defaultSnapshots = async () => {
-		_snapshots = await getListSnapshots('jere-test', 'aws-api-usage', 'html', '2024');
+		_snapshots = await getDefaultListSnapshots('180days');
 	};
 
 	let filteredSnapshots = [];
@@ -56,7 +55,8 @@
 	};
 
 	export let refreshSnapshots = async () => {
-		_snapshots = await getListSnapshots('jere-test', 'aws-api-usage', 'html', '2024');
+		await defaultSnapshots();
+		applyFilters();
 	};
 
 	const getFilterDate = () => {
@@ -89,13 +89,26 @@
 	let selectedFormat = 'Any'
 
 	const applyFilters = () => {
+
 		filteredSnapshots = _snapshots.filter((m) => {
 
-			const matchesEndpointID = m.pql_id == selectedPQLId;
-			const matchesFormat = m.format == selectedFormat.toLowerCase();
+			selectedFormat = selectedFormat.toLowerCase()
+
+			let matchesFormat = true;
+			let matchesEndpointID = true;
+
+			if (selectedFormat !== 'any') {
+				matchesFormat = m.format.toLowerCase() == selectedFormat;
+			}
+
+			if (selectedPQLId !== 'Any') {
+				matchesEndpointID = m.pql_id == selectedPQLId;
+			}
+
 			return matchesEndpointID && matchesFormat;
 			
     		});
+
 		filteredSnapshots = filteredSnapshots.sort((a, b) => {
 			return sortOrder === 'asc' ?
 			 a.timestamp.localeCompare(b.timestamp) :
@@ -103,38 +116,17 @@
 		});
 	};
 
-	// const applyFilters = () => {
-
-	// 	filteredSnapshots = _snapshots.slice().sort((a, b) => {
-	// 		return sortOrder === 'asc'
-	// 		? new Date(a.timestamp) - new Date(b.timestamp) // Ascending order
-	// 		: new Date(b.timestamp) - new Date(a.timestamp); // Descending order
-	// 	});
-
-	// 	filteredSnapshots = filteredSnapshots.filter((m) => {
-	// 		// Text search filter
-	// 		const matchesSearch = search === '' ||
-	// 			Object.keys(m).filter((key) => ['name', 'snapshot_id', 'body', 'tags'].includes(key))
-	// 				.some((key) => m[key] && m[key].toString().toLowerCase().includes(search.toLowerCase()));
-			
-	// 		// Date range filter
-	// 		const filterDate = getFilterDate();
-	// 		const matchesDate = filterDate ? new Date(m.timestamp) >= filterDate : true;
-	// 		const matchesEndpointID = m.endpoint_id == selectedPQLId;
-
-	// 		if (selectedFormat === 'Any') {
-	// 			return matchesSearch && matchesDate && matchesEndpointID;
-	// 		} else {
-	// 			const matchesFormat = m.format == selectedFormat;
-	// 			return matchesSearch && matchesDate && matchesEndpointID && matchesFormat;
-	// 		}
-    // 		});
-	// 	};
+	// Apply filters whenever search value changes using reactive statement	
+	let endpoint_id = localStorage.getItem('endpointID');
 
 
-	// Apply filters whenever search value changes using reactive statement
+	// //I'll need to fix this
+	// $: currentEndpointID = localStorage.getItem('endpointID');
+	// $: if (currentEndpointID !== endpoint_id) {
+	// 	endpoint_id = currentEndpointID;
+	// 	console.log('Nuevo endpoint_id:', endpoint_id);
+	// }
 	
-	let endpoint_id = 'jere-test';
 	let timestamp = '2024';
 
 	onMount( async () => {
@@ -142,8 +134,7 @@
 		applyFilters();
 	})
 
-
-	$: applyFilters(endpoint_id, selectedPQLId, selectedFormat.toLowerCase(), timestamp,_snapshots,sortOrder); 
+	$: applyFilters(sortOrder,_snapshots, selectedPQLId, selectedFormat); 
 
 </script>
 
@@ -193,9 +184,9 @@
 			bg-gray-50 dark:bg-gray-850 transition cursor-pointer dark:hover:bg-gray-700 hover:bg-black/5 "
 			style="width: 765px;">
 			<IDSelector
-				bind:value={selectedPQLId}
 				placeholder={`Selected PQL: ${selectedPQLId}`}
 				on:select={(event) => selectedPQLId = event.detail.value}
+				bind:value={selectedPQLId}
 			/>
 		</div>
 
@@ -236,8 +227,6 @@
 			>
 				<span class="text-center">1y</span>
 			</div>
-
-
 
 			<div 
 				class="w-12 flex justify-center items-center min-w-fit rounded-lg p-1.5 px-3 
@@ -362,7 +351,7 @@
 
 				<button
 					class="self-center w-fit text-sm px-2 py-2 dark:text-gray-300 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5 rounded-xl"
-					on:click={ () => {copyToClipboard(autoptic_prefix+snapshot.url);
+					on:click={ () => {copyToClipboard(`/storybooks/snapshots/${snapshot.endpoint_id}/${snapshot.pql_id}/${snapshot.format}/${snapshot.timestamp}/${snapshot.snapshot_id}`);
 					toast.success($i18n.t('Snapshot URL copied.'));}
 						}
 					>
