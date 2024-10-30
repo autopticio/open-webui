@@ -5,13 +5,17 @@
 	import { WEBUI_NAME } from '$lib/stores';
 	import { toast } from 'svelte-sonner';
 	import { copyToClipboard , formatDateTime } from '$lib/utils';
+	import { endpointIDstored } from '$lib/stores';
 
-	import { getListSnapshots , getDefaultListSnapshots } from '$lib/apis/autoptic'; 
+	import { getDefaultListSnapshots } from '$lib/apis/autoptic'; 
 
 	import IDSelector from '$lib/components/chat/AutopticComponents/IDSelector.svelte';
 
 	import DeleteSnapModal from '$lib/components/storybooks/Modals/DeleteSnapModal.svelte';
 	import FormatSelector from '../chat/AutopticComponents/FormatSelector.svelte';
+	import TimeSelector from '../chat/AutopticComponents/TimeSelector.svelte';
+	import TimeUnitSelector from '../chat/AutopticComponents/TimeUnitSelector.svelte';
+
 	import { goto } from '$app/navigation';
 
 	const i18n = getContext('i18n');
@@ -23,19 +27,20 @@
 	let _snapshots = [];
 
 	let defaultSnapshots = async () => {
-		_snapshots = await getDefaultListSnapshots('180days');
+		let window = selectedTime+selectedTimeUnit.toLowerCase()
+		_snapshots = await getDefaultListSnapshots(window);
 	};
 
 	let filteredSnapshots = [];
 
-	export let selectedPeriod = '1h' ;
+	// export let selectedPeriod = '1h' ;
 	let sortOrder = 'desc';
 
 	let search = '';
 
-	function selectPeriod(period) {
-		selectedPeriod = period;
-	}
+	// function selectPeriod(period) {
+	// 	selectedPeriod = period;
+	// }
 
 	function toggleSortOrder() {
 		sortOrder = sortOrder === 'asc' ? 'desc' : 'asc';
@@ -59,46 +64,47 @@
 		applyFilters();
 	};
 
-	const getFilterDate = () => {
-		const now = new Date();
-        let filterDate;
-        switch (selectedPeriod) {
-            case '1h':
-                filterDate = new Date(now.getTime() - 1 * 60 * 60 * 1000); // 1 hour ago
-                break;
-            case '1d':
-                filterDate = new Date(now.getTime() - 24 * 60 * 60 * 1000); // 1 day ago
-                break;
-			case '1w':
-				filterDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000); // 1 week ago
-				break;
-            case '1m':
-                filterDate = new Date(now.setMonth(now.getMonth() - 1)); // 1 month ago
-                break;
-            case '1y':
-                filterDate = new Date(now.setFullYear(now.getFullYear() - 1)); // 1 year ago
-                break;
-            case 'All':
-            default:
-                filterDate = null;
-                break;
-        }
-        return filterDate;
-    };
+	// const getFilterDate = () => {
+	// 	const now = new Date();
+    //     let filterDate;
+    //     switch (selectedPeriod) {
+    //         case '1h':
+    //             filterDate = new Date(now.getTime() - 1 * 60 * 60 * 1000); // 1 hour ago
+    //             break;
+    //         case '1d':
+    //             filterDate = new Date(now.getTime() - 24 * 60 * 60 * 1000); // 1 day ago
+    //             break;
+	// 		case '1w':
+	// 			filterDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000); // 1 week ago
+	// 			break;
+    //         case '1m':
+    //             filterDate = new Date(now.setMonth(now.getMonth() - 1)); // 1 month ago
+    //             break;
+    //         case '1y':
+    //             filterDate = new Date(now.setFullYear(now.getFullYear() - 1)); // 1 year ago
+    //             break;
+    //         case 'All':
+    //         default:
+    //             filterDate = null;
+    //             break;
+    //     }
+    //     return filterDate;
+    // };
 
 	let selectedFormat = 'Any'
+
+	let selectedTime = '1'
+	let selectedTimeUnit = 'Days'
 
 	const applyFilters = () => {
 
 		filteredSnapshots = _snapshots.filter((m) => {
 
-			selectedFormat = selectedFormat.toLowerCase()
-
 			let matchesFormat = true;
 			let matchesEndpointID = true;
 
-			if (selectedFormat !== 'any') {
-				matchesFormat = m.format.toLowerCase() == selectedFormat;
+			if (selectedFormat !== 'Any') {
+				matchesFormat = m.format.toLowerCase() == selectedFormat.toLowerCase();
 			}
 
 			if (selectedPQLId !== 'Any') {
@@ -116,25 +122,14 @@
 		});
 	};
 
-	// Apply filters whenever search value changes using reactive statement	
-	let endpoint_id = localStorage.getItem('endpointID');
-
-
-	// //I'll need to fix this
-	// $: currentEndpointID = localStorage.getItem('endpointID');
-	// $: if (currentEndpointID !== endpoint_id) {
-	// 	endpoint_id = currentEndpointID;
-	// 	console.log('Nuevo endpoint_id:', endpoint_id);
-	// }
-	
-	let timestamp = '2024';
-
 	onMount( async () => {
 		await defaultSnapshots();
 		applyFilters();
+		console.log('hello')
 	})
 
-	$: applyFilters(sortOrder,_snapshots, selectedPQLId, selectedFormat); 
+	$: defaultSnapshots(selectedTime,selectedTimeUnit,endpointIDstored);
+	$: applyFilters(sortOrder,_snapshots, selectedPQLId, selectedFormat);
 
 </script>
 
@@ -175,14 +170,14 @@
 
 <hr class=" dark:border-gray-850 my-2.5" />
 
-<div class=" flex w-full space-x-2">
+<div class=" flex w-full space-x-2 overflow-x-auto whitespace-nowrap">
 	
 	<div class=" flex justify space-x-4 w-full mb-2 px-2 py-1" >
 
 		<!-- toggle for endpoint ID -->
-		<div class="w-fixed flex justify-center items-center min-w-fit rounded-lg p-1.5 px-3 
+		<div class="flex-grow flex justify-center items-center min-w-fit rounded-lg p-1.5 px-3 
 			bg-gray-50 dark:bg-gray-850 transition cursor-pointer dark:hover:bg-gray-700 hover:bg-black/5 "
-			style="width: 765px;">
+			>
 			<IDSelector
 				placeholder={`Selected PQL: ${selectedPQLId}`}
 				on:select={(event) => selectedPQLId = event.detail.value}
@@ -202,24 +197,49 @@
 			/>
 		</div>
 		
+		<div 
+			class="w-fixed flex justify-center items-center min-w-fit rounded-lg p-1.5 px-3 
+			bg-gray-50 dark:bg-gray-850 transition cursor-pointer dark:hover:bg-gray-700 hover:bg-black/5"
+			style="width: 220px;"
+		>
+		<TimeSelector
+			bind:value={selectedTime}
+			placeholder={selectedTime}
+			on:select={(event) => selectedTime = event.detail.value}
+		/>
+		</div>
+
+		<div 
+			class="w-fixed flex justify-center items-center min-w-fit rounded-lg p-1.5 px-3 
+			bg-gray-50 dark:bg-gray-850 transition cursor-pointer dark:hover:bg-gray-700 hover:bg-black/5"
+			style="width: 220px;"
+		>
+		<TimeUnitSelector
+			bind:value={selectedTimeUnit}
+			placeholder={selectedTimeUnit}
+			on:select={(event) => selectedTimeUnit = event.detail.value}
+		/>
+		</div>
+		
+		<div 
+			class="w-fixed flex justify-center items-center min-w-fit rounded-lg p-1.5 px-3 
+			bg-gray-50 font-semibold dark:bg-gray-850 transition cursor-pointer dark:hover:bg-gray-700 hover:bg-black/5"
+			style="width: 220px;"
+			on:click={() => {toggleSortOrder()}}
+		>
+			<span class="text-center">{sortOrder === 'asc' ? 'Sort by Newest' : 'Sort by Oldest'}</span>
+		</div>
+
 	</div>
 
-	<div class="border-l dark:border-gray-850 mx-4"></div>
-
-	<div class="flex flex-1">
+	<!-- <div class="flex flex-1 flex-wrap space-x-4"> -->
 
 		<!-- svelte-ignore a11y-missing-attribute -->
-		<a class=" flex justify-end space-x-4 w-full mb-2 px-2 py-1" >
+		<!-- <a class=" flex justify-end space-x-4 w-full mb-2 px-2 py-1" > -->
 
-			<div 
-				class="w-40 flex justify-center items-center min-w-fit rounded-lg p-1.5 px-3 
-				bg-gray-50 dark:bg-gray-850 transition cursor-pointer dark:hover:bg-gray-700 hover:bg-black/5"
-				on:click={() => {toggleSortOrder()}}
-			>
-				<span class="text-center">{sortOrder === 'asc' ? 'Sort by Newest' : 'Sort by Oldest'}</span>
-			</div>
 
-			<div 
+
+			<!-- <div 
 				class="w-12 flex justify-center items-center min-w-fit rounded-lg p-1.5 px-3 
 					bg-gray-50 dark:bg-gray-850 transition cursor-pointer dark:hover:bg-gray-700 hover:bg-black/5"
 				class:selected={selectedPeriod === '1y'}
@@ -263,116 +283,108 @@
 							}
 			>
 				<span class="text-center">1h</span>
-			</div>
-
-			<!-- <div 
-				class="w-10 flex justify-center items-center min-w-fit rounded-lg p-1.5 px-3 
-					bg-gray-50 dark:bg-gray-850 transition cursor-pointer dark:hover:bg-gray-700 hover:bg-black/5"
-				class:selected={selectedPeriod === 'All'}
-				on:click={() => {selectPeriod('All')}}
-			>
-				<span class="text-center">All</span>
-			</div>
-		-->
-		
+			</div> -->
+<!-- 		
 		</a>
-	</div>
+	</div> -->
 
 </div>
 
 <div class=" my-2 mb-5" id="snapshot-list">
-	<!-- {#each _models.filter((m) => search === '' ||
-		m.name && m.name.toLowerCase().includes(search.toLowerCase()) ||
-		m.id && m.id.toString().toLowerCase().includes(search.toLowerCase()) ||
-		m.body && m.body.toLowerCase().includes(search.toLowerCase())) as model} -->
-	{#each filteredSnapshots as snapshot}
-		<div
-			class=" flex space-x-4 cursor-pointer w-full px-3 py-2 dark:hover:bg-white/5 hover:bg-black/5 rounded-xl"
-			id="snapshot-item-{snapshot.snapshot_id}"
-		>
 
-			<!-- First description -->
-			<div class="flex flex-1 space-x-3.5 w-full cursor-pointer">
-				<!-- Imagen comentada opcional -->
-				<!-- <div class="self-start w-8 pt-0.5">
-					<div class="rounded-full bg-stone-700">
-						<img
-							src={snapshot?.info?.meta?.profile_image_url ?? '/autoptic.png'}
-							alt="snapshotfile profile"
-							class="rounded-full w-full h-auto object-cover bg-white dark:bg-white"
-						/>
-					</div>
-				</div> -->
-			
-				<!-- svelte-ignore a11y-click-events-have-key-events -->
-				<!-- svelte-ignore a11y-no-static-element-interactions -->
-				<div
-					class="flex-1 self-center {snapshot?.info?.meta?.hidden ?? false ? 'text-gray-500' : ''}"
-					on:click={() => openReadSnapshot(snapshot)}
-				>
-					<div class="font-bold line-clamp-1">
-						{formatDateTime(snapshot.timestamp)}
+	{#if filteredSnapshots.length === 0}
+		<p>La lista está vacía.</p>
+	{:else}
+		{#each filteredSnapshots as snapshot}
+			<div
+				class=" flex space-x-4 cursor-pointer w-full px-3 py-2 dark:hover:bg-white/5 hover:bg-black/5 rounded-xl"
+				id="snapshot-item-{snapshot.snapshot_id}"
+			>
+
+				<!-- First description -->
+				<div class="flex flex-1 space-x-3.5 w-full cursor-pointer">
+					<!-- Imagen comentada opcional -->
+					<!-- <div class="self-start w-8 pt-0.5">
+						<div class="rounded-full bg-stone-700">
+							<img
+								src={snapshot?.info?.meta?.profile_image_url ?? '/autoptic.png'}
+								alt="snapshotfile profile"
+								class="rounded-full w-full h-auto object-cover bg-white dark:bg-white"
+							/>
+						</div>
+					</div> -->
+				
+					<!-- svelte-ignore a11y-click-events-have-key-events -->
+					<!-- svelte-ignore a11y-no-static-element-interactions -->
+					<div
+						class="flex-1 self-center {snapshot?.info?.meta?.hidden ?? false ? 'text-gray-500' : 'text-blue-500 underline'}"
+					>
+						<div class="font-bold line-clamp-1"
+							on:click={() => openReadSnapshot(snapshot)}
+							>
+							{formatDateTime(snapshot.timestamp)}
+						</div>
 					</div>
 				</div>
-			</div>
-			<!-- Vertical Divider -->
-			<div class="border-l border-gray-300 mx-4"></div>
-			
-			<!-- New section with creation date and tags -->
-			<div class="flex-1 flex flex-col justify-center">
-				<div class="text-m">{snapshot.pql_id}</div>
-			</div>
+				<!-- Vertical Divider -->
+				<div class="border-l border-gray-300 mx-4"></div>
+				
+				<!-- New section with creation date and tags -->
+				<div class="flex-1 flex flex-col justify-center">
+					<div class="text-m">{snapshot.pql_id}</div>
+				</div>
 
-			<!-- Vertical Divider -->
-			<div class="border-l border-gray-300 mx-4"></div>
+				<!-- Vertical Divider -->
+				<div class="border-l border-gray-300 mx-4"></div>
 
-			<!-- New section with creation date and tags -->
-			<div class="flex-1 flex flex-col justify-center">
-				<div class="text-sm text-gray-600">{snapshot.snapshot_id}</div>
-			</div>
+				<!-- New section with creation date and tags -->
+				<div class="flex-1 flex flex-col justify-center">
+					<div class="text-sm text-gray-600">{snapshot.snapshot_id}</div>
+				</div>
 
-			<!-- Vertical Divider -->
-			<div class="border-l border-gray-300 mx-4"></div>
+				<!-- Vertical Divider -->
+				<div class="border-l border-gray-300 mx-4"></div>
 
-			<!-- Buttons -->
-			<div class=" flex gap-2 self-center">
+				<!-- Buttons -->
+				<div class=" flex gap-2 self-center">
 
-				<button	
-				class="self-center w-fit text-sm px-2 py-2 dark:text-gray-300 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5 rounded-xl"
-					on:click={ () => {openReadSnapshot(snapshot);
-							  		  }}
-					>
-					<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-clipboard-data" viewBox="0 0 16 16">
-						<path d="M4 11a1 1 0 1 1 2 0v1a1 1 0 1 1-2 0zm6-4a1 1 0 1 1 2 0v5a1 1 0 1 1-2 0zM7 9a1 1 0 0 1 2 0v3a1 1 0 1 1-2 0z"/>
-						<path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1z"/>
-						<path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0z"/>
-					  </svg>
-				</button>
-
-				<button
+					<button	
 					class="self-center w-fit text-sm px-2 py-2 dark:text-gray-300 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5 rounded-xl"
-					on:click={ () => {copyToClipboard(`/storybooks/snapshots/${snapshot.endpoint_id}/${snapshot.pql_id}/${snapshot.format}/${snapshot.timestamp}/${snapshot.snapshot_id}`);
-					toast.success($i18n.t('Snapshot URL copied.'));}
-						}
-					>
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-copy" viewBox="0 0 16 16">
-                        <path fill-rule="evenodd" d="M4 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2zm2-1a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1zM2 5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-1h1v1a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h1v1z"/>
-                    </svg>
-                </button>
+						on:click={ () => {openReadSnapshot(snapshot);
+										}}
+						>
+						<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-clipboard-data" viewBox="0 0 16 16">
+							<path d="M4 11a1 1 0 1 1 2 0v1a1 1 0 1 1-2 0zm6-4a1 1 0 1 1 2 0v5a1 1 0 1 1-2 0zM7 9a1 1 0 0 1 2 0v3a1 1 0 1 1-2 0z"/>
+							<path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1z"/>
+							<path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0z"/>
+						</svg>
+					</button>
 
-				<button
-					class="self-center w-fit text-sm px-2 py-2 dark:text-gray-300 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5 rounded-xl"
-					on:click={ () => {openDeleteModal(snapshot);
-							  		  }}
-					>
-					<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash3" viewBox="0 0 16 16">
-						<path d="M6.5 1h3a.5.5 0 0 1 .5.5v1H6v-1a.5.5 0 0 1 .5-.5M11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3A1.5 1.5 0 0 0 5 1.5v1H1.5a.5.5 0 0 0 0 1h.538l.853 10.66A2 2 0 0 0 4.885 16h6.23a2 2 0 0 0 1.994-1.84l.853-10.66h.538a.5.5 0 0 0 0-1zm1.958 1-.846 10.58a1 1 0 0 1-.997.92h-6.23a1 1 0 0 1-.997-.92L3.042 3.5zm-7.487 1a.5.5 0 0 1 .528.47l.5 8.5a.5.5 0 0 1-.998.06L5 5.03a.5.5 0 0 1 .47-.53Zm5.058 0a.5.5 0 0 1 .47.53l-.5 8.5a.5.5 0 1 1-.998-.06l.5-8.5a.5.5 0 0 1 .528-.47M8 4.5a.5.5 0 0 1 .5.5v8.5a.5.5 0 0 1-1 0V5a.5.5 0 0 1 .5-.5"/>
-					</svg>
-				</button>
+					<button
+						class="self-center w-fit text-sm px-2 py-2 dark:text-gray-300 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5 rounded-xl"
+						on:click={ () => {copyToClipboard(`${window.location.origin}/storybooks/snapshots/${snapshot.endpoint_id}/${snapshot.pql_id}/${snapshot.format}/${snapshot.timestamp}/${snapshot.snapshot_id}`);
+						toast.success($i18n.t('Snapshot URL copied.'));}
+							}
+						>
+						<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-copy" viewBox="0 0 16 16">
+							<path fill-rule="evenodd" d="M4 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2zm2-1a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1zM2 5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-1h1v1a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h1v1z"/>
+						</svg>
+					</button>
 
+					<button
+						class="self-center w-fit text-sm px-2 py-2 dark:text-gray-300 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5 rounded-xl"
+						on:click={ () => {openDeleteModal(snapshot);
+										}}
+						>
+						<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash3" viewBox="0 0 16 16">
+							<path d="M6.5 1h3a.5.5 0 0 1 .5.5v1H6v-1a.5.5 0 0 1 .5-.5M11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3A1.5 1.5 0 0 0 5 1.5v1H1.5a.5.5 0 0 0 0 1h.538l.853 10.66A2 2 0 0 0 4.885 16h6.23a2 2 0 0 0 1.994-1.84l.853-10.66h.538a.5.5 0 0 0 0-1zm1.958 1-.846 10.58a1 1 0 0 1-.997.92h-6.23a1 1 0 0 1-.997-.92L3.042 3.5zm-7.487 1a.5.5 0 0 1 .528.47l.5 8.5a.5.5 0 0 1-.998.06L5 5.03a.5.5 0 0 1 .47-.53Zm5.058 0a.5.5 0 0 1 .47.53l-.5 8.5a.5.5 0 1 1-.998-.06l.5-8.5a.5.5 0 0 1 .528-.47M8 4.5a.5.5 0 0 1 .5.5v8.5a.5.5 0 0 1-1 0V5a.5.5 0 0 1 .5-.5"/>
+						</svg>
+					</button>
+
+				</div>
 			</div>
-		</div>
-	{/each}
+		{/each}
+	{/if}
 </div>
 
 <hr class=" dark:border-gray-850" />

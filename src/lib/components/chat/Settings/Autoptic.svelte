@@ -4,8 +4,6 @@
 
 	import { user } from '$lib/stores';
 	import { updateUserProfile,
-			 createAPIKey,
-			 getAPIKey,
 				} from '$lib/apis/auths';
 
 	import {
@@ -19,8 +17,10 @@
 			deleteEndpointID
 				} from '$lib/apis/autoptic';
 
-	import { generateInitialsImage, canvasPixelTest } from '$lib/utils';
+	import { generateInitialsImage } from '$lib/utils';
 	import { copyToClipboard } from '$lib/utils';
+
+	import { endpointIDstored } from '$lib/stores'; 
 
 	const i18n = getContext('i18n');
 
