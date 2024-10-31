@@ -18,9 +18,11 @@
     let html_to_render;
     
     snapshotDate = formatDateTime(timestamp)
-
+    
+    let isLoading = false;        
 
     onMount( async () => {
+        isLoading = true;        
 
         html_to_render = await readSnapshot(pql_id, format, timestamp, snapshot_id)
 
@@ -31,6 +33,7 @@
 
             // Add an event listener to adjust height after the content is loaded
             iframe.onload = () => {
+
                 // Get the content height of the iframe (from its body)
                 const iframeDocument = iframe.contentDocument || iframe.contentWindow.document;
                 const iframeBody = iframeDocument.body;
@@ -49,6 +52,8 @@
                 }
             };
         }
+
+        isLoading = false;
 
     });
 
@@ -114,6 +119,29 @@ id="snapshot-item-{snapshot_id}"
     </div>
 </div>
 
+<div class=" my-2 mb-5">
+    {#if isLoading}
+        <div class="flex text-center items-center justify-center h-[48px]">
+            <div class="flex items-center justify-center space-x-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="animate-spin h-10 w-10" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354v4.352M12 15.294v4.352M6.343 6.343l3.07 3.071M14.587 14.587l3.071 3.07M4.354 12H8.706M15.294 12h4.352"/>
+                </svg>
+                <svg width="36" height="36" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <style>
+                        .spinner_S1WN{stroke: currentColor; fill: currentColor; animation:spinner_MGfb .8s linear infinite;animation-delay:-.8s}
+                        .spinner_Km9P{animation-delay:-.65s}
+                        .spinner_JApP{animation-delay:-.5s}@keyframes spinner_MGfb{93.75%,100%{opacity:.2}}
+                    </style>
+                    <circle class="spinner_S1WN" cx="4" cy="12" r="3"/>
+                    <circle class="spinner_S1WN spinner_Km9P" cx="12" cy="12" r="3"/>
+                    <circle class="spinner_S1WN spinner_JApP" cx="20" cy="12" r="3"/>
+                </svg>
+                <div class=" flex items-center justify-center text-lg font-semibold ">Loading snapshot, please wait...</div>
+            </div>
+        </div>
+    {/if}    
+</div>
+
 <div id="iframe-container" class="w-full h-full">
     <iframe
         id="iframe"
@@ -123,7 +151,6 @@ id="snapshot-item-{snapshot_id}"
         allowfullscreen
     />
 </div>
-
 
 <style>
 	/* Use the same hover colors for the selected state */

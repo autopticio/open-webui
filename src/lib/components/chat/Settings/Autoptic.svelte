@@ -2,6 +2,8 @@
 	import { toast } from 'svelte-sonner';
 	import { onMount, getContext } from 'svelte';
 
+	import { refreshTrigger } from '$lib/stores';
+
 	import { user } from '$lib/stores';
 	import { updateUserProfile,
 				} from '$lib/apis/auths';
@@ -19,8 +21,6 @@
 
 	import { generateInitialsImage } from '$lib/utils';
 	import { copyToClipboard } from '$lib/utils';
-
-	import { endpointIDstored } from '$lib/stores'; 
 
 	const i18n = getContext('i18n');
 
@@ -126,6 +126,7 @@
 			await deleteEndpointID(localStorage.token)
 		}
 		localStorage.endpointID=endpointID;
+		refreshTrigger.set(true); 
         };
 
 	const submitHandler = async () => {

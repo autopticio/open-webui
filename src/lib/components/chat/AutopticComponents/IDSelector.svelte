@@ -22,7 +22,6 @@
 	export let width = '100%';
 	export let className = 'w-160';
 
-	let container;
 
 	let show = false;
 
@@ -47,9 +46,7 @@
 
 </script>
 
-<DropdownMenu.Root
-	bind:open={show}
->
+<DropdownMenu.Root bind:open={show} >
 	<DropdownMenu.Trigger 
 		class="w-full" 
 		aria-label={placeholder}
@@ -65,9 +62,9 @@
 
 	<DropdownMenu.Content
 		class=" w-fixed overflow-x-hidden justify-center rounded-xl bg-white dark:bg-gray-850 dark:text-white shadow-lg border border-gray-300/30 dark:border-gray-850/50  outline-none "
-	style="width: 765px;"
+	style="width: 350px"
 	transition={flyAndScale}
-	side={$mobile ? 'bottom' : 'bottom'}
+	side={$mobile ? 'bottom' : 'bottom-start'}
 	align="start"
 	sideOffset={10}
 	>
