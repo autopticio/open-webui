@@ -16,11 +16,16 @@
 			updateServerURL,
 			deleteServerURL,
 			updateEndpointID,
-			deleteEndpointID
+			deleteEndpointID,
+			healthcheckServerURL,
+
+			getListPQL
+
 				} from '$lib/apis/autoptic';
 
 	import { generateInitialsImage } from '$lib/utils';
 	import { copyToClipboard } from '$lib/utils';
+	import { expoInOut } from 'svelte/easing';
 
 	const i18n = getContext('i18n');
 
@@ -111,7 +116,13 @@
 
 	const saveServerURL = async () => {
 		if (serverURL != ''){
-            await updateServerURL(localStorage.token,serverURL)
+			let health = await healthcheckServerURL(localStorage.token,serverURL);
+			if (health) {
+				await updateServerURL(localStorage.token,serverURL)
+			} else {
+				toast.error($i18n.t(`Can't connect with the server through the URL ${serverURL}. The URL will not be saved.`))
+				return;
+			}
 		} else {
 			await deleteServerURL(localStorage.token)
 		}
@@ -120,21 +131,16 @@
 
 	const saveEndpointID = async () => {
 		if (endpointID != ''){
-            await updateEndpointID(localStorage.token,endpointID)
-		} 
-		else {
+			await updateEndpointID(localStorage.token,endpointID)
+		} else {
 			await deleteEndpointID(localStorage.token)
 		}
 		localStorage.endpointID=endpointID;
 		refreshTrigger.set(true); 
         };
 
+// Check this function. Could be changed for this case.
 	const submitHandler = async () => {
-		if (name !== $user.name) {
-			if (profileImageUrl === generateInitialsImage($user.name) || profileImageUrl === '') {
-				profileImageUrl = generateInitialsImage(name);
-			}
-		}
 
 		const updatedUser = await updateUserProfile(localStorage.token, name, profileImageUrl).catch(
 			(error) => {

@@ -1,4 +1,6 @@
 import logging
+import aiohttp
+
 
 from fastapi import Depends, APIRouter
 from fastapi import HTTPException
@@ -24,6 +26,21 @@ class AutopticEnvironment(BaseModel):
     envFileName: str
 
 # Server URL
+
+@router.post("/healthcheck")
+async def healthcheck(serverURL: dict, user=Depends(get_current_user)):
+    try:
+        async with aiohttp.ClientSession(trust_env=True) as session:
+            response = await session.get(
+                f"{serverURL["serverURL"]}/health"
+            )
+            assert response.status == 200
+            print('hello')
+            return True
+    except:
+        raise HTTPException(status_code=404, detail=f"Failed to update server URL. Error: {str(e)}")
+
+
 
 @router.post("/new_serverURL")
 async def update_serverURL(serverURL: dict, user=Depends(get_current_user)):

@@ -311,7 +311,7 @@
 				<svg xmlns="http://www.w3.org/2000/svg" class="animate-spin h-10 w-10" viewBox="0 0 24 24" fill="none" stroke="currentColor">
 					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354v4.352M12 15.294v4.352M6.343 6.343l3.07 3.071M14.587 14.587l3.071 3.07M4.354 12H8.706M15.294 12h4.352"/>
 				</svg>
-				<svg width="36" height="36" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+				<!-- <svg width="36" height="36" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
 					<style>
 						.spinner_S1WN{stroke: currentColor; fill: currentColor; animation:spinner_MGfb .8s linear infinite;animation-delay:-.8s}
 						.spinner_Km9P{animation-delay:-.65s}
@@ -320,7 +320,7 @@
 					<circle class="spinner_S1WN" cx="4" cy="12" r="3"/>
 					<circle class="spinner_S1WN spinner_Km9P" cx="12" cy="12" r="3"/>
 					<circle class="spinner_S1WN spinner_JApP" cx="20" cy="12" r="3"/>
-				</svg>
+				</svg> -->
 				<div class=" flex items-center justify-center text-lg font-semibold ">Loading snapshots, please wait...</div>
 			</div>
 		</div>

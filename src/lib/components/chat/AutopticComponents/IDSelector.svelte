@@ -28,7 +28,9 @@
 	let searchValue = '';
 
 	let items = [];
-	
+
+	let selectedModel = '';
+
 	onMount(async () => {
 		items = await getListPQL();
 	});
@@ -41,7 +43,6 @@
 		  )]
 		: [];
 
-	let selectedModel = '';
 	$: selectedModel = items.find((item) => item === value) ?? '';
 
 </script>

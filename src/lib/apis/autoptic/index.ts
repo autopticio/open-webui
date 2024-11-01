@@ -313,6 +313,32 @@ export const getEnvFileName = async (token: string) => {
 };
 
 
+export const healthcheckServerURL = async (token: string, serverURL: string) => {
+	let error = null;
+	const res = await fetch(`${AUTOPTIC_BASE_URL}/serverconfig/healthcheck`, {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/json',
+			Authorization: `Bearer ${token}`
+		},
+		body: JSON.stringify({ serverURL })
+	})
+		.then(async (res) => {
+			if (!res.ok) throw await res.json();
+			return res.json(); 
+		})
+		.catch((err) => {
+			console.log(err);
+			error = err.detail;
+			console.log(error)
+			return null;
+		});
+	if (error) {
+		throw error;
+	}
+	return res;
+};
+
 export const updateServerURL = async (token: string, serverURL: string) => {
 	let error = null;
 	const res = await fetch(`${AUTOPTIC_BASE_URL}/serverconfig/new_serverURL`, {
