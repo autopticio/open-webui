@@ -1,6 +1,6 @@
 import logging
 import aiohttp
-
+import re
 
 from fastapi import Depends, APIRouter
 from fastapi import HTTPException
@@ -26,16 +26,25 @@ class AutopticEnvironment(BaseModel):
     envFileName: str
 
 # Server URL
+def format_server_url(url):
+    pattern = r"^(https?://)?(.+?)(?<!/)$"
+
+    match = re.match(pattern, url)
+    if match:
+        protocol = match.group(1) if match.group(1) else "http://"
+        main_content = match.group(2)
+        
+        return f"{protocol}{main_content}"
 
 @router.post("/healthcheck")
 async def healthcheck(serverURL: dict, user=Depends(get_current_user)):
+    server_url=format_server_url(serverURL["serverURL"])
     try:
         async with aiohttp.ClientSession(trust_env=True) as session:
             response = await session.get(
-                f"{serverURL["serverURL"]}/health"
+                f"{server_url}/health"
             )
             assert response.status == 200
-            print('hello')
             return True
     except:
         raise HTTPException(status_code=404, detail=f"Failed to update server URL. Error: {str(e)}")
@@ -44,13 +53,12 @@ async def healthcheck(serverURL: dict, user=Depends(get_current_user)):
 
 @router.post("/new_serverURL")
 async def update_serverURL(serverURL: dict, user=Depends(get_current_user)):
+    server_url=format_server_url(serverURL["serverURL"])
     try:
-        print(serverURL)
         success = Users.update_user_serverURL_by_id(user.id, serverURL["serverURL"])
-        print(success)
         if success:
             return {
-                "serverURL": serverURL["serverURL"],
+                "serverURL": server_url,
             }
     except Exception as e:
         logger.error(" Failed to update server URL. %s", e)

@@ -5,8 +5,6 @@
 	import { refreshTrigger } from '$lib/stores';
 
 	import { user } from '$lib/stores';
-	import { updateUserProfile,
-				} from '$lib/apis/auths';
 
 	import {
 			updateAutopticEndpoint,
@@ -23,21 +21,17 @@
 
 				} from '$lib/apis/autoptic';
 
-	import { generateInitialsImage } from '$lib/utils';
 	import { copyToClipboard } from '$lib/utils';
-	import { expoInOut } from 'svelte/easing';
+
 
 	const i18n = getContext('i18n');
 
-	export let saveHandler: Function;
 	export let admin = false;
 
 
 	let profileImageUrl = '';
 	let name = '';
 
-	let showAPIKeys = false;
-	
 	let showSaaSConfiguration = false;
 	let showNewKeys = false;
 	let showServerConfiguration = false;
@@ -53,6 +47,8 @@
 	let newEnvFile = false;
 
 	let placeholderText = "Environment file here.";
+
+	let isDisabled = true;
 
 	function handleEnvFileChange(event) {
 		
@@ -98,10 +94,12 @@
 			updateAutopticEnvironment(localStorage.token,envFileContent,envFileName)
 			localStorage.autoptic_environment = envFileContent
 			localStorage.envFileName = envFileName;
+			return true
 		} else {
 			deleteAutopticEnvironment(localStorage.token)
 			localStorage.removeItem('autoptic_environment');
 			localStorage.removeItem('envFileName');
+			return true
 		}
 	};
 
@@ -112,6 +110,7 @@
 			await deleteAutopticEndpoint(localStorage.token)
 		}
 		localStorage.autoptic_endpoint=autoptic_endpoint;
+		return true
         };
 
 	const saveServerURL = async () => {
@@ -121,12 +120,13 @@
 				await updateServerURL(localStorage.token,serverURL)
 			} else {
 				toast.error($i18n.t(`Can't connect with the server through the URL ${serverURL}. The URL will not be saved.`))
-				return;
+				return false;
 			}
 		} else {
 			await deleteServerURL(localStorage.token)
 		}
 		localStorage.serverURL=serverURL;
+		return true
         };
 
 	const saveEndpointID = async () => {
@@ -137,23 +137,43 @@
 		}
 		localStorage.endpointID=endpointID;
 		refreshTrigger.set(true); 
+		return true
         };
 
-// Check this function. Could be changed for this case.
-	const submitHandler = async () => {
+	async function handleSavingConfig() {
+        let save1 = false, save2 = false, save3 = false, save4 = false;
 
-		const updatedUser = await updateUserProfile(localStorage.token, name, profileImageUrl).catch(
-			(error) => {
-				toast.error(error);
-			}
-		);
+        if (autoptic_endpoint !== localStorage.autoptic_endpoint) {
+            save1 = await saveEndpoint();
+        }
+        if (newEnvFile) {
+            save2 = await saveEnvContent();
+        }
+        if (serverURL !== localStorage.serverURL) {
+            save3 = await saveServerURL();
+        }
+        if (endpointID !== localStorage.endpointID) {
+            save4 = await saveEndpointID();
+        }
 
-		if (updatedUser) {
-			await user.set(updatedUser);
-			return true;
-		}
-		return false;
-	};
+        if (save1 && save2 && save3 && save4) {
+			toast.success($i18n.t('SaaS and Server configuration saved correctly'))
+		} else if (save1 && save2) {
+			toast.success($i18n.t('SaaS configuration saved correctly!'))
+        } else if (save3 && save4) {
+			toast.success($i18n.t('Server configuration saved correctly'))
+        } else if (save1) {
+			toast.success($i18n.t('API URL saved correctly!'))
+        } else if (save2) {
+			toast.success($i18n.t('Environment saved correctly!'))
+        } else if (save3) {
+			toast.success($i18n.t('Server URL saved correctly!'))
+        } else if (save4) {
+			toast.success($i18n.t('Endpoint ID saved correctly!'))
+        }
+
+        isDisabled = !isDisabled;
+    }
 
 	onMount(async () => {
 		name = $user.name;
@@ -178,8 +198,15 @@
 			if (storedEndpointID) {
 				endpointID = storedEndpointID;
 			}
-
 	});
+
+    $: isDisabled = !(
+        (autoptic_endpoint !== localStorage.autoptic_endpoint) ||
+        newEnvFile ||
+        (serverURL !== localStorage.serverURL) ||
+        (endpointID !== localStorage.endpointID)
+    );
+
 </script>
 
 <div class="flex flex-col h-full justify-between text-sm">
@@ -473,25 +500,9 @@
 
 	<div class="flex justify-end pt-3 text-sm font-medium">
 		<button
-			class="  px-4 py-2 bg-emerald-700 hover:bg-emerald-800 text-gray-100 transition rounded-lg"
-			on:click={async () => {
-				if (autoptic_endpoint != localStorage.autoptic_endpoint) {
-					saveEndpoint();
-				}
-				if (newEnvFile){
-					saveEnvContent();
-				}
-				if (serverURL != localStorage.serverURL) {
-					saveServerURL();
-				}
-				if (endpointID != localStorage.endpointID) {
-					saveEndpointID();
-				}
-				const res = await submitHandler();
-				if (res) {
-					saveHandler();
-				}
-			}}
+			class=" {isDisabled ? 'bg-emerald-800' : 'bg-emerald-700 hover:bg-emerald-800'} px-4 py-2  text-gray-100 transition rounded-lg"
+			disabled={isDisabled}
+			on:click={handleSavingConfig}
 		>
 			{$i18n.t('Save')}
 		</button>
