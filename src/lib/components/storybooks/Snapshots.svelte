@@ -316,7 +316,9 @@
 <hr class=" dark:border-gray-850" />
 
 <div class=" my-10 ">
-	<div class=" text-lg font-semibold mb-3 text-right">{$i18n.t('Made by Renaiss')}</div>
+	<div class=" text-lg font-semibold mb-3 text-right flex items-center justify-end">{$i18n.t('Made by Renaiss')}
+		<img src={"/renaiss.png"} alt="renaiss_logo" class="ml-2 h-6 w-6" />
+	</div>
 </div>
 
 <DeleteSnapModal 
