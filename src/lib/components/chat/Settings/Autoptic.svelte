@@ -23,7 +23,6 @@
 
 	import { copyToClipboard } from '$lib/utils';
 
-
 	const i18n = getContext('i18n');
 
 	export let admin = false;
@@ -40,6 +39,7 @@
 	let autoptic_endpoint = '';
 	let token_id = '';
 	let serverURL = '';
+	let displayedServerURL = '';
 	let endpointID = '';
 	let accessToken = '';
 
@@ -47,6 +47,7 @@
 	let newEnvFile = false;
 
 	let placeholderText = "Environment file here.";
+	const defaultPlaceholderEnv = "Environment file here.";
 
 	let isDisabled = true;
 
@@ -57,50 +58,58 @@
 		if (fileInput.files.length > 0) {
 			envFile = fileInput.files[0]
 			const fileName = fileInput.files[0].name;
-			placeholderText = fileName; 
+			placeholderText = fileName;
+
 		} else {
-			placeholderText = 'Envinroment file here';
+			placeholderText = "Environment file here.";
 			}	
-		newEnvFile=true;
+		newEnvFile = true;
+
 	}
 
-	const saveEnvContent = async() => {
-		// JERE: I will improve this if.
-		if (placeholderText != "Environment file here.") {
+	const readEnvFile = () => {
+		return new Promise((resolve,reject) => {
+
 			const reader = new FileReader();
+			reader.onload = function(e) {
 
-			const readEnvFile = () => {
-				return new Promise((resolve,reject) => {
-					reader.onload = function(e) {
-						const envFileContent = e.target.result;
-						const envFileName = envFile.name;
-						try {
-							JSON.parse(envFileContent)
-							resolve({ envFileContent , envFileName })
-						} catch (e) {
-							toast.error($i18n.t('Environment file invalid. Your config will not be saved.'));
-							placeholderText = "Environment file here."
-							reject();
-						}
-					};
+				const envFileContent = e.target.result;
+				const envFileName = envFile.name;
 
-					reader.onerror = () => reject();
-					reader.readAsText(envFile);
-
-				});
+				try {
+					JSON.parse(envFileContent);
+					resolve({ envFileContent , envFileName });
+				} catch (e) {
+					toast.error($i18n.t('Environment file invalid. Your config will not be saved.'));
+					placeholderText = defaultPlaceholderEnv
+					reject();
+				}
 			};
 
+			reader.onerror = () => reject();
+			reader.readAsText(envFile);
+
+		});
+	};
+
+	const saveEnvContent = async() => {
+		if (placeholderText != defaultPlaceholderEnv) {
+			try {
 			const { envFileContent , envFileName } = await readEnvFile();
-			updateAutopticEnvironment(localStorage.token,envFileContent,envFileName)
+			await updateAutopticEnvironment(localStorage.token,envFileContent,envFileName)
 			localStorage.autoptic_environment = envFileContent
 			localStorage.envFileName = envFileName;
-			return true
+			} catch (error){
+				toast.error($i18n.t("Environment file invalid. Your config will not be saved."));
+            	placeholderText = defaultPlaceholderEnv;
+            	return false; // Return false to indicate failure
+			}
 		} else {
 			deleteAutopticEnvironment(localStorage.token)
 			localStorage.removeItem('autoptic_environment');
 			localStorage.removeItem('envFileName');
-			return true
 		}
+		return true;
 	};
 
 	const saveEndpoint = async () => {
@@ -113,8 +122,23 @@
 		return true
         };
 
+	function formatServerUrl(url: string) {
+		const pattern = /^(https?:\/\/)?(.+?)\/?$/;
+
+		const match = url.match(pattern);
+		if (match) {
+			const protocol = match[1] ? match[1] : "http://";
+			const mainContent = match[2];
+			
+			return `${protocol}${mainContent}/`;
+		}
+		return null;
+	}
+
+
 	const saveServerURL = async () => {
 		if (serverURL != ''){
+			serverURL = formatServerUrl(serverURL)
 			let health = await healthcheckServerURL(localStorage.token,serverURL);
 			if (health) {
 				await updateServerURL(localStorage.token,serverURL)
@@ -171,7 +195,7 @@
         } else if (save4) {
 			toast.success($i18n.t('Endpoint ID saved correctly!'))
         }
-
+		newEnvFile = false;
         isDisabled = !isDisabled;
     }
 
@@ -206,6 +230,8 @@
         (serverURL !== localStorage.serverURL) ||
         (endpointID !== localStorage.endpointID)
     );
+	
+    $: displayURL = serverURL === '' ? '' : (serverURL + '/');
 
 </script>
 
@@ -348,7 +374,7 @@
 								class="hidden"
 								id="file-upload"
 								name="myfile"
-								on:change="{handleEnvFileChange}"
+								on:change={handleEnvFileChange}
 							/>
 								<label
 									for="file-upload"
@@ -361,7 +387,7 @@
 							<button
 								class="ml-1.5 px-1.5 py-1 dark:hover:bg-gray-850 transition rounded-lg"
 								on:click={() => {
-								if (placeholderText != "Environment file here.") {
+								if (placeholderText != defaultPlaceholderEnv) {
 									placeholderText='Environment file here.'
 									newEnvFile= true
 									toast.success($i18n.t('Environment file deleted. Please save your configuration!'));	
@@ -403,7 +429,7 @@
 							<input
 								class="w-full rounded py-1.5 pl-4 text-sm bg-white dark:text-gray-300 dark:bg-gray-850 outline-none"
 								placeholder='Enter the Server URL'
-								bind:value={serverURL}
+								bind:value = {serverURL}
 							/>
 
 						</div>

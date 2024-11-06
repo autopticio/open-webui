@@ -6,8 +6,6 @@ import json
 from fastapi import APIRouter
 from fastapi import HTTPException
 
-# autoptic_port=os.getenv('AUTOPTIC_SERVER_PORT')
-
 router = APIRouter()
 
 logger = logging.getLogger(__name__)
@@ -17,7 +15,7 @@ async def getListPQL(endpoint_id: str , serverURL: str):
     try:
         async with aiohttp.ClientSession(trust_env=True) as session:
             response = await session.get(
-                f"{serverURL}/story/ep/{endpoint_id}/pql",
+                f"{serverURL}story/ep/{endpoint_id}/pql",
             )
 
             return await response.json()

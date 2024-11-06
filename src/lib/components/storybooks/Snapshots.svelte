@@ -24,8 +24,6 @@
 
 	let selectedPQLId = 'Any'; // DON'T make this a real empty string.
 
-	const autoptic_prefix = localStorage.getItem('serverURL')
-	
 	let _snapshots = [];
 	let isLoading = false;
 
@@ -42,14 +40,9 @@
 
 	let filteredSnapshots = [];
 
-	// export let selectedPeriod = '1h' ;
 	let sortOrder = 'desc';
 
 	let search = '';
-
-	// function selectPeriod(period) {
-	// 	selectedPeriod = period;
-	// }
 
 	function toggleSortOrder() {
 		sortOrder = sortOrder === 'asc' ? 'desc' : 'asc';
@@ -72,33 +65,6 @@
 		await defaultSnapshots();
 		applyFilters();
 	};
-
-	// const getFilterDate = () => {
-	// 	const now = new Date();
-    //     let filterDate;
-    //     switch (selectedPeriod) {
-    //         case '1h':
-    //             filterDate = new Date(now.getTime() - 1 * 60 * 60 * 1000); // 1 hour ago
-    //             break;
-    //         case '1d':
-    //             filterDate = new Date(now.getTime() - 24 * 60 * 60 * 1000); // 1 day ago
-    //             break;
-	// 		case '1w':
-	// 			filterDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000); // 1 week ago
-	// 			break;
-    //         case '1m':
-    //             filterDate = new Date(now.setMonth(now.getMonth() - 1)); // 1 month ago
-    //             break;
-    //         case '1y':
-    //             filterDate = new Date(now.setFullYear(now.getFullYear() - 1)); // 1 year ago
-    //             break;
-    //         case 'All':
-    //         default:
-    //             filterDate = null;
-    //             break;
-    //     }
-    //     return filterDate;
-    // };
 
 	let selectedFormat = 'Any'
 
@@ -136,12 +102,12 @@
 		applyFilters();
 	})
 
-	$: defaultSnapshots(selectedTime,selectedTimeUnit);
+	$: defaultSnapshots(selectedTime,selectedTimeUnit,localStorage.serverURL);
 	$: applyFilters(sortOrder,_snapshots, selectedPQLId, selectedFormat);
 	$: refreshTrigger.subscribe((shouldRefresh) => {
 		if (shouldRefresh) {
 			refreshSnapshots();
-			refreshTrigger.set(false); // Reset the trigger after calling the function
+			refreshTrigger.set(false); 
 		}
 	});
 
@@ -192,10 +158,10 @@
 		<div class="flex-grow flex justify-center items-center min-w-fit rounded-lg p-1.5 px-3 
 			bg-gray-50 dark:bg-gray-850 transition cursor-pointer dark:hover:bg-gray-700 hover:bg-black/5 "
 			>
-			<IDSelector
-				placeholder={`Selected PQL: ${selectedPQLId}`}
-				on:select={(event) => selectedPQLId = event.detail.value}
-				bind:value={selectedPQLId}
+				<IDSelector
+					placeholder={`Selected PQL: ${selectedPQLId}`}
+					on:select={(event) => selectedPQLId = event.detail.value}
+					bind:value={selectedPQLId}	
 			/>
 		</div>
 
@@ -246,62 +212,6 @@
 
 	</div>
 
-	<!-- <div class="flex flex-1 flex-wrap space-x-4"> -->
-
-		<!-- svelte-ignore a11y-missing-attribute -->
-		<!-- <a class=" flex justify-end space-x-4 w-full mb-2 px-2 py-1" > -->
-
-
-
-			<!-- <div 
-				class="w-12 flex justify-center items-center min-w-fit rounded-lg p-1.5 px-3 
-					bg-gray-50 dark:bg-gray-850 transition cursor-pointer dark:hover:bg-gray-700 hover:bg-black/5"
-				class:selected={selectedPeriod === '1y'}
-				on:click={() => {selectPeriod('1y')}}
-			>
-				<span class="text-center">1y</span>
-			</div>
-
-			<div 
-				class="w-12 flex justify-center items-center min-w-fit rounded-lg p-1.5 px-3 
-					bg-gray-50 dark:bg-gray-850 transition cursor-pointer dark:hover:bg-gray-700 hover:bg-black/5"
-				class:selected={selectedPeriod === '1m'}
-				on:click={() => {selectPeriod('1m')}}
-			>
-				<span class="text-center">1m</span>
-			</div>
-
-			<div 
-				class="w-12 flex justify-center items-center min-w-fit rounded-lg p-1.5 px-3 
-					bg-gray-50 dark:bg-gray-850 transition cursor-pointer dark:hover:bg-gray-700 hover:bg-black/5"
-				class:selected={selectedPeriod === '1w'}
-				on:click={() => {selectPeriod('1w')}}
-			>
-				<span class="text-center">1w</span>
-			</div>
-
-			<div 
-				class="w-12 flex justify-center items-center min-w-fit rounded-lg p-1.5 px-3 
-					bg-gray-50 dark:bg-gray-850 transition cursor-pointer dark:hover:bg-gray-700 hover:bg-black/5"
-				class:selected={selectedPeriod === '1d'}
-				on:click={() => {selectPeriod('1d')}}
-			>
-				<span class="text-center">1d</span>
-			</div>
-
-			<div 
-				class="w-12 flex justify-center items-center min-w-fit rounded-lg p-1.5 px-3 
-			bg-gray-50 dark:bg-gray-850 transition cursor-pointer dark:hover:bg-gray-700 hover:bg-black/5"
-				class:selected={selectedPeriod === '1h'}
-				on:click={() => {selectPeriod('1h')}
-							}
-			>
-				<span class="text-center">1h</span>
-			</div> -->
-<!-- 		
-		</a>
-	</div> -->
-
 </div>
 
 <div class=" my-2 mb-5" id="snapshot-list">
@@ -311,16 +221,6 @@
 				<svg xmlns="http://www.w3.org/2000/svg" class="animate-spin h-10 w-10" viewBox="0 0 24 24" fill="none" stroke="currentColor">
 					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354v4.352M12 15.294v4.352M6.343 6.343l3.07 3.071M14.587 14.587l3.071 3.07M4.354 12H8.706M15.294 12h4.352"/>
 				</svg>
-				<!-- <svg width="36" height="36" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-					<style>
-						.spinner_S1WN{stroke: currentColor; fill: currentColor; animation:spinner_MGfb .8s linear infinite;animation-delay:-.8s}
-						.spinner_Km9P{animation-delay:-.65s}
-						.spinner_JApP{animation-delay:-.5s}@keyframes spinner_MGfb{93.75%,100%{opacity:.2}}
-					</style>
-					<circle class="spinner_S1WN" cx="4" cy="12" r="3"/>
-					<circle class="spinner_S1WN spinner_Km9P" cx="12" cy="12" r="3"/>
-					<circle class="spinner_S1WN spinner_JApP" cx="20" cy="12" r="3"/>
-				</svg> -->
 				<div class=" flex items-center justify-center text-lg font-semibold ">Loading snapshots, please wait...</div>
 			</div>
 		</div>
@@ -338,16 +238,6 @@
 
 					<!-- First description -->
 					<div class="flex flex-1 space-x-3.5 w-full cursor-pointer">
-						<!-- Imagen comentada opcional -->
-						<!-- <div class="self-start w-8 pt-0.5">
-							<div class="rounded-full bg-stone-700">
-								<img
-									src={snapshot?.info?.meta?.profile_image_url ?? '/autoptic.png'}
-									alt="snapshotfile profile"
-									class="rounded-full w-full h-auto object-cover bg-white dark:bg-white"
-								/>
-							</div>
-						</div> -->
 					
 						<!-- svelte-ignore a11y-click-events-have-key-events -->
 						<!-- svelte-ignore a11y-no-static-element-interactions -->

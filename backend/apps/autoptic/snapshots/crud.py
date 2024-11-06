@@ -8,7 +8,6 @@ from fastapi import HTTPException
 from fastapi.responses import HTMLResponse
 
 from ..pql.crud import getListPQL
-from ..serverconfig import format_server_url
 from datetime import datetime
 
 # autoptic_port=os.getenv('AUTOPTIC_SERVER_PORT')
@@ -59,10 +58,8 @@ formats = ['html','json']
 @router.get("/get_default_list_snapshot")
 async def getDefaultListSnapshots(endpoint_id: str, window: str, serverURL: str):
 
-    server_url = format_server_url(serverURL)
-    
     list_snapshots = []
-    pql_ids = await getListPQL(endpoint_id, server_url)
+    pql_ids = await getListPQL(endpoint_id, serverURL)
 
     for pql_id in pql_ids:
         for format in formats:
@@ -70,7 +67,7 @@ async def getDefaultListSnapshots(endpoint_id: str, window: str, serverURL: str)
             try:
                 async with aiohttp.ClientSession(trust_env=True) as session:
                     response = await session.post(
-                        f"{server_url}/story/ep/{endpoint_id}/pql/{pql_id}/snap/{format}/recent?window={window}",
+                        f"{serverURL}story/ep/{endpoint_id}/pql/{pql_id}/snap/{format}/recent?window={window}",
                     )
                     response = await response.json()
                     if response:
@@ -84,14 +81,12 @@ async def getDefaultListSnapshots(endpoint_id: str, window: str, serverURL: str)
 @router.get("/get_list_snapshot")
 async def getListSnapshots(endpoint_id: str, pql_id: str, format: str, timestamp: str, serverURL: str):
     
-    server_url = format_server_url(serverURL)
-
     list_snapshots = []
     
     try:
         async with aiohttp.ClientSession(trust_env=True) as session:
             response = await session.get(
-                f"{server_url}/story/ep/{endpoint_id}/pql/{pql_id}/snap/{format}/{timestamp}",
+                f"{serverURL}story/ep/{endpoint_id}/pql/{pql_id}/snap/{format}/{timestamp}",
             )
             response = await response.json()
 
@@ -109,12 +104,10 @@ async def getListSnapshots(endpoint_id: str, pql_id: str, format: str, timestamp
 @router.get("/read_snapshot")
 async def readSnapshot(endpoint_id: str, pql_id: str, format: str, timestamp: str, snapshot_id: str, serverURL: str):
     
-    server_url = format_server_url(serverURL)
-
     try:
         async with aiohttp.ClientSession(trust_env=True) as session:
             response = await session.get(
-                f"{server_url}/story/ep/{endpoint_id}/pql/{pql_id}/snap/{format}/{timestamp}/{snapshot_id}",
+                f"{serverURL}story/ep/{endpoint_id}/pql/{pql_id}/snap/{format}/{timestamp}/{snapshot_id}",
             )
             
             html_content = await response.text()
@@ -128,12 +121,10 @@ async def readSnapshot(endpoint_id: str, pql_id: str, format: str, timestamp: st
 @router.delete("/delete_snapshot")
 async def deleteSnapshots(endpoint_id: str, pql_id: str, format: str, timestamp: str, snapshot_id: str, serverURL: str):
     
-    server_url = format_server_url(serverURL)
-    
     try:
         async with aiohttp.ClientSession(trust_env=True) as session:
             response = await session.delete(
-                f"{server_url}/story/ep/{endpoint_id}/pql/{pql_id}/snap/{format}/{timestamp}/{snapshot_id}",
+                f"{serverURL}story/ep/{endpoint_id}/pql/{pql_id}/snap/{format}/{timestamp}/{snapshot_id}",
             )
             
             if response.status == 200:

@@ -26,23 +26,14 @@ class AutopticEnvironment(BaseModel):
     envFileName: str
 
 # Server URL
-def format_server_url(url):
-    pattern = r"^(https?://)?(.+?)(?<!/)$"
-
-    match = re.match(pattern, url)
-    if match:
-        protocol = match.group(1) if match.group(1) else "http://"
-        main_content = match.group(2)
-        
-        return f"{protocol}{main_content}"
 
 @router.post("/healthcheck")
 async def healthcheck(serverURL: dict, user=Depends(get_current_user)):
-    server_url=format_server_url(serverURL["serverURL"])
+    server_url = serverURL["serverURL"]
     try:
         async with aiohttp.ClientSession(trust_env=True) as session:
             response = await session.get(
-                f"{server_url}/health"
+                f"{server_url}health"
             )
             assert response.status == 200
             return True
@@ -53,7 +44,7 @@ async def healthcheck(serverURL: dict, user=Depends(get_current_user)):
 
 @router.post("/new_serverURL")
 async def update_serverURL(serverURL: dict, user=Depends(get_current_user)):
-    server_url=format_server_url(serverURL["serverURL"])
+    server_url = serverURL["serverURL"]
     try:
         success = Users.update_user_serverURL_by_id(user.id, serverURL["serverURL"])
         if success:
