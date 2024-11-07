@@ -46,78 +46,58 @@ const sendToAPI = async (mensaje) => {
 	return result;
 };
 
-export const insertIframe = async (chatId, messageId, html_to_render) => {
-    return new Promise((resolve, reject) => {
-        let responseDiv = document.getElementById("message-" + messageId);
 
-        if (responseDiv) {
-            let iframeID = "iframe-" + chatId + messageId;
-            let existingIframe = document.getElementById(iframeID);
-            if (existingIframe) {
-                existingIframe.parentNode?.removeChild(existingIframe);
-            }
+export const insertIframe = async (chatId,messageId, html_to_render) => {
+	let responseDiv = document.getElementById("message-" + messageId);
 
-            var iframe = document.createElement('iframe');
-            iframe.id = iframeID;
-            iframe.width = "100%";
-            iframe.style.border = "none";
-			iframe.style.marginTop = "10px"
+	if (responseDiv) {
 
-            let closeButtonHtml = `
-                <button id="closeButton-${iframeID}" style="position: absolute; top: -40px; right: 10px; background: #FF3A3A; border: 0.5px solid #323232; cursor: pointer; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M6 18L18 6M6 6l12 12" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                </button>
-            `;
+		let iframeID = "iframe-" + chatId + messageId;
+		let existingIframe = document.getElementById(iframeID);
+		if (existingIframe) {
+			existingIframe.parentNode?.removeChild(existingIframe);
+		}
 
-            if (!html_to_render.includes(`id="closeButton-${iframeID}"`)) {
-                html_to_render = `
-                    <div style="position: relative; margin-top: 10px; top: 40px">
-                        ${html_to_render}
-                        ${closeButtonHtml}
-                    </div>
-                `;
-            }
+		var iframe = document.createElement('iframe');
+		iframe.id = iframeID;
+		iframe.height = "907px";
+		iframe.width = "100%";
 
-            responseDiv.parentNode.insertBefore(iframe, responseDiv.nextSibling);
+		let closeButtonHtml = `
+			<button id="closeButton-${iframeID}" style="position: absolute; top: -40px; right: 10px; background: #FF3A3A; border: 0.5px solid #323232; cursor: pointer; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center">
+				<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+					<path d="M6 18L18 6M6 6l12 12" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+				</svg>
+			</button>
+		`;
 
-            iframe.contentWindow.document.open();
-            iframe.contentWindow.document.write(html_to_render);
-            iframe.contentWindow.document.close();
-            iframe.style.borderRadius = '20px';     
-            iframe.style.overflow = 'hidden';
+		if (!html_to_render.includes(`id="closeButton-${iframeID}"`)) {
+			html_to_render = `
+				<div style="position: relative; top: 40px">
+					${html_to_render}
+					${closeButtonHtml}
+				</div>
+			`;
+		}
 
-            iframe.onload = () => {
-                // Ensure that the iframe height adjusts to fit the content
-                const adjustIframeHeight = () => {
-                    const iframeDocument = iframe.contentWindow.document;
-                    const contentHeight = iframeDocument.body.scrollHeight;
-                    iframe.style.height = contentHeight + "px";
-                    iframeDocument.body.style.backgroundColor = 'white';
-                };
+		responseDiv.parentNode.insertBefore(iframe, responseDiv.nextSibling);
 
-                adjustIframeHeight();
+		iframe.contentWindow.document.open();
+		iframe.contentWindow.document.write(html_to_render);
+		iframe.contentWindow.document.close();
 
-                iframe.contentWindow.document.getElementById(`closeButton-${iframeID}`).addEventListener('click', function() {
-                    deleteIframeContent(iframeID, chatId, messageId);
-                });
+		iframe.onload = () => {
+			iframe.contentWindow.document.getElementById(`closeButton-${iframeID}`).addEventListener('click', function() {
+				deleteIframeContent(iframeID, chatId , messageId);
+				});
+		};
 
-                resolve();
-            };
-
-            iframe.onerror = (error) => {
-                reject(error);
-            };
-
-            if (!localStorage.getItem(`iframeContent-${chatId}-${messageId}`)) {
-                storeIframeContent(chatId, messageId, html_to_render);
-            }
-        } else {
-            reject(new Error("Response div not found"));
-        }
-    });
-};
+		if (!localStorage.getItem(`iframeContent-${chatId}-${messageId}`)) {
+			storeIframeContent(chatId , messageId, html_to_render);
+		}
+	
+	}
+}
 
 export function deleteIframeContent(iframeID, chatId , messageId){
 	let iframe = document.getElementById(iframeID)
@@ -320,402 +300,4 @@ export const getEnvFileName = async (token: string) => {
 
 	return res.envFileName;
 
-};
-
-
-export const healthcheckServerURL = async (token: string, serverURL: string) => {
-	let error = null;
-	const res = await fetch(`${AUTOPTIC_BASE_URL}/serverconfig/healthcheck`, {
-		method: 'POST',
-		headers: {
-			'Content-Type': 'application/json',
-			Authorization: `Bearer ${token}`
-		},
-		body: JSON.stringify({ serverURL })
-	})
-		.then(async (res) => {
-			if (!res.ok) throw await res.json();
-			return res.json(); 
-		})
-		.catch((err) => {
-			console.log(err);
-			error = err.detail;
-			console.log(error)
-			return null;
-		});
-	if (error) {
-		throw error;
-	}
-	return res;
-};
-
-export const updateServerURL = async (token: string, serverURL: string) => {
-	let error = null;
-	const res = await fetch(`${AUTOPTIC_BASE_URL}/serverconfig/new_serverURL`, {
-		method: 'POST',
-		headers: {
-			'Content-Type': 'application/json',
-			Authorization: `Bearer ${token}`
-		},
-		body: JSON.stringify({ serverURL })
-	})
-		.then(async (res) => {
-			if (!res.ok) throw await res.json();
-			return res.json(); 
-		})
-		.catch((err) => {
-			console.log(err);
-			error = err.detail;
-			console.log(error)
-			return null;
-		});
-	if (error) {
-		throw error;
-	}
-	return res.serverURL;
-};
-
-export const getServerURL = async (token: string) => {
-	let error = null;
-
-	const res = await fetch(`${AUTOPTIC_BASE_URL}/serverconfig/get_serverURL`, {
-		method: 'GET',
-		headers: {
-			'Content-Type': 'application/json',
-			Authorization: `Bearer ${token}`
-		}
-	})
-		.then(async (res) => {
-			if (!res.ok) throw await res.json();
-			return res.json();
-		})
-		.catch((err) => {
-			console.log(err);
-			error = err.detail;
-			return null;
-		});
-	if (error) {
-		throw error;
-	}
-
-	return res.serverURL;
-
-};
-
-export const deleteServerURL = async (token: string) => {
-	let error = null;
-
-	const res = await fetch(`${AUTOPTIC_BASE_URL}/serverconfig/delete_serverURL`, {
-		method: 'DELETE',
-		headers: {
-			'Content-Type': 'application/json',
-			Authorization: `Bearer ${token}`
-		}
-	})
-		.then(async (res) => {
-			if (!res.ok) throw await res.json();
-			return res.json();
-		})
-		.catch((err) => {
-			console.log(err);
-			error = err.detail;
-			return null;
-		});
-	if (error) {
-		throw error;
-	}
-	return res;
-};
-
-export const updateEndpointID = async (token: string, endpointID: string) => {
-	let error = null;
-	const res = await fetch(`${AUTOPTIC_BASE_URL}/serverconfig/new_endpointID`, {
-		method: 'POST',
-		headers: {
-			'Content-Type': 'application/json',
-			Authorization: `Bearer ${token}`
-		},
-		body: JSON.stringify({ endpointID })
-	})
-		.then(async (res) => {
-			if (!res.ok) throw await res.json();
-			return res.json(); 
-		})
-		.catch((err) => {
-			console.log(err);
-			error = err.detail;
-			console.log(error)
-			return null;
-		});
-	if (error) {
-		throw error;
-	}
-	return res.endpointID;
-};
-
-export const getEndpointID = async (token: string) => {
-	let error = null;
-
-	const res = await fetch(`${AUTOPTIC_BASE_URL}/serverconfig/get_endpointID`, {
-		method: 'GET',
-		headers: {
-			'Content-Type': 'application/json',
-			Authorization: `Bearer ${token}`
-		}
-	})
-		.then(async (res) => {
-			if (!res.ok) throw await res.json();
-			return res.json();
-		})
-		.catch((err) => {
-			console.log(err);
-			error = err.detail;
-			return null;
-		});
-	if (error) {
-		throw error;
-	}
-
-	return res.endpointID;
-
-};
-
-export const deleteEndpointID = async (token: string) => {
-	let error = null;
-
-	const res = await fetch(`${AUTOPTIC_BASE_URL}/serverconfig/delete_endpointID`, {
-		method: 'DELETE',
-		headers: {
-			'Content-Type': 'application/json',
-			Authorization: `Bearer ${token}`
-		}
-	})
-		.then(async (res) => {
-			if (!res.ok) throw await res.json();
-			return res.json();
-		})
-		.catch((err) => {
-			console.log(err);
-			error = err.detail;
-			return null;
-		});
-	if (error) {
-		throw error;
-	}
-	return res;
-};
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////
-// GO SERVER FUNCTIONS
-//////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-// Get List PQL: GET /story/ep/{endpoint_id}/pql
-export const getListPQL = async () => {
-
-	const serverURL = localStorage.getItem('serverURL');
-	const endpoint_id = localStorage.getItem('endpointID');
-
-	let error = null;
-
-	const res = await fetch(`${AUTOPTIC_BASE_URL}/pqls/get_list_pql?endpoint_id=${endpoint_id}&serverURL=${encodeURIComponent(serverURL)}`, {
-		method: 'GET',
-		headers: {
-			'Content-Type': 'application/json',
-			// Authorization: `Bearer ${token}`
-		}
-	})
-		.then(async (res) => {
-			if (!res.ok) throw await res.json();
-			return res.json();
-		})
-		.catch((err) => {
-			console.log(err);
-			error = err.detail;
-			return null;
-		});
-	if (error) {
-		throw error;
-	}
-
-	return res;
-
-};
-
-
-// Why I did this? Think about it
-// Get a snapshot: GET /story/ep/{endpoint_id}/pql/{pql_id}/snap/{format}/{timestamp}/{snapshot_id}
-export const getUniqueSnapshot = async (token: string, pql_id: string, format: string, timestamp: string, snapshot_id: string) => {
-	let error = null;
-
-	const endpoint_id = localStorage.getItem('endpointID');
-
-	const res = await fetch(`${AUTOPTIC_BASE_URL}/story/ep/${endpoint_id}/pql/${pql_id}/snap/${format}/${timestamp}/${snapshot_id}`, {
-		method: 'GET',
-		headers: {
-			'Content-Type': 'application/json',
-			Authorization: `Bearer ${token}`
-		}
-	})
-		.then(async (res) => {
-			if (!res.ok) throw await res.json();
-			return res.json();
-		})
-		.catch((err) => {
-			console.log(err);
-			error = err.detail;
-			return null;
-		});
-	if (error) {
-		throw error;
-	}
-
-	return res.envFileName;
-
-};
-
-export const getDefaultListSnapshots = async (window: string) => {
-	let error = null;
-
-	const serverURL = localStorage.getItem('serverURL');
-	const endpoint_id = localStorage.getItem('endpointID');
-
-	const res = await fetch(`${AUTOPTIC_BASE_URL}/snapshots/get_default_list_snapshot?endpoint_id=${endpoint_id}&window=${window}&serverURL=${encodeURIComponent(serverURL)}`, {
-		method: 'GET',
-		headers: {
-			'Content-Type': 'application/json',
-			// Authorization: `Bearer ${token}`
-		}
-	})
-		.then(async (res) => {
-			if (!res.ok) throw await res.json();
-			return res.json();
-		})
-		.catch((err) => {
-			console.log(err);
-			error = err.detail;
-			return null;
-		});
-	if (error) {
-		throw error;
-	}
-
-	return res;
-};
-
-// List snapshots: GET /story/ep/{endpoint_id}/pql/{pql_id}/snap/{format}/{timestamp}
-export const getListSnapshots = async (pql_id: string, format: string, timestamp: string) => {
-	let error = null;
-
-	const serverURL = localStorage.getItem('serverURL');
-	const endpoint_id = localStorage.getItem('endpointID');
-
-	const res = await fetch(`${AUTOPTIC_BASE_URL}/snapshots/get_list_snapshot?endpoint_id=${endpoint_id}&pql_id=${pql_id}&format=${format}&timestamp=${timestamp}&serverURL=${encodeURIComponent(serverURL)}`, {
-		method: 'GET',
-		headers: {
-			'Content-Type': 'application/json',
-			// Authorization: `Bearer ${token}`
-		}
-	})
-		.then(async (res) => {
-			if (!res.ok) throw await res.json();
-			return res.json();
-		})
-		.catch((err) => {
-			console.log(err);
-			error = err.detail;
-			return null;
-		});
-	if (error) {
-		throw error;
-	}
-
-	return res;
-};
-
-export const getWindowListSnapshots = async (pql_id: string, format: string, timestamp: string) => {
-	let error = null;
-
-	const serverURL = localStorage.getItem('serverURL');
-	const endpoint_id = localStorage.getItem('endpointID');
-
-	const res = await fetch(`${AUTOPTIC_BASE_URL}/snapshots/get_list_snapshot?endpoint_id=${endpoint_id}&pql_id=${pql_id}&format=${format}&timestamp=${timestamp}&serverURL=${encodeURIComponent(serverURL)}`, {
-		method: 'GET',
-		headers: {
-			'Content-Type': 'application/json',
-			// Authorization: `Bearer ${token}`
-		}
-	})
-		.then(async (res) => {
-			if (!res.ok) throw await res.json();
-			return res.json();
-		})
-		.catch((err) => {
-			console.log(err);
-			error = err.detail;
-			return null;
-		});
-	if (error) {
-		throw error;
-	}
-
-	return res;
-};
-
-export const readSnapshot = async (pql_id: string, format: string, timestamp: string, snapshot_id: string) => {
-	let error = null;
-
-	const serverURL = localStorage.getItem('serverURL');
-	const endpoint_id = localStorage.getItem('endpointID');
-
-	const res = await fetch(`${AUTOPTIC_BASE_URL}/snapshots/read_snapshot?endpoint_id=${endpoint_id}&pql_id=${pql_id}&format=${format}&timestamp=${timestamp}&snapshot_id=${snapshot_id}&serverURL=${encodeURIComponent(serverURL)}`, {
-		method: 'GET',
-		headers: {
-			'Content-Type': 'application/json',
-			// Authorization: `Bearer ${token}`
-		}
-	})
-		.then(async (res) => {
-			if (!res.ok) throw await res.text();
-			return res.text();
-		})
-		.catch((err) => {
-			console.log(err);
-			error = err.detail;
-			return null;
-		});
-	if (error) {
-		throw error;
-	}
-
-	return res;
-};
-
-export const deleteSnapshot = async (pql_id: string, format: string, timestamp: string, snapshot_id: string) => {
-	let error = null;
-
-	const serverURL = localStorage.getItem('serverURL');
-	const endpoint_id = localStorage.getItem('endpointID');
-
-	const res = await fetch(`${AUTOPTIC_BASE_URL}/snapshots/delete_snapshot?endpoint_id=${endpoint_id}&pql_id=${pql_id}&format=${format}&timestamp=${timestamp}&snapshot_id=${snapshot_id}&serverURL=${encodeURIComponent(serverURL)}`, {
-		method: 'DELETE',
-		headers: {
-			'Content-Type': 'application/json',
-			// Authorization: `Bearer ${token}`
-		}
-	})
-		.then(async (res) => {
-			if (!res.ok) throw await res.json();
-			return res.json();
-		})
-		.catch((err) => {
-			console.log(err);
-			error = err.detail;
-			return null;
-		});
-	if (error) {
-		throw error;
-	}
-
-	return res;
 };

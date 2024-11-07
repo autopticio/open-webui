@@ -1,9 +1,7 @@
 <script>
 	import { goto } from '$app/navigation';
 	import { userSignIn, userSignUp } from '$lib/apis/auths';
-	import { getEnvFileName, getAutopticEndpoint, getAutopticEnvironment,
-		getServerURL, getEndpointID, 
-	 } from '$lib/apis/autoptic';
+	import { getEnvFileName , getAutopticEndpoint, getAutopticEnvironment } from '$lib/apis/autoptic';
 	import Spinner from '$lib/components/common/Spinner.svelte';
 	import { WEBUI_API_BASE_URL, WEBUI_BASE_URL } from '$lib/constants';
 	import { WEBUI_NAME, config, user, socket } from '$lib/stores';
@@ -31,8 +29,6 @@
 			localStorage.autoptic_endpoint = await getAutopticEndpoint(localStorage.token)
 			localStorage.autoptic_environment = await getAutopticEnvironment(localStorage.token)
 			localStorage.envFileName = await getEnvFileName(localStorage.token)
-			localStorage.serverURL = await getServerURL(localStorage.token)
-			localStorage.endpointID = await getEndpointID(localStorage.token)
 
 			await user.set(sessionUser);
 			goto('/');

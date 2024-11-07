@@ -306,8 +306,3 @@ dist
 # cypress artifacts
 cypress/videos
 cypress/screenshots
-
-cache/
-vector_db/
-webui.db
-
