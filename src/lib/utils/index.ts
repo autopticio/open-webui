@@ -576,3 +576,22 @@ export const getTimeRange = (timestamp) => {
 		return date.getFullYear().toString();
 	}
 };
+
+export function formatDateTime(datetimeStr: string) {
+	// Parse the string into components
+	const year = datetimeStr.substring(0, 4);
+	const month = datetimeStr.substring(4, 6) - 1; // Month is 0-based in JS Date
+	const day = datetimeStr.substring(6, 8);
+	const hour = datetimeStr.substring(8, 10);
+	const minute = datetimeStr.substring(10, 12);
+
+	// Create a Date object
+	const date = new Date(year, month, day, hour, minute);
+
+	// Format the date and time using toLocaleString
+	const formattedDate = date.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+	const formattedTime = date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
+
+	// Return formatted string
+	return `${formattedDate} ${formattedTime}`;
+}

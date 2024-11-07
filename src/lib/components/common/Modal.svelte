@@ -17,6 +17,8 @@
 			return 'w-[30rem]';
 		} else if (size === 'md') {
 			return 'w-[48rem]';
+		} else if (size === 'snap') {
+			return 'w-[96rem] h-[95%]'
 		} else {
 			return 'w-[56rem]';
 		}
