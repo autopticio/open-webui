@@ -113,6 +113,7 @@
 
 </script>
 
+
 <svelte:head>
 	<title>
 		{$i18n.t('Snapshots')} | {$WEBUI_NAME}
