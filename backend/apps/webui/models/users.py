@@ -3,6 +3,7 @@ from peewee import *
 from playhouse.shortcuts import model_to_dict
 from typing import List, Union, Optional
 import time
+from utils.misc import get_gravatar_url
 
 from apps.webui.internal.db import DB, JSONField
 from apps.webui.models.chats import Chats
@@ -32,10 +33,6 @@ class User(Model):
 
     envFileName = CharField()
 
-    serverURL = CharField()
-    serverEndpointID = CharField()
-    accessToken = CharField()
-
     class Meta:
         database = DB
 
@@ -64,11 +61,7 @@ class UserModel(BaseModel):
 
     autoptic_environment: Optional[str] = None
 
-    envFileName: Optional[str] = None
-
-    serverURL: Optional[str] = None
-    serverEndpointID: Optional[str] = None
-    accessToken: Optional[str] = None
+    envFileName : Optional[str] = None
 
 ####################
 # Forms
@@ -272,40 +265,6 @@ class UsersTable:
         try:
             user = User.get(User.id == id)
             return user.envFileName
-        except:
-            return None
-        
-    def update_user_serverURL_by_id(self, id: str, serverURL: str) -> str:
-        try:
-            query = User.update(serverURL=serverURL).where(User.id == id)
-            result = query.execute()
-
-            return True if result == 1 else False
-        except Exception as e:
-            print(f"Exception occurred: {e}")
-            return False
-        
-    def get_user_serverURL_by_id(self, id: str) -> Optional[str]:
-        try:
-            user = User.get(User.id == id)
-            return user.serverURL
-        except:
-            return None
-        
-    def update_user_endpointID_by_id(self, id: str, serverEndpointID: str) -> str:
-        try:
-            query = User.update(serverEndpointID=serverEndpointID).where(User.id == id)
-            result = query.execute()
-
-            return True if result == 1 else False
-        except Exception as e:
-            print(f"Exception occurred: {e}")
-            return False
-        
-    def get_user_endpointID_by_id(self, id: str) -> Optional[str]:
-        try:
-            user = User.get(User.id == id)
-            return user.serverEndpointID
         except:
             return None
         

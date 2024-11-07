@@ -271,11 +271,10 @@
 	{#each _models.filter((m) => searchValue === '' || m.name
 				.toLowerCase()
 				.includes(searchValue.toLowerCase())) as model}
-		<!-- this element is each model shown -->
 		<div
-				class=" flex space-x-4 cursor-pointer w-full px-3 py-2 dark:hover:bg-white/5 hover:bg-black/5 rounded-xl"
-				id="model-item-{model.id}"
-			>
+			class=" flex space-x-4 cursor-pointer w-full px-3 py-2 dark:hover:bg-white/5 hover:bg-black/5 rounded-xl"
+			id="model-item-{model.id}"
+		>
 			<a
 				class=" flex flex-1 space-x-3.5 cursor-pointer w-full"
 				href={`/?models=${encodeURIComponent(model.id)}`}

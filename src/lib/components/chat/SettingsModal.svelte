@@ -12,7 +12,6 @@
 	import Interface from './Settings/Interface.svelte';
 	import Audio from './Settings/Audio.svelte';
 	import Chats from './Settings/Chats.svelte';
-	import Autoptic from './Settings/Autoptic.svelte';
 	import User from '../icons/User.svelte';
 	import Personalization from './Settings/Personalization.svelte';
 	import { updateUserSettings } from '$lib/apis/users';
@@ -240,25 +239,6 @@
 
 				<button
 					class="px-2.5 py-2.5 min-w-fit rounded-lg flex-1 md:flex-none flex text-right transition {selectedTab ===
-					'autoptic'
-						? 'bg-gray-200 dark:bg-gray-700'
-						: ' hover:bg-gray-300 dark:hover:bg-gray-800'}"
-					on:click={() => {
-						selectedTab = 'autoptic';
-					}}
-				>
-					<div class=" self-center mr-2">
-						<!-- https://icons.getbootstrap.com -->
-						<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-file-bar-graph" viewBox="0 0 16 16">
-							<path d="M4.5 12a.5.5 0 0 1-.5-.5v-2a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.5.5zm3 0a.5.5 0 0 1-.5-.5v-4a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v4a.5.5 0 0 1-.5.5zm3 0a.5.5 0 0 1-.5-.5v-6a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-.5.5z"/>
-							<path d="M4 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2zm0 1h8a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1"/>
-						</svg>
-					</div>
-					<div class=" self-center">{$i18n.t('Autoptic settings')}</div>
-				</button>
-
-				<button
-					class="px-2.5 py-2.5 min-w-fit rounded-lg flex-1 md:flex-none flex text-right transition {selectedTab ===
 					'about'
 						? 'bg-gray-200 dark:bg-gray-700'
 						: ' hover:bg-gray-300 dark:hover:bg-gray-800'}"
@@ -317,12 +297,6 @@
 					<Chats {saveSettings} />
 				{:else if selectedTab === 'account'}
 					<Account
-						saveHandler={() => {
-							toast.success($i18n.t('Settings saved successfully!'));
-						}}
-					/>
-				{:else if selectedTab === 'autoptic'}
-					<Autoptic
 						saveHandler={() => {
 							toast.success($i18n.t('Settings saved successfully!'));
 						}}

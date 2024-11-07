@@ -12,8 +12,6 @@ export const user: Writable<SessionUser | undefined> = writable(undefined);
 // Frontend
 export const MODEL_DOWNLOAD_POOL = writable({});
 
-export const refreshTrigger = writable(false);
-
 export const mobile = writable(false);
 
 export const socket: Writable<null | Socket> = writable(null);
