@@ -77,6 +77,7 @@
 
 			let matchesFormat = true;
 			let matchesPqlID = true;
+			let matchesSearch = true;
 
 			if (selectedFormat !== 'Any') {
 				matchesFormat = m.format.toLowerCase() == selectedFormat.toLowerCase();
@@ -86,7 +87,12 @@
 				matchesPqlID = m.pql_id == selectedPQLId;
 			}
 
-			return matchesPqlID && matchesFormat;
+			if (search.trim() !== '') {
+				const searchableString = `${m.format} ${m.pql_id} ${m.timestamp} ${formatDateTime(m.timestamp)} ${m.snapshot_id}`.toLowerCase();
+				matchesSearch = searchableString.includes(search.toLowerCase());
+			}
+
+			return matchesPqlID && matchesFormat && matchesSearch;
 			
     		});
 
@@ -95,6 +101,7 @@
 			 a.timestamp.localeCompare(b.timestamp) :
 			 b.timestamp.localeCompare(a.timestamp);
 		});
+
 	};
 
 	onMount( async () => {
@@ -103,7 +110,7 @@
 	})
 
 	$: defaultSnapshots(selectedTime,selectedTimeUnit,localStorage.serverURL);
-	$: applyFilters(sortOrder,_snapshots, selectedPQLId, selectedFormat);
+	$: applyFilters(sortOrder,_snapshots, selectedPQLId, selectedFormat,search);
 	$: refreshTrigger.subscribe((shouldRefresh) => {
 		if (shouldRefresh) {
 			refreshSnapshots();
@@ -155,15 +162,10 @@
 	<div class=" flex justify space-x-4 w-full mb-2 px-2 py-1" >
 
 		<!-- toggle for endpoint ID -->
-		<div class="flex-grow flex justify-center items-center min-w-fit rounded-lg p-1.5 px-3 
-			bg-gray-50 dark:bg-gray-850 transition cursor-pointer dark:hover:bg-gray-700 hover:bg-black/5 "
-			>
 				<IDSelector
 					placeholder={`Selected PQL: ${selectedPQLId}`}
-					on:select={(event) => selectedPQLId = event.detail.value}
 					bind:value={selectedPQLId}	
 			/>
-		</div>
 
 		<div 
 			class="w-fixed flex justify-center items-center min-w-fit rounded-lg p-1.5 px-3 
