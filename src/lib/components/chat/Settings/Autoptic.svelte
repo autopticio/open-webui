@@ -95,14 +95,14 @@
 	const saveEnvContent = async() => {
 		if (placeholderText != defaultPlaceholderEnv) {
 			try {
-			const { envFileContent , envFileName } = await readEnvFile();
-			await updateAutopticEnvironment(localStorage.token,envFileContent,envFileName)
-			localStorage.autoptic_environment = envFileContent
-			localStorage.envFileName = envFileName;
+				const { envFileContent , envFileName } = await readEnvFile();
+				await updateAutopticEnvironment(localStorage.token,envFileContent,envFileName)
+				localStorage.autoptic_environment = envFileContent
+				localStorage.envFileName = envFileName;
 			} catch (error){
 				toast.error($i18n.t("Environment file invalid. Your config will not be saved."));
             	placeholderText = defaultPlaceholderEnv;
-            	return false; // Return false to indicate failure
+            	return false; 
 			}
 		} else {
 			deleteAutopticEnvironment(localStorage.token)
@@ -112,7 +112,7 @@
 		return true;
 	};
 
-	const saveEndpoint = async () => {
+	const saveAPIURL = async () => {
 		if (autoptic_endpoint != ''){
             await updateAutopticEndpoint(localStorage.token,autoptic_endpoint)
 		} else {
@@ -139,11 +139,12 @@
 	const saveServerURL = async () => {
 		if (serverURL != ''){
 			serverURL = formatServerUrl(serverURL)
-			let health = await healthcheckServerURL(localStorage.token,serverURL);
-			if (health) {
+			try {
+				await healthcheckServerURL(localStorage.token,serverURL);
 				await updateServerURL(localStorage.token,serverURL)
-			} else {
+			} catch {
 				toast.error($i18n.t(`Can't connect with the server through the URL ${serverURL}. The URL will not be saved.`))
+				serverURL = localStorage.serverURL
 				return false;
 			}
 		} else {
@@ -165,39 +166,27 @@
         };
 
 	async function handleSavingConfig() {
-        let save1 = false, save2 = false, save3 = false, save4 = false;
+		let urlSaved = true;
+		let envSaved = true;
 
-        if (autoptic_endpoint !== localStorage.autoptic_endpoint) {
-            save1 = await saveEndpoint();
-        }
-        if (newEnvFile) {
-            save2 = await saveEnvContent();
-        }
-        if (serverURL !== localStorage.serverURL) {
-            save3 = await saveServerURL();
-        }
-        if (endpointID !== localStorage.endpointID) {
-            save4 = await saveEndpointID();
-        }
+		if (serverURL !== localStorage.serverURL) {
+			urlSaved = await saveServerURL();
+		}
 
-        if (save1 && save2 && save3 && save4) {
-			toast.success($i18n.t('SaaS and Server configuration saved correctly'))
-		} else if (save1 && save2) {
-			toast.success($i18n.t('SaaS configuration saved correctly!'))
-        } else if (save3 && save4) {
-			toast.success($i18n.t('Server configuration saved correctly'))
-        } else if (save1) {
-			toast.success($i18n.t('API URL saved correctly!'))
-        } else if (save2) {
-			toast.success($i18n.t('Environment saved correctly!'))
-        } else if (save3) {
-			toast.success($i18n.t('Server URL saved correctly!'))
-        } else if (save4) {
-			toast.success($i18n.t('Endpoint ID saved correctly!'))
-        }
-		newEnvFile = false;
-        isDisabled = !isDisabled;
-    }
+		if (newEnvFile) {
+			envSaved = await saveEnvContent();
+			newEnvFile = false;
+		}
+
+		if (urlSaved && envSaved) {
+			await Promise.all([saveAPIURL(), saveEndpointID()]);
+			toast.success($i18n.t('Your configuration has been saved!'));
+		}
+
+		isDisabled = !isDisabled;
+
+	}
+
 
 	onMount(async () => {
 		name = $user.name;

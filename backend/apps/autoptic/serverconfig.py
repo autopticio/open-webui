@@ -35,11 +35,12 @@ async def healthcheck(serverURL: dict, user=Depends(get_current_user)):
             response = await session.get(
                 f"{server_url}health"
             )
-            assert response.status == 200
-            return True
-    except:
-        raise HTTPException(status_code=404, detail=f"Failed to update server URL. Error: {str(e)}")
-
+            if response.status == 200:
+                return True
+            else:
+                raise HTTPException(status_code=response.status, detail=f"Server returned status code {response.status}")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to update server URL. Error: {str(e)}")
 
 
 @router.post("/new_serverURL")

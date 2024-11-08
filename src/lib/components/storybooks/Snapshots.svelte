@@ -157,62 +157,47 @@
 
 <hr class=" dark:border-gray-850 my-2.5" />
 
-<div class=" flex w-full space-x-2 overflow-x-auto whitespace-nowrap">
-	
-	<div class=" flex justify space-x-4 w-full mb-2 px-2 py-1" >
-
-		<!-- toggle for endpoint ID -->
-				<IDSelector
-					placeholder={`Selected PQL: ${selectedPQLId}`}
-					on:select={(event) => selectedPQLId = event.detail.value}
-					bind:value={selectedPQLId}	
+<div class=" flex w-full space-x-4 overflow-x-auto whitespace-nowrap">
+	<div class=" flex justify-center space-x-4 w-full mb-2 px-2 py-1" >
+		<div 
+			class="flex w-full space-x-4"
+			>
+			<IDSelector
+				bind:value={selectedPQLId}	
+				placeholder={`Selected PQL: ${selectedPQLId}`}
+				on:select={(event) => selectedPQLId = event.detail.value}
 			/>
 
-		<div 
-			class="w-fixed flex justify-center items-center min-w-fit rounded-lg p-1.5 px-3 
-			bg-gray-50 dark:bg-gray-850 transition cursor-pointer dark:hover:bg-gray-700 hover:bg-black/5"
-			style="width: 220px;"
-		>
 			<FormatSelector
 				bind:value={selectedFormat}
 				placeholder={`Selected format: ${selectedFormat}`}
 				on:select={(event) => selectedFormat = event.detail.value}
 			/>
-		</div>
-		
-		<div 
-			class="w-fixed flex justify-center items-center min-w-fit rounded-lg p-1.5 px-3 
-			bg-gray-50 dark:bg-gray-850 transition cursor-pointer dark:hover:bg-gray-700 hover:bg-black/5"
-			style="width: 220px;"
-		>
-		<TimeSelector
-			bind:value={selectedTime}
-			placeholder={selectedTime}
-			on:select={(event) => selectedTime = event.detail.value}
-		/>
-		</div>
+			
 
-		<div 
-			class="w-fixed flex justify-center items-center min-w-fit rounded-lg p-1.5 px-3 
-			bg-gray-50 dark:bg-gray-850 transition cursor-pointer dark:hover:bg-gray-700 hover:bg-black/5"
-			style="width: 220px;"
-		>
-		<TimeUnitSelector
-			bind:value={selectedTimeUnit}
-			placeholder={selectedTimeUnit}
-			on:select={(event) => selectedTimeUnit = event.detail.value}
-		/>
-		</div>
-		
-		<div 
-			class="w-fixed flex justify-center items-center min-w-fit rounded-lg p-1.5 px-3 
-			bg-gray-50 font-semibold dark:bg-gray-850 transition cursor-pointer dark:hover:bg-gray-700 hover:bg-black/5"
-			style="width: 220px;"
-			on:click={() => {toggleSortOrder()}}
-		>
-			<span class="text-center">{sortOrder === 'asc' ? 'Sort by Newest' : 'Sort by Oldest'}</span>
-		</div>
+			<TimeSelector
+				bind:value={selectedTime}
+				placeholder={selectedTime}
+				on:select={(event) => selectedTime = event.detail.value}
+			/>
 
+			<TimeUnitSelector
+				bind:value={selectedTimeUnit}
+				placeholder={selectedTimeUnit}
+				on:select={(event) => selectedTimeUnit = event.detail.value}
+			/>
+
+			<div 
+				class="flex flex-shrink-0 py-1 justify-center items-center rounded-lg p-1.5 px-3 
+				bg-gray-50 font-semibold dark:bg-gray-850 transition cursor-pointer dark:hover:bg-gray-700 hover:bg-black/5"
+				on:click={() => {toggleSortOrder()}}
+				style="min-width: 165px;"
+				>
+				<span class="text-center"> 
+					{sortOrder === 'asc' ? 'Sort by Newest' : 'Sort by Oldest'}
+				</span>
+			</div>
+		</div>
 	</div>
 
 </div>
