@@ -164,6 +164,7 @@
 		<!-- toggle for endpoint ID -->
 				<IDSelector
 					placeholder={`Selected PQL: ${selectedPQLId}`}
+					on:select={(event) => selectedPQLId = event.detail.value}
 					bind:value={selectedPQLId}	
 			/>
 
