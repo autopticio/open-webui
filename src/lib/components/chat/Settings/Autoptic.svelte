@@ -515,7 +515,7 @@
 
 	<div class="flex justify-end pt-3 text-sm font-medium">
 		<button
-			class=" {isDisabled ? 'bg-emerald-800' : 'bg-emerald-700 hover:bg-emerald-800'} px-4 py-2  text-gray-100 transition rounded-lg"
+			class=" {isDisabled ? 'bg-emerald-950' : 'bg-emerald-700 hover:bg-emerald-800'} px-4 py-2  text-gray-100 transition rounded-lg"
 			disabled={isDisabled}
 			on:click={handleSavingConfig}
 		>
