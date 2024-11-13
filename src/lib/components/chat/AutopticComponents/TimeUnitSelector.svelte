@@ -15,7 +15,7 @@
 	export let value = '';
 	export let placeholder = '';
 
-    let items = ['Hours','Days','Weeks','Months','Years']
+    let items = ['Hours','Days','Weeks','Months']
 
 	export let className = 'w-60';
 

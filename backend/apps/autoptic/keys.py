@@ -47,6 +47,9 @@ async def get_autoptic_endpoint(user=Depends(get_current_user)):
             return {
                 "autoptic_endpoint": autoptic_endpoint,
             }
+        return {
+            "autoptic_endpoint": '',
+        }
     except Exception as e:
         logger.error(" Failed to get Autoptic endpoint. %s", e)
         raise HTTPException(status_code=500, detail="Failed to get Autoptic endpoint. Database error.")
@@ -83,6 +86,9 @@ async def get_autoptic_environment(user=Depends(get_current_user)):
             return {
                 "autoptic_environment": autoptic_environment,
             }
+        return {
+            "autoptic_environment": '',
+        }
     except Exception as e:
         logger.error(" Failed to get Autoptic environment file. %s", e)
         raise HTTPException(status_code=500, detail="Failed to get Autoptic environment file. Database error.")  
@@ -102,6 +108,9 @@ async def get_envFileName(user=Depends(get_current_user)):
             return {
                 "envFileName": envFileName,
             }
+        return {
+            "envFileName": '',
+        }
     except Exception as e:
         logger.error(" Failed to get Autoptic environment file name. %s", e)
         raise HTTPException(status_code=500, detail="Failed to get Autoptic environment file name. Database error.")  
