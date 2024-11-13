@@ -143,7 +143,7 @@
 				await healthcheckServerURL(localStorage.token,serverURL);
 				await updateServerURL(localStorage.token,serverURL)
 			} catch {
-				toast.error($i18n.t(`Can't connect with the server through the URL ${serverURL}. The URL will not be saved.`))
+				toast.error($i18n.t(`Can't connect with the server through the URL ${serverURL}. The config will not be saved.`))
 				serverURL = localStorage.serverURL
 				return false;
 			}
