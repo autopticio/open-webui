@@ -71,10 +71,10 @@
 			</a>
 
 			<a
-				class="min-w-fit rounded-lg p-1.5 px-3 {$page.url.pathname.includes('/workspace')
+				class="disabled min-w-fit rounded-lg p-1.5 px-3 {$page.url.pathname.includes('/workspace')
 					? 'bg-gray-50 dark:bg-gray-850'
 					: ''} transition"
-				href="/storybooks/snapshots">{$i18n.t('Future catalog')}
+				href="/storybooks/">{$i18n.t('Future catalog')}
 			</a>
 
 		</div>
@@ -86,3 +86,11 @@
 		<slot />
 	</div>
 </div>
+
+<style>
+	.disabled {
+		pointer-events: none;
+		cursor: not-allowed; /* 'Not allowed' cursor */
+	}
+</style>
+
