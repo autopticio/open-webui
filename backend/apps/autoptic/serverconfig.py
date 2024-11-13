@@ -65,6 +65,9 @@ async def get_serverURL(user=Depends(get_current_user)):
             return {
                 "serverURL": serverURL,
             }
+        return {
+                "serverURL": '',
+            }
     except Exception as e:
         logger.error(" Failed to get server URL. %s", e)
         raise HTTPException(status_code=500, detail="Failed to get server URL. Database error.")
@@ -96,6 +99,9 @@ async def get_endpointID(user=Depends(get_current_user)):
             return {
                 "endpointID": endpointID,
             }
+        return {
+            "endpointID": '',
+        }
     except Exception as e:
         logger.error(" Failed to get Autoptic endpoint. %s", e)
         raise HTTPException(status_code=500, detail="Failed to get endpoint ID. Database error.")
