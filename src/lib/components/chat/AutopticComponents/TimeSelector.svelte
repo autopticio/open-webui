@@ -34,18 +34,26 @@
 	<DropdownMenu.Trigger 
 		class="w-fixed" 
 		aria-label={placeholder} 
-		style="width: 220px;">
+		style="width: 165px;"
+		>
+		<div 
+			class="w-fixed flex justify-center items-center min-w-fit rounded-lg p-1.5 px-3 
+			bg-gray-50 dark:bg-gray-850 transition cursor-pointer dark:hover:bg-gray-700 hover:bg-black/5"
+			style="width: 165px;"
+		>
 			<div
 				class="flex w-full justify-between px-0.5 outline-none bg-transparent text-lg font-semibold placeholder-gray-400 focus:outline-none"
 			>
 				{placeholder}
 				<CustomChevronDown className=" self-center ml-2 size-3" strokeWidth="2.5" />
 			</div>
+		</div>
+
 	</DropdownMenu.Trigger>
 
 	<DropdownMenu.Content
 		class=" w-fixed overflow-x-hidden justify-center rounded-xl bg-white dark:bg-gray-850 dark:text-white shadow-lg border border-gray-300/30 dark:border-gray-850/50  outline-none "
-		style="width: 244px;"
+		style="width: 165px;;"
 		transition={flyAndScale}
 		side={$mobile ? 'bottom' : 'bottom-center'}
 		sideOffset={10}

@@ -50,7 +50,7 @@ def transform_snapshot_to_dict(path_list):
                     'snapshot_id': segments[8]}
 
         snapshot_in_dict_list.append(snapshot)
-    
+
     return snapshot_in_dict_list
 
 formats = ['html','json']

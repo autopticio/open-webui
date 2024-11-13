@@ -36,7 +36,7 @@ async def update_autoptic_endpoint(autoptic_endpoint: dict, user=Depends(get_cur
             }
     except Exception as e:
         logger.error(" Failed to update Autoptic endpoint. %s", e)
-        raise HTTPException(status_code=404, detail=f"Failed to update Autoptic endpoint. Error: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to update Autoptic endpoint. Database error.")
     
 # get autoptic endpoint
 @router.get("/get_autoptic_endpoint")
@@ -49,7 +49,7 @@ async def get_autoptic_endpoint(user=Depends(get_current_user)):
             }
     except Exception as e:
         logger.error(" Failed to get Autoptic endpoint. %s", e)
-        raise HTTPException(status_code=404, detail=f"Failed to get Autoptic endpoint. Error: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to get Autoptic endpoint. Database error.")
 
 # delete autoptic endpoint
 @router.delete("/delete_autoptic_endpoint")
@@ -72,7 +72,7 @@ async def update_autoptic_environment(environment_update : AutopticEnvironment, 
             }
     except Exception as e:
         logger.error(" Failed to update Autoptic environment file. %s", e)
-        raise HTTPException(status_code=404, detail=f"Failed to update Autoptic environment file. Error: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to update Autoptic environment file. Database error.")
 
 # get autoptic environment
 @router.get("/get_autoptic_environment")
@@ -85,7 +85,7 @@ async def get_autoptic_environment(user=Depends(get_current_user)):
             }
     except Exception as e:
         logger.error(" Failed to get Autoptic environment file. %s", e)
-        raise HTTPException(status_code=404, detail=f"Failed to get Autoptic environment file. Error: {str(e)}")  
+        raise HTTPException(status_code=500, detail="Failed to get Autoptic environment file. Database error.")  
 
 # delete autoptic variables
 @router.delete("/delete_autoptic_environment")
@@ -104,5 +104,5 @@ async def get_envFileName(user=Depends(get_current_user)):
             }
     except Exception as e:
         logger.error(" Failed to get Autoptic environment file name. %s", e)
-        raise HTTPException(status_code=404, detail=f"Failed to get Autoptic environment file name. Error: {str(e)}")  
+        raise HTTPException(status_code=500, detail="Failed to get Autoptic environment file name. Database error.")  
     

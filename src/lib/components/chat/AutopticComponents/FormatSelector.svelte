@@ -23,7 +23,7 @@
 
 	const selectItem = (item: string) => {
 		dispatch('select', { value: item });
-		showFormat = false;  // Close the dropdown
+		showFormat = false; 
 	};
 
 </script>
@@ -34,13 +34,20 @@
 	<DropdownMenu.Trigger 
 		class="w-fixed" 
 		aria-label={placeholder} 
-		style="width: 220px;">
+		style="width: 244px;">
+		<div 
+			class="w-fixed flex justify-center items-center min-w-fit rounded-lg p-1.5 px-3 
+			bg-gray-50 dark:bg-gray-850 transition cursor-pointer dark:hover:bg-gray-700 hover:bg-black/5"
+			style="width: 244px;"
+		>
 			<div
 				class="flex w-full justify-between px-0.5 outline-none bg-transparent text-lg font-semibold placeholder-gray-400 focus:outline-none"
 			>
 				{placeholder}
 				<CustomChevronDown className=" self-center ml-2 size-3" strokeWidth="2.5" />
 			</div>
+		</div>
+
 	</DropdownMenu.Trigger>
 
 	<DropdownMenu.Content

@@ -113,7 +113,7 @@
 		}
 	};
 
-	const saveEndpoint = async () => {
+	const saveAPIURL = async () => {
 		if (autoptic_endpoint != ''){
             await updateAutopticEndpoint(localStorage.token,autoptic_endpoint)
 		} else {
@@ -598,7 +598,7 @@
 			class="  px-4 py-2 bg-emerald-700 hover:bg-emerald-800 text-gray-100 transition rounded-lg"
 			on:click={async () => {
 				if (autoptic_endpoint != localStorage.autoptic_endpoint) {
-					saveEndpoint();
+					saveAPIURL();
 				}
 				if (newEnvFile){
 					saveEnvContent();

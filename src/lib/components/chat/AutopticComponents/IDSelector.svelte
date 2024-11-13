@@ -21,8 +21,7 @@
 	export let searchPlaceholder = $i18n.t('Search your PQL function');
 	export let width = '100%';
 	export let className = 'w-160';
-
-
+	
 	let show = false;
 
 	let searchValue = '';
@@ -30,9 +29,35 @@
 	let items = [];
 
 	let selectedModel = '';
+	let dropdownContentWidth = 'auto';
 
-	onMount(async () => {
+	async function resizeMenu() {
+
+		tick().then(() => {
+		
+			const triggerElement = document.getElementById('selector') as HTMLElement;
+			if (triggerElement) {
+				const rect = triggerElement.getBoundingClientRect();
+				dropdownContentWidth = `${rect.width}px`;
+			}
+		});
+	}
+	
+	async function initializeComponent() {
 		items = await getListPQL();
+		await resizeMenu();
+	}
+
+	onMount(() => {
+
+		initializeComponent();
+
+		window.addEventListener('resize', resizeMenu);
+
+		return () => {
+			window.removeEventListener('resize', resizeMenu);
+		};
+	
 	});
 
 	$: filteredItems = items.length > 0
@@ -51,23 +76,29 @@
 	<DropdownMenu.Trigger 
 		class="w-full" 
 		aria-label={placeholder}
+		id='selector'
 		>		
+		<div class="flex justify-center items-center min-w-fit rounded-lg p-1.5 px-3 
+			bg-gray-50 dark:bg-gray-850 transition cursor-pointer dark:hover:bg-gray-700 hover:bg-black/5 "
+			>
 			<div
-				class="flex w-full justify-between px-0.5 outline-none bg-transparent text-lg font-semibold placeholder-gray-400 focus:outline-none"
+				class="flex-grow flex w-full justify-between px-0.5 outline-none bg-transparent text-lg font-semibold placeholder-gray-400 focus:outline-none"
 			>
 				{placeholder}
 				
 				<CustomChevronDown className=" self-center ml-2 size-3" strokeWidth="2.5" />
 			</div>
+		</div>
+
 	</DropdownMenu.Trigger>
 
 	<DropdownMenu.Content
 		class=" w-fixed overflow-x-hidden justify-center rounded-xl bg-white dark:bg-gray-850 dark:text-white shadow-lg border border-gray-300/30 dark:border-gray-850/50  outline-none "
-	style="width: 350px"
-	transition={flyAndScale}
-	side={$mobile ? 'bottom' : 'bottom-start'}
-	align="start"
-	sideOffset={10}
+		style={`width: ${dropdownContentWidth}; min-width: 225px`}
+		transition={flyAndScale}
+		side={$mobile ? 'bottom' : 'bottom-start'}
+		align="start"
+		sideOffset={10}
 	>
 		<slot>
 			<!-- element for the search -->
@@ -95,7 +126,7 @@
 						class="flex w-full text-left font-medium line-clamp-1 select-none items-center rounded-button py-2 pl-3 pr-1.5 text-sm text-gray-700 dark:text-gray-100 outline-none transition-all duration-75 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg cursor-pointer data-[highlighted]:bg-muted"
 						on:click={() => {
 							value = item;
-
+							resizeMenu()
 							show = false;
 						}}
 					>
