@@ -518,27 +518,31 @@ export const getListPQL = async () => {
 
 	let error = null;
 
-	const res = await fetch(`${AUTOPTIC_BASE_URL}/pqls/get_list_pql?endpoint_id=${endpoint_id}&serverURL=${encodeURIComponent(serverURL)}`, {
-		method: 'GET',
-		headers: {
-			'Content-Type': 'application/json',
-			// Authorization: `Bearer ${token}`
-		}
-	})
-		.then(async (res) => {
-			if (!res.ok) throw await res.json();
-			return res.json();
+	if (endpoint_id !== '' && serverURL !== '') {
+		const res = await fetch(`${AUTOPTIC_BASE_URL}/pqls/get_list_pql?endpoint_id=${endpoint_id}&serverURL=${encodeURIComponent(serverURL)}`, {
+			method: 'GET',
+			headers: {
+				'Content-Type': 'application/json',
+				// Authorization: `Bearer ${token}`
+			}
 		})
-		.catch((err) => {
-			console.log(err);
-			error = err.detail;
-			return null;
-		});
-	if (error) {
-		throw error;
+			.then(async (res) => {
+				if (!res.ok) throw await res.json();
+				return res.json();
+			})
+			.catch((err) => {
+				console.log(err);
+				error = err.detail;
+				return null;
+			});
+		if (error) {
+			throw error;
+		}
+		
+		return res;
+	} else {
+		return []
 	}
-
-	return res;
 
 };
 
@@ -580,27 +584,32 @@ export const getDefaultListSnapshots = async (window: string) => {
 	const serverURL = localStorage.getItem('serverURL');
 	const endpoint_id = localStorage.getItem('endpointID');
 
-	const res = await fetch(`${AUTOPTIC_BASE_URL}/snapshots/get_default_list_snapshot?endpoint_id=${endpoint_id}&window=${window}&serverURL=${encodeURIComponent(serverURL)}`, {
-		method: 'GET',
-		headers: {
-			'Content-Type': 'application/json',
-			// Authorization: `Bearer ${token}`
-		}
-	})
-		.then(async (res) => {
-			if (!res.ok) throw await res.json();
-			return res.json();
+	if (endpoint_id !== '' && serverURL !== '') {
+		const res = await fetch(`${AUTOPTIC_BASE_URL}/snapshots/get_default_list_snapshot?endpoint_id=${endpoint_id}&window=${window}&serverURL=${encodeURIComponent(serverURL)}`, {
+			method: 'GET',
+			headers: {
+				'Content-Type': 'application/json',
+				// Authorization: `Bearer ${token}`
+			}
 		})
-		.catch((err) => {
-			console.log(err);
-			error = err.detail;
-			return null;
-		});
-	if (error) {
-		throw error;
+			.then(async (res) => {
+				if (!res.ok) throw await res.json();
+				return res.json();
+			})
+			.catch((err) => {
+				console.log(err);
+				error = err.detail;
+				return null;
+			});
+		if (error) {
+			throw error;
+		}
+
+		return res;
+	} else {
+		return []
 	}
 
-	return res;
 };
 
 // List snapshots: GET /story/ep/{endpoint_id}/pql/{pql_id}/snap/{format}/{timestamp}

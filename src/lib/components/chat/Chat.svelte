@@ -25,7 +25,8 @@
 		user,
 		socket,
 		showCallOverlay,
-		tools
+		tools,
+		iframeBottomTrigger
 	} from '$lib/stores';
 	import {
 		convertMessagesToHistory,
@@ -1194,6 +1195,14 @@
 			return [];
 		});
 	};
+
+	$: iframeBottomTrigger.subscribe((shouldRefresh) => {
+		if (shouldRefresh) {
+			scrollToBottom();
+			iframeBottomTrigger.set(false); 
+		}
+	});
+
 </script>
 
 

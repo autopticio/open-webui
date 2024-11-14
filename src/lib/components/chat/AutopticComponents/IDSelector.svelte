@@ -11,7 +11,7 @@
 
 	import { getListPQL } from '$lib/apis/autoptic'; 
 
-	import { mobile } from '$lib/stores';
+	import { mobile , refreshTrigger } from '$lib/stores';
 
 	const i18n = getContext('i18n');
 
@@ -44,8 +44,8 @@
 	}
 	
 	async function initializeComponent() {
-		items = await getListPQL();
 		await resizeMenu();
+		items = await getListPQL();
 	}
 
 	onMount(() => {
@@ -69,7 +69,13 @@
 		: [];
 
 	$: selectedModel = items.find((item) => item === value) ?? '';
-
+	$: refreshTrigger.subscribe((shouldRefresh) => {
+		if (shouldRefresh) {
+			initializeComponent()
+			refreshTrigger.set(false); 
+		}
+	});
+	
 </script>
 
 <DropdownMenu.Root bind:open={show} >
@@ -94,7 +100,7 @@
 
 	<DropdownMenu.Content
 		class=" w-fixed overflow-x-hidden justify-center rounded-xl bg-white dark:bg-gray-850 dark:text-white shadow-lg border border-gray-300/30 dark:border-gray-850/50  outline-none "
-		style={`width: ${dropdownContentWidth}; min-width: 225px`}
+		style={`width: ${dropdownContentWidth}; min-width: 244px`}
 		transition={flyAndScale}
 		side={$mobile ? 'bottom' : 'bottom-start'}
 		align="start"

@@ -194,7 +194,7 @@
 				style="min-width: 165px;"
 				>
 				<span class="text-center"> 
-					{sortOrder === 'asc' ? 'Sort by Newest' : 'Sort by Oldest'}
+					{sortOrder === 'asc' ? 'Sorted by Oldest' : 'Sorted by Newest'}
 				</span>
 			</div>
 		</div>
