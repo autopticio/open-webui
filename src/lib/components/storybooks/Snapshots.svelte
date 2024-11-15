@@ -30,11 +30,13 @@
 	let defaultSnapshots = async () => {
 		isLoading = true;
 		let window = selectedTime+selectedTimeUnit.toLowerCase()
-		try {
-			_snapshots = await getDefaultListSnapshots(window); 
-		} catch (error) {
-			_snapshots = []
-		}
+		if (localStorage.serverURL !== '' && localStorage.endpointID !== '') {
+			try {
+				_snapshots = await getDefaultListSnapshots(window); 
+			} catch (error) {
+				_snapshots = []
+			}
+		}	
 		isLoading = false;
 	};
 

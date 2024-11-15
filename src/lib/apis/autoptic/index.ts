@@ -1,15 +1,13 @@
 import { AUTOPTIC_BASE_URL } from '$lib/constants';
 
 export const generateJustQueryResponse = async (Query) => {
-	let _response = null;
 
-	_response = await sendToAPI(Query);
+	const _response = await sendToAPI(Query);
 	
 	return _response;
 };
 
-const sendToAPI = async (mensaje) => {
-	let error = null;
+const sendToAPI = async (message: string) => {
 	let result= null
 
 	const endpoint = localStorage.getItem('autoptic_endpoint');
@@ -20,7 +18,7 @@ const sendToAPI = async (mensaje) => {
 
 	const database64Encoded = btoa(json_env);
 
-	const mensajebase64Encoded = btoa(mensaje)
+	const mensajebase64Encoded = btoa(message)
 
 	const res = await fetch(`${AUTOPTIC_BASE_URL}/runPQL`, {
 		method: 'POST',
@@ -35,14 +33,12 @@ const sendToAPI = async (mensaje) => {
 			endpoint: endpoint
 		})
 	}).catch((err) => {
-		error = err;
-		return null;
+		console.log(err);
+		throw err
 	});
 
-	if (error) {
-		throw error;
-	}
 	result = await res.json()
+
 	return result;
 };
 
@@ -140,7 +136,6 @@ export function loadIframeContent(chatId ,messageId) {
 
 
 export const updateAutopticEndpoint = async (token: string, autoptic_endpoint: string) => {
-	let error = null;
 	const res = await fetch(`${AUTOPTIC_BASE_URL}/keys/new_autoptic_endpoint`, {
 		method: 'POST',
 		headers: {
@@ -155,18 +150,13 @@ export const updateAutopticEndpoint = async (token: string, autoptic_endpoint: s
 		})
 		.catch((err) => {
 			console.log(err);
-			error = err.detail;
-			console.log(error)
-			return null;
+			throw err
 		});
-	if (error) {
-		throw error;
-	}
+
 	return res.autoptic_endpoint;
 };
 
 export const getAutopticEndpoint = async (token: string) => {
-	let error = null;
 
 	const res = await fetch(`${AUTOPTIC_BASE_URL}/keys/get_autoptic_endpoint`, {
 		method: 'GET',
@@ -181,19 +171,14 @@ export const getAutopticEndpoint = async (token: string) => {
 		})
 		.catch((err) => {
 			console.log(err);
-			error = err.detail;
-			return null;
+			throw err
 		});
-	if (error) {
-		throw error;
-	}
 
 	return res.autoptic_endpoint;
 
 };
 
 export const deleteAutopticEndpoint = async (token: string) => {
-	let error = null;
 
 	const res = await fetch(`${AUTOPTIC_BASE_URL}/keys/delete_autoptic_endpoint`, {
 		method: 'DELETE',
@@ -208,17 +193,14 @@ export const deleteAutopticEndpoint = async (token: string) => {
 		})
 		.catch((err) => {
 			console.log(err);
-			error = err.detail;
-			return null;
+			throw err
 		});
-	if (error) {
-		throw error;
-	}
+
 	return res;
 };
 
 export const updateAutopticEnvironment = async (token: string, autoptic_environment: string, envFileName: string) => {
-	let error = null;
+
 	const res = await fetch(`${AUTOPTIC_BASE_URL}/keys/new_autoptic_environment`, {
 		method: 'POST',
 		headers: {
@@ -233,18 +215,13 @@ export const updateAutopticEnvironment = async (token: string, autoptic_environm
 		})
 		.catch((err) => {
 			console.log(err);
-			error = err.detail;
-			console.log(error)
-			return null;
+			throw err
 		});
-	if (error) {
-		throw error;
-	}
+
 	return res.autoptic_environment;
 };
 
 export const getAutopticEnvironment = async (token: string) => {
-	let error = null;
 
 	const res = await fetch(`${AUTOPTIC_BASE_URL}/keys/get_autoptic_environment`, {
 		method: 'GET',
@@ -259,19 +236,14 @@ export const getAutopticEnvironment = async (token: string) => {
 		})
 		.catch((err) => {
 			console.log(err);
-			error = err.detail;
-			return null;
+			throw err
 		});
-	if (error) {
-		throw error;
-	}
 
 	return res.autoptic_environment;
 
 };
 
 export const deleteAutopticEnvironment = async (token: string) => {
-	let error = null;
 
 	const res = await fetch(`${AUTOPTIC_BASE_URL}/keys/delete_autoptic_environment`, {
 		method: 'DELETE',
@@ -286,17 +258,13 @@ export const deleteAutopticEnvironment = async (token: string) => {
 		})
 		.catch((err) => {
 			console.log(err);
-			error = err.detail;
-			return null;
+			throw err
 		});
-	if (error) {
-		throw error;
-	}
+
 	return res;
 };
 
 export const getEnvFileName = async (token: string) => {
-	let error = null;
 
 	const res = await fetch(`${AUTOPTIC_BASE_URL}/keys/get_envFileName`, {
 		method: 'GET',
@@ -311,20 +279,15 @@ export const getEnvFileName = async (token: string) => {
 		})
 		.catch((err) => {
 			console.log(err);
-			error = err.detail;
-			return null;
+			throw err
 		});
-	if (error) {
-		throw error;
-	}
 
 	return res.envFileName;
 
 };
 
-
 export const healthcheckServerURL = async (token: string, serverURL: string) => {
-	let error = null;
+
 	const res = await fetch(`${AUTOPTIC_BASE_URL}/serverconfig/healthcheck`, {
 		method: 'POST',
 		headers: {
@@ -339,18 +302,14 @@ export const healthcheckServerURL = async (token: string, serverURL: string) => 
 		})
 		.catch((err) => {
 			console.log(err);
-			error = err.detail;
-			console.log(error)
-			return null;
+			throw err
 		});
-	if (error) {
-		throw error;
-	}
+
 	return res;
 };
 
 export const updateServerURL = async (token: string, serverURL: string) => {
-	let error = null;
+
 	const res = await fetch(`${AUTOPTIC_BASE_URL}/serverconfig/new_serverURL`, {
 		method: 'POST',
 		headers: {
@@ -365,18 +324,13 @@ export const updateServerURL = async (token: string, serverURL: string) => {
 		})
 		.catch((err) => {
 			console.log(err);
-			error = err.detail;
-			console.log(error)
-			return null;
+			throw err
 		});
-	if (error) {
-		throw error;
-	}
+
 	return res.serverURL;
 };
 
 export const getServerURL = async (token: string) => {
-	let error = null;
 
 	const res = await fetch(`${AUTOPTIC_BASE_URL}/serverconfig/get_serverURL`, {
 		method: 'GET',
@@ -391,19 +345,14 @@ export const getServerURL = async (token: string) => {
 		})
 		.catch((err) => {
 			console.log(err);
-			error = err.detail;
-			return null;
+			throw err
 		});
-	if (error) {
-		throw error;
-	}
 
 	return res.serverURL;
 
 };
 
 export const deleteServerURL = async (token: string) => {
-	let error = null;
 
 	const res = await fetch(`${AUTOPTIC_BASE_URL}/serverconfig/delete_serverURL`, {
 		method: 'DELETE',
@@ -418,17 +367,13 @@ export const deleteServerURL = async (token: string) => {
 		})
 		.catch((err) => {
 			console.log(err);
-			error = err.detail;
-			return null;
+			throw err
 		});
-	if (error) {
-		throw error;
-	}
+
 	return res;
 };
 
 export const updateEndpointID = async (token: string, endpointID: string) => {
-	let error = null;
 	const res = await fetch(`${AUTOPTIC_BASE_URL}/serverconfig/new_endpointID`, {
 		method: 'POST',
 		headers: {
@@ -443,18 +388,13 @@ export const updateEndpointID = async (token: string, endpointID: string) => {
 		})
 		.catch((err) => {
 			console.log(err);
-			error = err.detail;
-			console.log(error)
-			return null;
+			throw err
 		});
-	if (error) {
-		throw error;
-	}
+
 	return res.endpointID;
 };
 
 export const getEndpointID = async (token: string) => {
-	let error = null;
 
 	const res = await fetch(`${AUTOPTIC_BASE_URL}/serverconfig/get_endpointID`, {
 		method: 'GET',
@@ -469,19 +409,14 @@ export const getEndpointID = async (token: string) => {
 		})
 		.catch((err) => {
 			console.log(err);
-			error = err.detail;
-			return null;
+			throw err
 		});
-	if (error) {
-		throw error;
-	}
 
 	return res.endpointID;
 
 };
 
 export const deleteEndpointID = async (token: string) => {
-	let error = null;
 
 	const res = await fetch(`${AUTOPTIC_BASE_URL}/serverconfig/delete_endpointID`, {
 		method: 'DELETE',
@@ -496,12 +431,9 @@ export const deleteEndpointID = async (token: string) => {
 		})
 		.catch((err) => {
 			console.log(err);
-			error = err.detail;
-			return null;
+			throw err
 		});
-	if (error) {
-		throw error;
-	}
+
 	return res;
 };
 
@@ -509,39 +441,32 @@ export const deleteEndpointID = async (token: string) => {
 // GO SERVER FUNCTIONS
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
 // Get List PQL: GET /story/ep/{endpoint_id}/pql
+
 export const getListPQL = async () => {
 
 	const serverURL = localStorage.getItem('serverURL');
 	const endpoint_id = localStorage.getItem('endpointID');
 
-	let error = null;
-
-	if (endpoint_id !== '' && serverURL !== '') {
+	try {
 		const res = await fetch(`${AUTOPTIC_BASE_URL}/pqls/get_list_pql?endpoint_id=${endpoint_id}&serverURL=${encodeURIComponent(serverURL)}`, {
 			method: 'GET',
 			headers: {
 				'Content-Type': 'application/json',
-				// Authorization: `Bearer ${token}`
 			}
-		})
-			.then(async (res) => {
-				if (!res.ok) throw await res.json();
-				return res.json();
-			})
-			.catch((err) => {
-				console.log(err);
-				error = err.detail;
-				return null;
-			});
-		if (error) {
-			throw error;
+		});
+
+		const response = await res.json();
+
+		if (!res.ok) { 
+			throw new Error(response.message || 'Failed to fetch PQL list');
 		}
-		
-		return res;
-	} else {
-		return []
+
+		return response
+
+	} catch (error) {
+		console.error('Error fetching PQL list:', error.message);
+		return [];
 	}
 
 };
@@ -550,7 +475,6 @@ export const getListPQL = async () => {
 // Why I did this? Think about it
 // Get a snapshot: GET /story/ep/{endpoint_id}/pql/{pql_id}/snap/{format}/{timestamp}/{snapshot_id}
 export const getUniqueSnapshot = async (token: string, pql_id: string, format: string, timestamp: string, snapshot_id: string) => {
-	let error = null;
 
 	const endpoint_id = localStorage.getItem('endpointID');
 
@@ -567,25 +491,21 @@ export const getUniqueSnapshot = async (token: string, pql_id: string, format: s
 		})
 		.catch((err) => {
 			console.log(err);
-			error = err.detail;
-			return null;
+			throw err
 		});
-	if (error) {
-		throw error;
-	}
 
 	return res.envFileName;
 
 };
 
 export const getDefaultListSnapshots = async (window: string) => {
-	let error = null;
 
 	const serverURL = localStorage.getItem('serverURL');
 	const endpoint_id = localStorage.getItem('endpointID');
 
-	if (endpoint_id !== '' && serverURL !== '') {
-		const res = await fetch(`${AUTOPTIC_BASE_URL}/snapshots/get_default_list_snapshot?endpoint_id=${endpoint_id}&window=${window}&serverURL=${encodeURIComponent(serverURL)}`, {
+	let res = []
+
+		res = await fetch(`${AUTOPTIC_BASE_URL}/snapshots/get_default_list_snapshot?endpoint_id=${endpoint_id}&window=${window}&serverURL=${encodeURIComponent(serverURL)}`, {
 			method: 'GET',
 			headers: {
 				'Content-Type': 'application/json',
@@ -598,23 +518,16 @@ export const getDefaultListSnapshots = async (window: string) => {
 			})
 			.catch((err) => {
 				console.log(err);
-				error = err.detail;
-				return null;
+				return res
 			});
-		if (error) {
-			throw error;
-		}
-
-		return res;
-	} else {
-		return []
-	}
+	
+	
+	return res;
 
 };
 
 // List snapshots: GET /story/ep/{endpoint_id}/pql/{pql_id}/snap/{format}/{timestamp}
 export const getListSnapshots = async (pql_id: string, format: string, timestamp: string) => {
-	let error = null;
 
 	const serverURL = localStorage.getItem('serverURL');
 	const endpoint_id = localStorage.getItem('endpointID');
@@ -632,18 +545,13 @@ export const getListSnapshots = async (pql_id: string, format: string, timestamp
 		})
 		.catch((err) => {
 			console.log(err);
-			error = err.detail;
-			return null;
+			throw err
 		});
-	if (error) {
-		throw error;
-	}
 
 	return res;
 };
 
 export const getWindowListSnapshots = async (pql_id: string, format: string, timestamp: string) => {
-	let error = null;
 
 	const serverURL = localStorage.getItem('serverURL');
 	const endpoint_id = localStorage.getItem('endpointID');
@@ -661,18 +569,13 @@ export const getWindowListSnapshots = async (pql_id: string, format: string, tim
 		})
 		.catch((err) => {
 			console.log(err);
-			error = err.detail;
-			return null;
+			throw err
 		});
-	if (error) {
-		throw error;
-	}
 
 	return res;
 };
 
 export const readSnapshot = async (pql_id: string, format: string, timestamp: string, snapshot_id: string) => {
-	let error = null;
 
 	const serverURL = localStorage.getItem('serverURL');
 	const endpoint_id = localStorage.getItem('endpointID');
@@ -690,18 +593,13 @@ export const readSnapshot = async (pql_id: string, format: string, timestamp: st
 		})
 		.catch((err) => {
 			console.log(err);
-			error = err.detail;
-			return null;
+			throw err
 		});
-	if (error) {
-		throw error;
-	}
 
 	return res;
 };
 
 export const deleteSnapshot = async (pql_id: string, format: string, timestamp: string, snapshot_id: string) => {
-	let error = null;
 
 	const serverURL = localStorage.getItem('serverURL');
 	const endpoint_id = localStorage.getItem('endpointID');
@@ -719,12 +617,8 @@ export const deleteSnapshot = async (pql_id: string, format: string, timestamp: 
 		})
 		.catch((err) => {
 			console.log(err);
-			error = err.detail;
-			return null;
+			throw err
 		});
-	if (error) {
-		throw error;
-	}
 
 	return res;
 };

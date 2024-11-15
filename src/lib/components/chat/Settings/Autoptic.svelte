@@ -16,9 +16,6 @@
 			updateEndpointID,
 			deleteEndpointID,
 			healthcheckServerURL,
-
-			getListPQL
-
 				} from '$lib/apis/autoptic';
 
 	import { copyToClipboard } from '$lib/utils';
@@ -132,9 +129,8 @@
 			
 			return `${protocol}${mainContent}/`;
 		}
-		return null;
+		return '';
 	}
-
 
 	const saveServerURL = async () => {
 		if (serverURL != ''){

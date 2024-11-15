@@ -45,7 +45,9 @@
 	
 	async function initializeComponent() {
 		await resizeMenu();
-		items = await getListPQL();
+		if (localStorage.serverURL !== '' && localStorage.endpointID !== '') {
+			items = await getListPQL();
+		}
 	}
 
 	onMount(() => {
@@ -69,9 +71,11 @@
 		: [];
 
 	$: selectedModel = items.find((item) => item === value) ?? '';
-	$: refreshTrigger.subscribe((shouldRefresh) => {
+	$: refreshTrigger.subscribe(async (shouldRefresh) => {
 		if (shouldRefresh) {
-			initializeComponent()
+			if (localStorage.serverURL !== '' && localStorage.endpointID !== '') {
+				items = await getListPQL();
+			}
 			refreshTrigger.set(false); 
 		}
 	});
