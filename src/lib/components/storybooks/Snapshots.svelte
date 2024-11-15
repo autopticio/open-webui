@@ -28,6 +28,7 @@
 	let isLoading = false;
 
 	let defaultSnapshots = async () => {
+		_snapshots = []
 		isLoading = true;
 		let window = selectedTime+selectedTimeUnit.toLowerCase()
 		if (localStorage.serverURL !== '' && localStorage.endpointID !== '') {
