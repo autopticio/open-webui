@@ -19,7 +19,7 @@
 
 	const dispatch = createEventDispatcher();
 
-	import { config, models, settings } from '$lib/stores';
+	import { config, models, settings, iframeBottomTrigger } from '$lib/stores';
 	import { synthesizeOpenAISpeech } from '$lib/apis/audio';
 	import { imageGenerations } from '$lib/apis/images';
 	import {
@@ -429,6 +429,8 @@
 			}
 			runningPQL = false;
 		}
+
+		iframeBottomTrigger.set(true); 
 
 	});
 </script>

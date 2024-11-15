@@ -28,13 +28,16 @@
 	let isLoading = false;
 
 	let defaultSnapshots = async () => {
+		_snapshots = []
 		isLoading = true;
 		let window = selectedTime+selectedTimeUnit.toLowerCase()
-		try {
-			_snapshots = await getDefaultListSnapshots(window); 
-		} catch (error) {
-			_snapshots = []
-		}
+		if (localStorage.serverURL !== '' && localStorage.endpointID !== '') {
+			try {
+				_snapshots = await getDefaultListSnapshots(window); 
+			} catch (error) {
+				_snapshots = []
+			}
+		}	
 		isLoading = false;
 	};
 
@@ -194,7 +197,7 @@
 				style="min-width: 165px;"
 				>
 				<span class="text-center"> 
-					{sortOrder === 'asc' ? 'Sort by Newest' : 'Sort by Oldest'}
+					{sortOrder === 'asc' ? 'Sorted by Oldest' : 'Sorted by Newest'}
 				</span>
 			</div>
 		</div>
