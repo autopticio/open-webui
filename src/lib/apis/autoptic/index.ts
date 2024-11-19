@@ -646,7 +646,7 @@ export const readSnapshot = async (pql_id: string, format: string, timestamp: st
 			}
 		});
 
-		const response = await res.json();
+		const response = await res.text();
 
 		if (!res.ok) { 
 			throw new Error(response.message || 'Failed to read the snapshot');
