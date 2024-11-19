@@ -8,7 +8,6 @@ export const generateJustQueryResponse = async (Query) => {
 };
 
 const sendToAPI = async (message: string) => {
-	let result= null
 
 	const endpoint = localStorage.getItem('autoptic_endpoint');
 
@@ -20,26 +19,33 @@ const sendToAPI = async (message: string) => {
 
 	const mensajebase64Encoded = btoa(message)
 
-	const res = await fetch(`${AUTOPTIC_BASE_URL}/runPQL`, {
-		method: 'POST',
-		headers: {
-			'Content-Type': 'application/json',
-		},
-		body: JSON.stringify({
-			query:{
-				vars: database64Encoded, 
-				pql: mensajebase64Encoded
+	try {
+		const res = await fetch(`${AUTOPTIC_BASE_URL}/runPQL`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
 			},
-			endpoint: endpoint
+			body: JSON.stringify({
+				query:{
+					vars: database64Encoded, 
+					pql: mensajebase64Encoded
+				},
+				endpoint: endpoint
+			})
 		})
-	}).catch((err) => {
-		console.log(err);
-		throw err
-	});
 
-	result = await res.json()
+		const response = await res.json();
 
-	return result;
+		if (!res.ok) {
+			throw new Error(response.message || 'Failed to send PQL to API');
+		}
+
+		return response;
+
+	} catch (error) {
+		console.error('Error sending PQL to API:', error.message);
+		return {};
+	}
 };
 
 export const insertIframe = async (chatId, messageId, html_to_render) => {
@@ -85,7 +91,6 @@ export const insertIframe = async (chatId, messageId, html_to_render) => {
             iframe.style.overflow = 'hidden';
 
             iframe.onload = () => {
-                // Ensure that the iframe height adjusts to fit the content
                 const adjustIframeHeight = () => {
                     const iframeDocument = iframe.contentWindow.document;
                     const contentHeight = iframeDocument.body.scrollHeight;
@@ -136,305 +141,366 @@ export function loadIframeContent(chatId ,messageId) {
 
 
 export const updateAutopticEndpoint = async (token: string, autoptic_endpoint: string) => {
-	const res = await fetch(`${AUTOPTIC_BASE_URL}/keys/new_autoptic_endpoint`, {
-		method: 'POST',
-		headers: {
-			'Content-Type': 'application/json',
-			Authorization: `Bearer ${token}`
-		},
-		body: JSON.stringify({ autoptic_endpoint })
-	})
-		.then(async (res) => {
-			if (!res.ok) throw await res.json();
-			return res.json(); 
+	try {
+		const res = await fetch(`${AUTOPTIC_BASE_URL}/keys/new_autoptic_endpoint`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: `Bearer ${token}`
+			},
+			body: JSON.stringify({ autoptic_endpoint })
 		})
-		.catch((err) => {
-			console.log(err);
-			throw err
-		});
+	
+		const response = await res.json()
+	
+		if (!res.ok) {
+			throw new Error(response.message || 'Failed to update API URL');
+		}
+	
+		return response.autoptic_endpoint;
 
-	return res.autoptic_endpoint;
+	} catch (error) {
+		console.error('Error updating API URL:', error.message);
+		throw error; 
+	}
+
 };
 
 export const getAutopticEndpoint = async (token: string) => {
-
-	const res = await fetch(`${AUTOPTIC_BASE_URL}/keys/get_autoptic_endpoint`, {
-		method: 'GET',
-		headers: {
-			'Content-Type': 'application/json',
-			Authorization: `Bearer ${token}`
-		}
-	})
-		.then(async (res) => {
-			if (!res.ok) throw await res.json();
-			return res.json();
+	try {
+		const res = await fetch(`${AUTOPTIC_BASE_URL}/keys/get_autoptic_endpoint`, {
+			method: 'GET',
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: `Bearer ${token}`
+			}
 		})
-		.catch((err) => {
-			console.log(err);
-			throw err
-		});
 
-	return res.autoptic_endpoint;
+		const response = await res.json()
+	
+		if (!res.ok) {
+			throw new Error(response.message || 'Failed to get API URL');
+		}
+	
+		return response.autoptic_endpoint;
 
+	} catch (error) {
+		console.error('Error getting API URL:', error.message);
+		throw error;
+	}
+	
 };
 
 export const deleteAutopticEndpoint = async (token: string) => {
-
-	const res = await fetch(`${AUTOPTIC_BASE_URL}/keys/delete_autoptic_endpoint`, {
-		method: 'DELETE',
-		headers: {
-			'Content-Type': 'application/json',
-			Authorization: `Bearer ${token}`
-		}
-	})
-		.then(async (res) => {
-			if (!res.ok) throw await res.json();
-			return res.json();
-		})
-		.catch((err) => {
-			console.log(err);
-			throw err
+	try {
+		const res = await fetch(`${AUTOPTIC_BASE_URL}/keys/delete_autoptic_endpoint`, {
+			method: 'DELETE',
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: `Bearer ${token}`
+			}
 		});
 
-	return res;
+		const response = await res.json();
+
+		if (!res.ok) {
+			throw new Error(response.message || 'Failed to delete API URL');
+		}
+
+		return response;
+
+	} catch (error) {
+		console.error('Error deleting API URL:', error.message);
+		throw error;
+	}
+
 };
 
 export const updateAutopticEnvironment = async (token: string, autoptic_environment: string, envFileName: string) => {
-
-	const res = await fetch(`${AUTOPTIC_BASE_URL}/keys/new_autoptic_environment`, {
-		method: 'POST',
-		headers: {
-			'Content-Type': 'application/json',
-			Authorization: `Bearer ${token}`
-		},
-		body: JSON.stringify({ autoptic_environment , envFileName })
-	})
-		.then(async (res) => {
-			if (!res.ok) throw await res.json();
-			return res.json(); 
-		})
-		.catch((err) => {
-			console.log(err);
-			throw err
+	try {
+		const res = await fetch(`${AUTOPTIC_BASE_URL}/keys/new_autoptic_environment`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: `Bearer ${token}`
+			},
+			body: JSON.stringify({ autoptic_environment , envFileName })
 		});
 
-	return res.autoptic_environment;
+		const response = await res.json();
+
+		if (!res.ok) {
+			throw new Error(response.message || 'Failed to update Autoptic environment');
+		}
+
+		return response.autoptic_environment;
+
+	} catch (error) {
+		console.error('Error updating environment file:', error.message);
+		throw error;		
+	}
+
 };
 
 export const getAutopticEnvironment = async (token: string) => {
-
-	const res = await fetch(`${AUTOPTIC_BASE_URL}/keys/get_autoptic_environment`, {
-		method: 'GET',
-		headers: {
-			'Content-Type': 'application/json',
-			Authorization: `Bearer ${token}`
-		}
-	})
-		.then(async (res) => {
-			if (!res.ok) throw await res.json();
-			return res.json();
+	try {
+		const res = await fetch(`${AUTOPTIC_BASE_URL}/keys/get_autoptic_environment`, {
+			method: 'GET',
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: `Bearer ${token}`
+			}
 		})
-		.catch((err) => {
-			console.log(err);
-			throw err
-		});
 
-	return res.autoptic_environment;
+		const response = await res.json();
+
+		if (!res.ok) {
+			throw new Error(response.message || 'Failed to get environment file');
+		}
+
+		return response.autoptic_environment;
+
+	} catch (error) {
+		console.error('Error getting environment file:', error.message);
+		throw error;
+	}
 
 };
 
 export const deleteAutopticEnvironment = async (token: string) => {
 
-	const res = await fetch(`${AUTOPTIC_BASE_URL}/keys/delete_autoptic_environment`, {
-		method: 'DELETE',
-		headers: {
-			'Content-Type': 'application/json',
-			Authorization: `Bearer ${token}`
-		}
-	})
-		.then(async (res) => {
-			if (!res.ok) throw await res.json();
-			return res.json();
+	try {
+		const res = await fetch(`${AUTOPTIC_BASE_URL}/keys/delete_autoptic_environment`, {
+			method: 'DELETE',
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: `Bearer ${token}`
+			}
 		})
-		.catch((err) => {
-			console.log(err);
-			throw err
-		});
 
-	return res;
+		const response = await res.json();
+
+		if (!res.ok) {
+			throw new Error(response.message || 'Failed to delete environment file');
+		}
+
+		return response;
+
+	} catch (error) {
+		console.error('Error deleting environment file:', error.message);
+		throw error;
+	}
+
 };
 
 export const getEnvFileName = async (token: string) => {
 
-	const res = await fetch(`${AUTOPTIC_BASE_URL}/keys/get_envFileName`, {
-		method: 'GET',
-		headers: {
-			'Content-Type': 'application/json',
-			Authorization: `Bearer ${token}`
-		}
-	})
-		.then(async (res) => {
-			if (!res.ok) throw await res.json();
-			return res.json();
-		})
-		.catch((err) => {
-			console.log(err);
-			throw err
+	try {
+		const res = await fetch(`${AUTOPTIC_BASE_URL}/keys/get_envFileName`, {
+			method: 'GET',
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: `Bearer ${token}`
+			}
 		});
 
-	return res.envFileName;
+		const response = await res.json();
+
+		if (!res.ok) {
+			throw new Error(response.message || 'Failed to get environment name');
+		}
+
+		return response.envFileName;
+
+	} catch (error) {
+		console.error('Error getting environment name:', error.message);
+		throw error;
+	}
 
 };
 
 export const healthcheckServerURL = async (token: string, serverURL: string) => {
 
-	const res = await fetch(`${AUTOPTIC_BASE_URL}/serverconfig/healthcheck`, {
-		method: 'POST',
-		headers: {
-			'Content-Type': 'application/json',
-			Authorization: `Bearer ${token}`
-		},
-		body: JSON.stringify({ serverURL })
-	})
-		.then(async (res) => {
-			if (!res.ok) throw await res.json();
-			return res.json(); 
+	try {
+		const res = await fetch(`${AUTOPTIC_BASE_URL}/serverconfig/healthcheck`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: `Bearer ${token}`
+			},
+			body: JSON.stringify({ serverURL })
 		})
-		.catch((err) => {
-			console.log(err);
-			throw err
-		});
 
-	return res;
+		const response = await res.json();
+
+		if (!res.ok) {
+			throw new Error(response.message || 'Failed to check server URL health');
+		}
+
+		return response
+
+	} catch (error) {
+		console.error('Error checking server URL health:', error.message);
+		throw error;
+	}
+
 };
 
 export const updateServerURL = async (token: string, serverURL: string) => {
 
-	const res = await fetch(`${AUTOPTIC_BASE_URL}/serverconfig/new_serverURL`, {
-		method: 'POST',
-		headers: {
-			'Content-Type': 'application/json',
-			Authorization: `Bearer ${token}`
-		},
-		body: JSON.stringify({ serverURL })
-	})
-		.then(async (res) => {
-			if (!res.ok) throw await res.json();
-			return res.json(); 
+	try {
+		const res = await fetch(`${AUTOPTIC_BASE_URL}/serverconfig/new_serverURL`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: `Bearer ${token}`
+			},
+			body: JSON.stringify({ serverURL })
 		})
-		.catch((err) => {
-			console.log(err);
-			throw err
-		});
 
-	return res.serverURL;
+		const response = await res.json();
+
+		if (!res.ok) {
+			throw new Error(response.message || 'Failed to update server URL');
+		}
+
+		return response.serverURL
+
+	} catch (error) {
+		console.error('Error updating server URL:', error.message);
+		throw error;
+	}
+
 };
 
 export const getServerURL = async (token: string) => {
 
-	const res = await fetch(`${AUTOPTIC_BASE_URL}/serverconfig/get_serverURL`, {
-		method: 'GET',
-		headers: {
-			'Content-Type': 'application/json',
-			Authorization: `Bearer ${token}`
-		}
-	})
-		.then(async (res) => {
-			if (!res.ok) throw await res.json();
-			return res.json();
-		})
-		.catch((err) => {
-			console.log(err);
-			throw err
+	try {
+		const res = await fetch(`${AUTOPTIC_BASE_URL}/serverconfig/get_serverURL`, {
+			method: 'GET',
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: `Bearer ${token}`
+			}
 		});
 
-	return res.serverURL;
+		const response = await res.json();
+
+		if (!res.ok) {
+			throw new Error(response.message || 'Failed to get server URL');
+		}
+
+		return response.serverURL
+
+	} catch (error) {
+		console.error('Error getting server URL:', error.message);
+		throw error;
+	}
 
 };
 
 export const deleteServerURL = async (token: string) => {
 
-	const res = await fetch(`${AUTOPTIC_BASE_URL}/serverconfig/delete_serverURL`, {
-		method: 'DELETE',
-		headers: {
-			'Content-Type': 'application/json',
-			Authorization: `Bearer ${token}`
-		}
-	})
-		.then(async (res) => {
-			if (!res.ok) throw await res.json();
-			return res.json();
-		})
-		.catch((err) => {
-			console.log(err);
-			throw err
+	try {
+		const res = await fetch(`${AUTOPTIC_BASE_URL}/serverconfig/delete_serverURL`, {
+			method: 'DELETE',
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: `Bearer ${token}`
+			}
 		});
 
-	return res;
+		const response = await res.json();
+
+		if (!res.ok) {
+			throw new Error(response.message || 'Failed to delete server URL');
+		}
+
+		return response
+
+	} catch (error) {
+		console.error('Error deleting server URL:', error.message);
+		throw error;
+	}
+
 };
 
 export const updateEndpointID = async (token: string, endpointID: string) => {
-	const res = await fetch(`${AUTOPTIC_BASE_URL}/serverconfig/new_endpointID`, {
-		method: 'POST',
-		headers: {
-			'Content-Type': 'application/json',
-			Authorization: `Bearer ${token}`
-		},
-		body: JSON.stringify({ endpointID })
-	})
-		.then(async (res) => {
-			if (!res.ok) throw await res.json();
-			return res.json(); 
-		})
-		.catch((err) => {
-			console.log(err);
-			throw err
+
+	try {
+		const res = await fetch(`${AUTOPTIC_BASE_URL}/serverconfig/new_endpointID`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: `Bearer ${token}`
+			},
+			body: JSON.stringify({ endpointID })
 		});
 
-	return res.endpointID;
+		const response = await res.json();
+
+		if (!res.ok) {
+			throw new Error(response.message || 'Failed to update Endpoint ID');
+		}
+
+		return response.endpointID;
+
+	} catch (error) {
+		console.error('Error updating Endpoint ID:', error.message);
+		throw error;
+	}
+
 };
 
 export const getEndpointID = async (token: string) => {
 
-	const res = await fetch(`${AUTOPTIC_BASE_URL}/serverconfig/get_endpointID`, {
-		method: 'GET',
-		headers: {
-			'Content-Type': 'application/json',
-			Authorization: `Bearer ${token}`
-		}
-	})
-		.then(async (res) => {
-			if (!res.ok) throw await res.json();
-			return res.json();
-		})
-		.catch((err) => {
-			console.log(err);
-			throw err
+	try {
+		const res = await fetch(`${AUTOPTIC_BASE_URL}/serverconfig/get_endpointID`, {
+			method: 'GET',
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: `Bearer ${token}`
+			}
 		});
 
-	return res.endpointID;
+		const response = await res.json();
+
+		if (!res.ok) {
+			throw new Error(response.message || 'Failed to get Endpoint ID');
+		}
+
+		return response.endpointID;
+
+	} catch (error) {
+		console.error('Error getting Endpoint ID:', error.message);
+		throw error;
+	}
 
 };
 
 export const deleteEndpointID = async (token: string) => {
 
-	const res = await fetch(`${AUTOPTIC_BASE_URL}/serverconfig/delete_endpointID`, {
-		method: 'DELETE',
-		headers: {
-			'Content-Type': 'application/json',
-			Authorization: `Bearer ${token}`
-		}
-	})
-		.then(async (res) => {
-			if (!res.ok) throw await res.json();
-			return res.json();
-		})
-		.catch((err) => {
-			console.log(err);
-			throw err
+	try {
+		const res = await fetch(`${AUTOPTIC_BASE_URL}/serverconfig/delete_endpointID`, {
+			method: 'DELETE',
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: `Bearer ${token}`
+			}
 		});
 
-	return res;
+		const response = await res.json();
+
+		if (!res.ok) {
+			throw new Error(response.message || 'Failed to delete Endpoint ID');
+		}
+
+		return response;
+
+	} catch (error) {
+		console.error('Error deleting Endpoint ID:', error.message);
+		throw error;
+	}
 };
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -471,132 +537,128 @@ export const getListPQL = async () => {
 
 };
 
-
-// Why I did this? Think about it
-// Get a snapshot: GET /story/ep/{endpoint_id}/pql/{pql_id}/snap/{format}/{timestamp}/{snapshot_id}
-export const getUniqueSnapshot = async (token: string, pql_id: string, format: string, timestamp: string, snapshot_id: string) => {
-
-	const endpoint_id = localStorage.getItem('endpointID');
-
-	const res = await fetch(`${AUTOPTIC_BASE_URL}/story/ep/${endpoint_id}/pql/${pql_id}/snap/${format}/${timestamp}/${snapshot_id}`, {
-		method: 'GET',
-		headers: {
-			'Content-Type': 'application/json',
-			Authorization: `Bearer ${token}`
-		}
-	})
-		.then(async (res) => {
-			if (!res.ok) throw await res.json();
-			return res.json();
-		})
-		.catch((err) => {
-			console.log(err);
-			throw err
-		});
-
-	return res.envFileName;
-
-};
-
 export const getDefaultListSnapshots = async (window: string) => {
 
 	const serverURL = localStorage.getItem('serverURL');
 	const endpoint_id = localStorage.getItem('endpointID');
 
-	let res = []
-
-		res = await fetch(`${AUTOPTIC_BASE_URL}/snapshots/get_default_list_snapshot?endpoint_id=${endpoint_id}&window=${window}&serverURL=${encodeURIComponent(serverURL)}`, {
+	try {
+		const res = await fetch(`${AUTOPTIC_BASE_URL}/snapshots/get_default_list_snapshot?endpoint_id=${endpoint_id}&window=${window}&serverURL=${encodeURIComponent(serverURL)}`, {
 			method: 'GET',
 			headers: {
 				'Content-Type': 'application/json',
 				// Authorization: `Bearer ${token}`
 			}
-		})
-			.then(async (res) => {
-				if (!res.ok) throw await res.json();
-				return res.json();
-			})
-			.catch((err) => {
-				console.log(err);
-				return res
-			});
-	
-	
-	return res;
+		});
+
+		const response = await res.json();
+
+		if (!res.ok) { 
+			throw new Error(response.message || 'Failed to fetch snapshots');
+		}
+
+		return response
+
+	} catch (error) {
+		console.error('Error fetching snapshots:', error.message);
+		return [];
+	}
 
 };
 
 // List snapshots: GET /story/ep/{endpoint_id}/pql/{pql_id}/snap/{format}/{timestamp}
+
+// This function is not use now. It will be used in the future
+
 export const getListSnapshots = async (pql_id: string, format: string, timestamp: string) => {
 
 	const serverURL = localStorage.getItem('serverURL');
 	const endpoint_id = localStorage.getItem('endpointID');
 
-	const res = await fetch(`${AUTOPTIC_BASE_URL}/snapshots/get_list_snapshot?endpoint_id=${endpoint_id}&pql_id=${pql_id}&format=${format}&timestamp=${timestamp}&serverURL=${encodeURIComponent(serverURL)}`, {
-		method: 'GET',
-		headers: {
-			'Content-Type': 'application/json',
-			// Authorization: `Bearer ${token}`
-		}
-	})
-		.then(async (res) => {
-			if (!res.ok) throw await res.json();
-			return res.json();
-		})
-		.catch((err) => {
-			console.log(err);
-			throw err
+	try {
+		const res = await fetch(`${AUTOPTIC_BASE_URL}/snapshots/get_list_snapshot?endpoint_id=${endpoint_id}&pql_id=${pql_id}&format=${format}&timestamp=${timestamp}&serverURL=${encodeURIComponent(serverURL)}`, {
+			method: 'GET',
+			headers: {
+				'Content-Type': 'application/json',
+				// Authorization: `Bearer ${token}`
+			}
 		});
 
-	return res;
+		const response = await res.json();
+
+		if (!res.ok) { 
+			throw new Error(response.message || 'Failed to fetch PQL list');
+		}
+
+		return response
+
+	} catch (error) {
+		console.error('Error fetching snapshots:', error.message);
+		return [];
+	}
+
 };
+
+// This function is not use now. It will be used in the future
 
 export const getWindowListSnapshots = async (pql_id: string, format: string, timestamp: string) => {
 
 	const serverURL = localStorage.getItem('serverURL');
 	const endpoint_id = localStorage.getItem('endpointID');
 
-	const res = await fetch(`${AUTOPTIC_BASE_URL}/snapshots/get_list_snapshot?endpoint_id=${endpoint_id}&pql_id=${pql_id}&format=${format}&timestamp=${timestamp}&serverURL=${encodeURIComponent(serverURL)}`, {
-		method: 'GET',
-		headers: {
-			'Content-Type': 'application/json',
-			// Authorization: `Bearer ${token}`
-		}
-	})
-		.then(async (res) => {
-			if (!res.ok) throw await res.json();
-			return res.json();
-		})
-		.catch((err) => {
-			console.log(err);
-			throw err
+	try {
+		const res = await fetch(`${AUTOPTIC_BASE_URL}/snapshots/get_list_snapshot?endpoint_id=${endpoint_id}&pql_id=${pql_id}&format=${format}&timestamp=${timestamp}&serverURL=${encodeURIComponent(serverURL)}`, {
+			method: 'GET',
+			headers: {
+				'Content-Type': 'application/json',
+				// Authorization: `Bearer ${token}`
+			}
 		});
 
-	return res;
+		const response = await res.json();
+
+		if (!res.ok) { 
+			throw new Error(response.message || 'Failed to fetch PQL list');
+		}
+
+		return response
+
+	} catch (error) {
+		console.error('Error fetching snapshots:', error.message);
+		return [];
+	}
+
 };
+
+
 
 export const readSnapshot = async (pql_id: string, format: string, timestamp: string, snapshot_id: string) => {
 
 	const serverURL = localStorage.getItem('serverURL');
 	const endpoint_id = localStorage.getItem('endpointID');
 
-	const res = await fetch(`${AUTOPTIC_BASE_URL}/snapshots/read_snapshot?endpoint_id=${endpoint_id}&pql_id=${pql_id}&format=${format}&timestamp=${timestamp}&snapshot_id=${snapshot_id}&serverURL=${encodeURIComponent(serverURL)}`, {
-		method: 'GET',
-		headers: {
-			'Content-Type': 'application/json',
-			// Authorization: `Bearer ${token}`
-		}
-	})
-		.then(async (res) => {
-			if (!res.ok) throw await res.text();
-			return res.text();
-		})
-		.catch((err) => {
-			console.log(err);
-			throw err
+	try {
+		const res = await fetch(`${AUTOPTIC_BASE_URL}/snapshots/read_snapshot?endpoint_id=${endpoint_id}&pql_id=${pql_id}&format=${format}&timestamp=${timestamp}&snapshot_id=${snapshot_id}&serverURL=${encodeURIComponent(serverURL)}`, {
+			method: 'GET',
+			headers: {
+				'Content-Type': 'application/json',
+				// Authorization: `Bearer ${token}`
+			}
 		});
 
-	return res;
+		const response = await res.text();
+
+		if (!res.ok) { 
+			throw new Error(response.message || 'Failed to read the snapshot');
+		}
+
+		return response;
+
+	} catch (error) {
+		console.error('Error reading the snapshot:', error.message);
+		throw error;
+	}
+
 };
 
 export const deleteSnapshot = async (pql_id: string, format: string, timestamp: string, snapshot_id: string) => {
@@ -604,21 +666,26 @@ export const deleteSnapshot = async (pql_id: string, format: string, timestamp: 
 	const serverURL = localStorage.getItem('serverURL');
 	const endpoint_id = localStorage.getItem('endpointID');
 
-	const res = await fetch(`${AUTOPTIC_BASE_URL}/snapshots/delete_snapshot?endpoint_id=${endpoint_id}&pql_id=${pql_id}&format=${format}&timestamp=${timestamp}&snapshot_id=${snapshot_id}&serverURL=${encodeURIComponent(serverURL)}`, {
-		method: 'DELETE',
-		headers: {
-			'Content-Type': 'application/json',
-			// Authorization: `Bearer ${token}`
-		}
-	})
-		.then(async (res) => {
-			if (!res.ok) throw await res.json();
-			return res.json();
-		})
-		.catch((err) => {
-			console.log(err);
-			throw err
+	try {
+		const res = await fetch(`${AUTOPTIC_BASE_URL}/snapshots/delete_snapshot?endpoint_id=${endpoint_id}&pql_id=${pql_id}&format=${format}&timestamp=${timestamp}&snapshot_id=${snapshot_id}&serverURL=${encodeURIComponent(serverURL)}`, {
+			method: 'DELETE',
+			headers: {
+				'Content-Type': 'application/json',
+				// Authorization: `Bearer ${token}`
+			}
 		});
 
-	return res;
+		const response = await res.json();
+
+		if (!res.ok) { 
+			throw new Error(response.message || 'Failed to delete the snapshot');
+		}
+
+		return response;
+
+	} catch (error) {
+		console.error('Error deleting the snapshot:', error.message);
+		throw error;
+	}
+
 };

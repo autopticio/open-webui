@@ -69,7 +69,7 @@
 					class=" disabled:opacity-50 disabled:hover:bg-red-700 disabled:cursor-not-allowed px-4 py-2 bg-red-700 hover:bg-red-800 text-gray-100 transition rounded-lg"
 					disabled={deleteInput !== 'delete'}
 					on:click={async () => {
-						deleteSnapshot(snapshot.pql_id, snapshot.format, snapshot.timestamp, snapshot.snapshot_id);
+						await deleteSnapshot(snapshot.pql_id, snapshot.format, snapshot.timestamp, snapshot.snapshot_id);
 						showDelete = false;
 						toast.success('Snapshot deleted!')
 						onRefresh();
