@@ -228,7 +228,7 @@
 				<div class="flex flex-col">
 					<div class="self-center mt-2">
 						<img
-							src={"/autoptic.png"}
+							src={"/autoptic_whitebg.png"}
 							alt="autoptic_logo"
 							class=" rounded-full dark:bg-white size-16 object-cover"
 						/>

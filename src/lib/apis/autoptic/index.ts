@@ -48,24 +48,24 @@ const sendToAPI = async (message: string) => {
 	}
 };
 
-export const insertIframe = async (chatId, messageId, html_to_render) => {
+export const insertIframe = async (chatId: string, messageId: string, html_to_render: string) => {
     return new Promise((resolve, reject) => {
-        let responseDiv = document.getElementById("message-" + messageId);
+        const responseDiv = document.getElementById("message-" + messageId);
 
         if (responseDiv) {
-            let iframeID = "iframe-" + chatId + messageId;
-            let existingIframe = document.getElementById(iframeID);
+            const iframeID = "iframe-" + chatId + messageId;
+            const existingIframe = document.getElementById(iframeID);
             if (existingIframe) {
                 existingIframe.parentNode?.removeChild(existingIframe);
             }
 
-            var iframe = document.createElement('iframe');
+            const iframe = document.createElement('iframe');
             iframe.id = iframeID;
             iframe.width = "100%";
             iframe.style.border = "none";
 			iframe.style.marginTop = "10px"
 
-            let closeButtonHtml = `
+            const closeButtonHtml = `
                 <button id="closeButton-${iframeID}" style="position: absolute; top: -40px; right: 10px; background: #FF3A3A; border: 0.5px solid #323232; cursor: pointer; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M6 18L18 6M6 6l12 12" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -96,6 +96,7 @@ export const insertIframe = async (chatId, messageId, html_to_render) => {
                     const contentHeight = iframeDocument.body.scrollHeight;
                     iframe.style.height = contentHeight + "px";
                     iframeDocument.body.style.backgroundColor = 'white';
+					iframeDocument.body.style.overflow = "hidden";
                 };
 
                 adjustIframeHeight();

@@ -8,20 +8,19 @@
 
 	const i18n = getContext('i18n');
 
-    export let pql_id; 
-    export let format; 
-    export let timestamp; 
-    export let snapshot_id; 
+    export let pql_id: string; 
+    export let format: string;
+    export let timestamp: string;
+    export let snapshot_id: string;
     export let url;
 
+    let isLoading = false
     let snapshotDate;
     let html_to_render;
     
     snapshotDate = formatDateTime(timestamp)
-    
-    let isLoading = false;        
 
-    onMount( async () => {
+    async function loadSnapshot() {
         isLoading = true;        
 
         html_to_render = await readSnapshot(pql_id, format, timestamp, snapshot_id)
@@ -52,7 +51,10 @@
         }
 
         isLoading = false;
+    }
 
+    onMount( async () => {
+        await loadSnapshot()
     });
 
 </script>
@@ -137,6 +139,7 @@ id="snapshot-item-{snapshot_id}"
         frameborder="0"
         class="w-full h-full"
         allowfullscreen
+        scrolling="no"
     />
 </div>
 
