@@ -17,8 +17,9 @@ async def getListPQL(endpoint_id: str , serverURL: str):
             response = await session.get(
                 f"{serverURL}story/ep/{endpoint_id}/pql",
             )
+            items = await response.json()
 
-            return await response.json()
+            return items
 
     except Exception as e:
         logger.error(" Invalid keys for Autoptic. %s", e)

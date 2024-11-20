@@ -41,7 +41,7 @@ def transform_snapshot_to_dict(path_list):
     for path in path_list:
         segments = path.split('/')
 
-        snapshot = { 
+        snapshot = {
                     'url': path,
                     'endpoint_id': segments[2],
                     'pql_id': segments[4],
@@ -76,7 +76,7 @@ async def getDefaultListSnapshots(endpoint_id: str, window: str, serverURL: str)
             except Exception as e:
                 raise HTTPException(status_code=500, detail="something went wrong.")
 
-        return list_snapshots
+    return list_snapshots
 
 @router.get("/get_list_snapshot")
 async def getListSnapshots(endpoint_id: str, pql_id: str, format: str, timestamp: str, serverURL: str):

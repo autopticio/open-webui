@@ -311,7 +311,7 @@
 				<div class="self-center mx-1.5">
 					<img
 						crossorigin="anonymous"
-						src="{WEBUI_BASE_URL}/static/favicon.png"
+						src="/autoptic_whitebg.png"
 						class=" size-6 -translate-x-1.5 rounded-full"
 						alt="logo"
 					/>
