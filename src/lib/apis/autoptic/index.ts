@@ -1,33 +1,26 @@
 import { AUTOPTIC_BASE_URL } from '$lib/constants';
 
-export const generateJustQueryResponse = async (Query) => {
+export const runPQLonDemand = async (message: string) => {
 
-	const _response = await sendToAPI(Query);
-	
-	return _response;
-};
+	const serverURL = localStorage.getItem('serverURL');
+	const endpoint = localStorage.getItem('endpointID');
 
-const sendToAPI = async (message: string) => {
-
-	const endpoint = localStorage.getItem('autoptic_endpoint');
-
-	let json_env = localStorage.getItem('autoptic_environment');
-	json_env= JSON.parse(json_env)
+	let json_env = await readEnvironment()
+	json_env = JSON.parse(json_env)
 	json_env = JSON.stringify(json_env);
 
 	const database64Encoded = btoa(json_env);
-
 	const mensajebase64Encoded = btoa(message)
 
 	try {
-		const res = await fetch(`${AUTOPTIC_BASE_URL}/runPQL`, {
+		const res = await fetch(`${AUTOPTIC_BASE_URL}/runPQL?serverUrl=${encodeURIComponent(serverURL)}`, {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
 			},
 			body: JSON.stringify({
 				query:{
-					vars: database64Encoded, 
+					vars: database64Encoded,
 					pql: mensajebase64Encoded
 				},
 				endpoint: endpoint
@@ -140,82 +133,7 @@ export function loadIframeContent(chatId ,messageId) {
 	return localStorage.getItem(`iframeContent-${chatId}-${messageId}`);
 }
 
-
-export const updateAutopticEndpoint = async (token: string, autoptic_endpoint: string) => {
-	try {
-		const res = await fetch(`${AUTOPTIC_BASE_URL}/keys/new_autoptic_endpoint`, {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json',
-				Authorization: `Bearer ${token}`
-			},
-			body: JSON.stringify({ autoptic_endpoint })
-		})
-	
-		const response = await res.json()
-	
-		if (!res.ok) {
-			throw new Error(response.message || 'Failed to update API URL');
-		}
-	
-		return response.autoptic_endpoint;
-
-	} catch (error) {
-		console.error('Error updating API URL:', error.message);
-		throw error; 
-	}
-
-};
-
-export const getAutopticEndpoint = async (token: string) => {
-	try {
-		const res = await fetch(`${AUTOPTIC_BASE_URL}/keys/get_autoptic_endpoint`, {
-			method: 'GET',
-			headers: {
-				'Content-Type': 'application/json',
-				Authorization: `Bearer ${token}`
-			}
-		})
-
-		const response = await res.json()
-	
-		if (!res.ok) {
-			throw new Error(response.message || 'Failed to get API URL');
-		}
-	
-		return response.autoptic_endpoint;
-
-	} catch (error) {
-		console.error('Error getting API URL:', error.message);
-		throw error;
-	}
-	
-};
-
-export const deleteAutopticEndpoint = async (token: string) => {
-	try {
-		const res = await fetch(`${AUTOPTIC_BASE_URL}/keys/delete_autoptic_endpoint`, {
-			method: 'DELETE',
-			headers: {
-				'Content-Type': 'application/json',
-				Authorization: `Bearer ${token}`
-			}
-		});
-
-		const response = await res.json();
-
-		if (!res.ok) {
-			throw new Error(response.message || 'Failed to delete API URL');
-		}
-
-		return response;
-
-	} catch (error) {
-		console.error('Error deleting API URL:', error.message);
-		throw error;
-	}
-
-};
+// Environment management ==> it will be changed for the new configuration when the db migration is done
 
 export const updateAutopticEnvironment = async (token: string, autoptic_environment: string, envFileName: string) => {
 	try {
@@ -694,6 +612,35 @@ export const deleteSnapshot = async (pql_id: string, format: string, timestamp: 
 //////////////////////////////////////////////////////////
 // Environment functions
 //////////////////////////////////////////////////////////
+
+export const readEnvironment = async () => {
+
+	const serverURL = localStorage.getItem('serverURL');
+	const endpointID = localStorage.getItem('endpointID');
+	const environmentID = localStorage.getItem('environment');
+
+	try {
+		const res = await fetch(`${AUTOPTIC_BASE_URL}/envs/read_environment?serverUrl=${encodeURIComponent(serverURL)}&endpoint_id=${endpointID}&env_id=${environmentID}`, {
+			method: 'GET',
+			headers: {
+				'Content-Type': 'application/json',
+			}
+		});
+
+		const response = await res.text();
+
+		if (!res.ok) { 
+			throw new Error(response.message || 'Failed to fetch the environment');
+		}
+
+		return response
+
+	} catch (error) {
+		console.error('Error fetching the environment:', error.message);
+		return [];
+	}
+
+};
 
 export const getListEnv = async () => {
 

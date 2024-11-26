@@ -46,9 +46,6 @@ class PayloadQuery(BaseModel):
     query: PQLquery
     endpoint: str
 
-# Maybe we can use something like this to check is the EP is correctly written in the config before save,
-# but there is a few things to talk about that part of the UI/UX
-
 def extract_id_from_url(url: str) -> str:
     pattern = r'^(?:(https?://)?autoptic\.io/pql/ep/([a-zA-Z0-9-]+)/run|([a-zA-Z0-9-]+))$'
     match = re.match(pattern, url)
@@ -60,12 +57,12 @@ def extract_id_from_url(url: str) -> str:
     return "None"
 
 @app.post("/runPQL")
-async def sentToAutoptic(Payload: PayloadQuery):
+async def sentToAutoptic(serverUrl: str , Payload: PayloadQuery):
     try:
         async with aiohttp.ClientSession(trust_env=True) as session:
-            endpoint_id = extract_id_from_url(Payload.endpoint)
+            # endpoint_id = extract_id_from_url(Payload.endpoint)
             response = await session.post(
-                f"https://autoptic.io/pql/ep/{endpoint_id}/run",
+		        f"{serverUrl}story/ep/${Payload.endpoint}/run",
                 json=Payload.query.dict()
             )
             assert response.status == 200
@@ -74,6 +71,3 @@ async def sentToAutoptic(Payload: PayloadQuery):
     except Exception as e:
         logger.error(" Invalid keys for Autoptic. %s", e)
         raise HTTPException(status_code=403, detail="Invalid keys for Autoptic.")
-
-
-

@@ -12,7 +12,7 @@
 	import { createEventDispatcher } from 'svelte';
 	import { onMount, tick, getContext } from 'svelte';
 
-	import { deleteIframeContent, generateJustQueryResponse , insertIframe , loadIframeContent } from '$lib/apis/autoptic'; 
+	import { deleteIframeContent, runPQLonDemand , insertIframe , loadIframeContent } from '$lib/apis/autoptic'; 
 
 
 	const i18n = getContext('i18n');
@@ -383,6 +383,8 @@
 		})();
 	}
 
+	// This will be refactored like the other example.
+
     const runPQL = async () => {
 		
 		const storedEndpoint = localStorage.getItem('autoptic_endpoint');
@@ -398,7 +400,7 @@
 			toast.error($i18n.t('The API URL is empty!'));
 			return null
 		} else{
-			let html_to_render = await generateJustQueryResponse(message.content);
+			let html_to_render = await runPQLonDemand(message.content);
 			if (typeof html_to_render == 'string') {
 				try {
 					await insertIframe(chatId, message.id, html_to_render);

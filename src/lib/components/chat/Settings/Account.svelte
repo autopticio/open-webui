@@ -9,8 +9,6 @@
 				} from '$lib/apis/auths';
 
 	import {
-			updateAutopticEndpoint,
-			 deleteAutopticEndpoint,
 			 updateAutopticEnvironment,
 			 deleteAutopticEnvironment,
 				} from '$lib/apis/autoptic';
