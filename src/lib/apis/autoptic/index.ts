@@ -690,3 +690,35 @@ export const deleteSnapshot = async (pql_id: string, format: string, timestamp: 
 	}
 
 };
+
+//////////////////////////////////////////////////////////
+// Environment functions
+//////////////////////////////////////////////////////////
+
+export const getListEnv = async () => {
+
+	const serverURL = localStorage.getItem('serverURL');
+	const endpoint_id = localStorage.getItem('endpointID');
+
+	try {
+		const res = await fetch(`${AUTOPTIC_BASE_URL}/envs/get_list_env?endpoint_id=${endpoint_id}&serverUrl=${encodeURIComponent(serverURL)}`, {
+			method: 'GET',
+			headers: {
+				'Content-Type': 'application/json',
+			}
+		});
+
+		const response = await res.json();
+
+		if (!res.ok) { 
+			throw new Error(response.message || 'Failed to fetch environment list');
+		}
+
+		return response
+
+	} catch (error) {
+		console.error('Error fetching environment list:', error.message);
+		return [];
+	}
+
+};

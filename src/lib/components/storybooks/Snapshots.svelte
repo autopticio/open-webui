@@ -71,8 +71,8 @@
 
 	let selectedFormat = 'Any'
 
-	let selectedTime = '1'
-	let selectedTimeUnit = 'Days'
+	let selectedTime = '3'
+	let selectedTimeUnit = 'Hours'
 
 	const applyFilters = () => {
 

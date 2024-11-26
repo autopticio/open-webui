@@ -25,7 +25,7 @@
 
         html_to_render = await readSnapshot(pql_id, format, timestamp, snapshot_id)
 
-        const iframe = document.getElementById('iframe');
+        const iframe = document.getElementById('iframe') as HTMLIFrameElement;
         if (iframe) {
             iframe.srcdoc = html_to_render;
             iframe.style.backgroundColor = 'white';
