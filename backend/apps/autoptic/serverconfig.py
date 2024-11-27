@@ -21,10 +21,6 @@ logger = logging.getLogger(__name__)
 # Autoptic Keys
 ############################
 
-class AutopticEnvironment(BaseModel):
-    autoptic_environment: str
-    envFileName: str
-
 # Server URL
 
 @router.post("/healthcheck")
@@ -80,7 +76,7 @@ async def delete_serverURL(user=Depends(get_current_user)):
 # Endpoint
 
 @router.post("/new_endpointID")
-async def update_autoptic_endpoint(endpointID: dict, user=Depends(get_current_user)):
+async def update_endpointID(endpointID: dict, user=Depends(get_current_user)):
     try:
         success = Users.update_user_endpointID_by_id(user.id, endpointID["endpointID"])
         if success:
@@ -109,4 +105,36 @@ async def get_endpointID(user=Depends(get_current_user)):
 @router.delete("/delete_endpointID")
 async def delete_endpointID(user=Depends(get_current_user)):
     success = Users.update_user_endpointID_by_id(user.id, None)
+    return success
+
+@router.post("/new_default_environment")
+async def update_environmentID(environmentID: dict, user=Depends(get_current_user)):
+    try:
+        success = Users.update_user_environmentID_by_id(user.id, environmentID["environmentID"])
+        if success:
+            return {
+                "environmentID": environmentID["environmentID"],
+            }
+    except Exception as e:
+        logger.error(" Failed to update the default environment. %s", e)
+        raise HTTPException(status_code=500, detail="Failed to update the default environment. Database error.")
+    
+@router.get("/get_default_environment")
+async def get_environmentID(user=Depends(get_current_user)):
+    try:
+        environmentID = Users.get_user_environmentID_by_id(user.id)
+        if environmentID:
+            return {
+                "environmentID": environmentID,
+            }
+        return {
+            "environmentID": '',
+        }
+    except Exception as e:
+        logger.error(" Failed to get the default environment %s", e)
+        raise HTTPException(status_code=500, detail="Failed to get the default environment. Database error.")
+
+@router.delete("/delete_default_environment")
+async def delete_environmentID(user=Depends(get_current_user)):
+    success = Users.update_user_environmentID_by_id(user.id, None)
     return success

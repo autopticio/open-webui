@@ -133,111 +133,6 @@ export function loadIframeContent(chatId ,messageId) {
 	return localStorage.getItem(`iframeContent-${chatId}-${messageId}`);
 }
 
-// Environment management ==> it will be changed for the new configuration when the db migration is done
-
-export const updateAutopticEnvironment = async (token: string, autoptic_environment: string, envFileName: string) => {
-	try {
-		const res = await fetch(`${AUTOPTIC_BASE_URL}/keys/new_autoptic_environment`, {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json',
-				Authorization: `Bearer ${token}`
-			},
-			body: JSON.stringify({ autoptic_environment , envFileName })
-		});
-
-		const response = await res.json();
-
-		if (!res.ok) {
-			throw new Error(response.message || 'Failed to update Autoptic environment');
-		}
-
-		return response.autoptic_environment;
-
-	} catch (error) {
-		console.error('Error updating environment file:', error.message);
-		throw error;		
-	}
-
-};
-
-export const getAutopticEnvironment = async (token: string) => {
-	try {
-		const res = await fetch(`${AUTOPTIC_BASE_URL}/keys/get_autoptic_environment`, {
-			method: 'GET',
-			headers: {
-				'Content-Type': 'application/json',
-				Authorization: `Bearer ${token}`
-			}
-		})
-
-		const response = await res.json();
-
-		if (!res.ok) {
-			throw new Error(response.message || 'Failed to get environment file');
-		}
-
-		return response.autoptic_environment;
-
-	} catch (error) {
-		console.error('Error getting environment file:', error.message);
-		throw error;
-	}
-
-};
-
-export const deleteAutopticEnvironment = async (token: string) => {
-
-	try {
-		const res = await fetch(`${AUTOPTIC_BASE_URL}/keys/delete_autoptic_environment`, {
-			method: 'DELETE',
-			headers: {
-				'Content-Type': 'application/json',
-				Authorization: `Bearer ${token}`
-			}
-		})
-
-		const response = await res.json();
-
-		if (!res.ok) {
-			throw new Error(response.message || 'Failed to delete environment file');
-		}
-
-		return response;
-
-	} catch (error) {
-		console.error('Error deleting environment file:', error.message);
-		throw error;
-	}
-
-};
-
-export const getEnvFileName = async (token: string) => {
-
-	try {
-		const res = await fetch(`${AUTOPTIC_BASE_URL}/keys/get_envFileName`, {
-			method: 'GET',
-			headers: {
-				'Content-Type': 'application/json',
-				Authorization: `Bearer ${token}`
-			}
-		});
-
-		const response = await res.json();
-
-		if (!res.ok) {
-			throw new Error(response.message || 'Failed to get environment name');
-		}
-
-		return response.envFileName;
-
-	} catch (error) {
-		console.error('Error getting environment name:', error.message);
-		throw error;
-	}
-
-};
-
 export const healthcheckServerURL = async (token: string, serverURL: string) => {
 
 	try {
@@ -530,7 +425,6 @@ export const getWindowListSnapshots = async (pql_id: string, format: string, tim
 			method: 'GET',
 			headers: {
 				'Content-Type': 'application/json',
-				// Authorization: `Bearer ${token}`
 			}
 		});
 
@@ -561,7 +455,6 @@ export const readSnapshot = async (pql_id: string, format: string, timestamp: st
 			method: 'GET',
 			headers: {
 				'Content-Type': 'application/json',
-				// Authorization: `Bearer ${token}`
 			}
 		});
 
@@ -617,7 +510,7 @@ export const readEnvironment = async () => {
 
 	const serverURL = localStorage.getItem('serverURL');
 	const endpointID = localStorage.getItem('endpointID');
-	const environmentID = localStorage.getItem('environment');
+	const environmentID = localStorage.getItem('environmentID');
 
 	try {
 		const res = await fetch(`${AUTOPTIC_BASE_URL}/envs/read_environment?serverUrl=${encodeURIComponent(serverURL)}&endpoint_id=${endpointID}&env_id=${environmentID}`, {
@@ -666,6 +559,86 @@ export const getListEnv = async () => {
 	} catch (error) {
 		console.error('Error fetching environment list:', error.message);
 		return [];
+	}
+
+};
+
+// default environment 
+
+export const updateDefaultEnvironment = async (token: string, environmentID: string) => {
+	try {
+		const res = await fetch(`${AUTOPTIC_BASE_URL}/serverconfig/new_default_environment`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: `Bearer ${token}`
+			},
+			body: JSON.stringify({ environmentID })
+		})
+
+		const response = await res.json();
+
+		console.log(response)
+
+		if (!res.ok) {
+			throw new Error(response.message || 'Failed to update the default environment.');
+		}
+
+		return response.environmentID
+
+	} catch (error) {
+		console.error('Error updating the default environment:', error.message);
+		throw error;
+	}
+
+};
+
+export const getDefaultEnvironment = async (token: string) => {
+	try {
+		const res = await fetch(`${AUTOPTIC_BASE_URL}/serverconfig/get_default_environment`, {
+			method: 'GET',
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: `Bearer ${token}`
+			}
+		});
+
+		const response = await res.json();
+
+		if (!res.ok) {
+			throw new Error(response.message || 'Failed to get server URL');
+		}
+
+		return response.environmentID
+
+	} catch (error) {
+		console.error('Error getting server URL:', error.message);
+		throw error;
+	}
+
+};
+
+export const deleteDefaultEnvironment = async (token: string) => {
+	try {
+		const res = await fetch(`${AUTOPTIC_BASE_URL}/serverconfig/delete_default_environment`, {
+			method: 'DELETE',
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: `Bearer ${token}`
+			}
+		});
+
+		const response = await res.json();
+
+		if (!res.ok) {
+			throw new Error(response.message || 'Failed to delete server URL');
+		}
+
+		return response
+
+	} catch (error) {
+		console.error('Error deleting server URL:', error.message);
+		throw error;
 	}
 
 };

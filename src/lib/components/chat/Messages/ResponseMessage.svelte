@@ -383,23 +383,8 @@
 		})();
 	}
 
-	// This will be refactored like the other example.
-
     const runPQL = async () => {
-		
-		const storedEndpoint = localStorage.getItem('autoptic_endpoint');
-		const storedEnvVariables = localStorage.getItem('autoptic_environment');
-
-		if (storedEndpoint == '' && storedEnvVariables == null){
-			toast.error($i18n.t('The API URL and the environment variables are empty!'));
-			return null
-		} else if (storedEnvVariables == null){
-			toast.error($i18n.t('The environment variables are empty!'));
-			return null
-		} else if (storedEndpoint == ''){
-			toast.error($i18n.t('The API URL is empty!'));
-			return null
-		} else{
+		try {
 			let html_to_render = await runPQLonDemand(message.content);
 			if (typeof html_to_render == 'string') {
 				try {
@@ -409,9 +394,12 @@
 					deleteIframeContent("iframe-" + chatId + message.id, chatId, message.id);
 				}
 			} else {
-				toast.error($i18n.t('Error! Check if your SaaS configuration is ok.'));
+				toast.error($i18n.t('Error! Check your configuration.'));
 				deleteIframeContent("iframe-" + chatId + message.id, chatId,message.id);
 			}
+		} catch (error) {
+			toast.error($i18n.t('Failed to connect to Autoptic.'));
+			console.error(error)
 		}
 	}
 

@@ -14,8 +14,8 @@ You will need to create a migration file to ensure that existing databases are u
 2. Make your changes to the models.
 3. From the `backend` directory, run the following command:
    ```bash
-   pw_migrate create --auto --auto-source apps.webui.models --database sqlite:///${SQLITE_DB} --directory apps/web/internal/migrations ${MIGRATION_NAME}
+   PYTHONPATH=$(pwd) pw_migrate create --auto --auto-source apps.webui.models --database sqlite:///${SQLITE_DB} --directory apps/webui/internal/migrations ${MIGRATION_NAME}
    ```
    - `$SQLITE_DB` should be the path to the database file.
    - `$MIGRATION_NAME` should be a descriptive name for the migration.
-4. The migration file will be created in the `apps/web/internal/migrations` directory.
+4. The migration file will be created in the `apps/webui/internal/migrations` directory.

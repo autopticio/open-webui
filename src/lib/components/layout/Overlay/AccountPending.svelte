@@ -51,10 +51,7 @@
 					<button
 						class="text-xs text-center w-full mt-2 text-gray-400 underline"
 						on:click={async () => {
-							localStorage.removeItem('token');
-							localStorage.removeItem('autoptic_endpoint');
-							localStorage.removeItem('autoptic_environment');
-							localStorage.removeItem('envFileName');
+							localStorage.clear()
 							location.href = '/auth';
 						}}>{$i18n.t('Sign Out')}</button
 					>

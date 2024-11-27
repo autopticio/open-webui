@@ -9,24 +9,20 @@
 	import { getListEnv } from '$lib/apis/autoptic';
 
 	import {
-			updateAutopticEnvironment,
-			deleteAutopticEnvironment,
 			updateServerURL,
 			deleteServerURL,
 			updateEndpointID,
 			deleteEndpointID,
 			healthcheckServerURL,
+			updateDefaultEnvironment,
+			deleteDefaultEnvironment,
 				} from '$lib/apis/autoptic';
+	import { list } from 'postcss';
 
 	const i18n = getContext('i18n');
 
 	export let admin = false;
 
-
-	let profileImageUrl = '';
-	let name = '';
-
-	let showSaaSConfiguration = false;
 	let showNewKeys = false;
 	let showServerConfiguration = false;
 
@@ -42,7 +38,12 @@
 	let items: any = []
 
 	async function listEnv() {
-		items = await getListEnv()
+		try {
+			items = await getListEnv();
+		} catch (error) {
+			console.log('hi there')
+			items = ['sape']
+		}
 	}
 
 	function formatServerUrl(url: string) {
@@ -74,54 +75,66 @@
 		}
 		localStorage.serverURL=serverURL;
 		return true
-        };
+    };
 
 	const saveEndpointID = async () => {
 		if (endpointID != ''){
 			await updateEndpointID(localStorage.token,endpointID)
 		} else {
 			await deleteEndpointID(localStorage.token)
+			await deleteDefaultEnvironment(localStorage.token)
 		}
 		localStorage.endpointID=endpointID;
 		refreshTrigger.set(true); 
 		return true
-        };
+    };
 
-	async function handleSavingConfig() {
-		let urlSaved = true;
-		let envSaved = true;
-
-		if (serverURL !== localStorage.serverURL) {
-			urlSaved = await saveServerURL();
+	const saveEnvironmentID = async () => {
+		if (selectedEnv != ''){
+			await updateDefaultEnvironment(localStorage.token,selectedEnv)
+		} else {
+			await deleteDefaultEnvironment(localStorage.token)
 		}
+		localStorage.environmentID=selectedEnv;
+		refreshTrigger.set(true); 
+		return true
+    };
 
-		if (selectedEnv !== localStorage.environment) {
-			// envSaved = await saveEnvContent();
-			localStorage.environment = selectedEnv;
-		}		
+	async function saveConfiguration() {
+		const endpointSaved = await saveEndpointID();
+		if (!endpointSaved) return false;
 
-		// if (urlSaved && envSaved) {
-		// 	await Promise.all([saveAPIURL(), saveEndpointID()]);
-		// 	toast.success($i18n.t('Your configuration has been saved!'));
-		// }
-
-		isDisabled = !isDisabled;
-
+		await saveEnvironmentID();
+		return true;
 	}
 
+	async function handleSavingConfig() {
+		try {
+			let urlSaved = true;
+			if (serverURL !== localStorage.serverURL) {
+				urlSaved = await saveServerURL();
+			}
+			if (urlSaved) {
+				if (await saveConfiguration()) {
+                	toast.success($i18n.t('Your configuration has been saved!'));
+            	}
+			}
+		} catch(error) {
+			console.error('Error saving configuration:', error);
+			toast.error($i18n.t('Failed to save configuration. Please check your Autoptic settings.'));
+		} finally {
+			isDisabled = !isDisabled;
+		}		
+	}
 
 	onMount(async () => {
 
 		await listEnv()
 
-		name = $user.name;
-		profileImageUrl = $user.profile_image_url;
-
-		const storedEnvironment = localStorage.getItem('environment');
+		const storedEnvironment = localStorage.getItem('environmentID');
 			if (storedEnvironment) {
 				selectedEnv = storedEnvironment;
 			}
-		
 
 		const storedServerURL= localStorage.getItem('serverURL');
 			if (storedServerURL) {
@@ -137,10 +150,11 @@
     $: isDisabled = !(
         (serverURL !== localStorage.serverURL) ||
         (endpointID !== localStorage.endpointID) ||
-		(selectedEnv !== localStorage.environment)
-
+		(selectedEnv !== localStorage.environmentID)
     );
-	
+
+	$: listEnv(localStorage.getItem('endpointID'))
+
 </script>
 
 <div class="flex flex-col h-full justify-between text-sm">
@@ -288,6 +302,12 @@
 						</div>
 
 						<button
+							class=" ml-1.5 inline-flex whitespace-nowrap text-center items-center px-4 py-2 text-s bg-gray-800 hover:bg-gray-900 dark:bg-gray-700 dark:hover:bg-gray-800 text-gray-100 transition rounded-md font-medium"
+						>
+							{$i18n.t('Clear')}
+						</button>
+
+						<!-- <button
 							class="ml-1.5 px-1.5 py-1 dark:hover:bg-gray-850 transition rounded-lg"
 							on:click={() => {
 								if (endpointID != '') {
@@ -300,6 +320,7 @@
 								<path d="M6.5 1h3a.5.5 0 0 1 .5.5v1H6v-1a.5.5 0 0 1 .5-.5M11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3A1.5 1.5 0 0 0 5 1.5v1H1.5a.5.5 0 0 0 0 1h.538l.853 10.66A2 2 0 0 0 4.885 16h6.23a2 2 0 0 0 1.994-1.84l.853-10.66h.538a.5.5 0 0 0 0-1zm1.958 1-.846 10.58a1 1 0 0 1-.997.92h-6.23a1 1 0 0 1-.997-.92L3.042 3.5zm-7.487 1a.5.5 0 0 1 .528.47l.5 8.5a.5.5 0 0 1-.998.06L5 5.03a.5.5 0 0 1 .47-.53Zm5.058 0a.5.5 0 0 1 .47.53l-.5 8.5a.5.5 0 1 1-.998-.06l.5-8.5a.5.5 0 0 1 .528-.47M8 4.5a.5.5 0 0 1 .5.5v8.5a.5.5 0 0 1-1 0V5a.5.5 0 0 1 .5-.5"/>
 							</svg>
 						</button>
+						 -->
 					</div>
 				</div>
 			</div>
@@ -324,18 +345,31 @@
 						</div>
 
 						<button
+							class=" ml-1.5 inline-flex whitespace-nowrap text-center items-center px-4 py-2 text-s bg-gray-800 hover:bg-gray-900 dark:bg-gray-700 dark:hover:bg-gray-800 text-gray-100 transition rounded-md font-medium"
+						>
+							{$i18n.t('Clear')}
+						</button>
+						
+						<button
+							class=" ml-1.5 inline-flex whitespace-nowrap text-center items-center px-4 py-2 text-s bg-gray-800 hover:bg-gray-900 dark:bg-gray-700 dark:hover:bg-gray-800 text-gray-100 transition rounded-md font-medium"
+						>
+							{$i18n.t('Set as default')}
+						</button>
+<!-- 
+						<button
 							class="ml-1.5 px-1.5 py-1 dark:hover:bg-gray-850 transition rounded-lg"
 							on:click={() => {
-								if (accessToken != '') {
-									accessToken=''
-									toast.success($i18n.t('Access Token deleted. Please save your configuration!'));
+								if (selectedEnv != '') {
+									selectedEnv=''
+									toast.success($i18n.t('Default environment deleted. Please save your configuration!'));
 									}
 								}}
 							>
 							<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash3" viewBox="0 0 16 16">
 								<path d="M6.5 1h3a.5.5 0 0 1 .5.5v1H6v-1a.5.5 0 0 1 .5-.5M11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3A1.5 1.5 0 0 0 5 1.5v1H1.5a.5.5 0 0 0 0 1h.538l.853 10.66A2 2 0 0 0 4.885 16h6.23a2 2 0 0 0 1.994-1.84l.853-10.66h.538a.5.5 0 0 0 0-1zm1.958 1-.846 10.58a1 1 0 0 1-.997.92h-6.23a1 1 0 0 1-.997-.92L3.042 3.5zm-7.487 1a.5.5 0 0 1 .528.47l.5 8.5a.5.5 0 0 1-.998.06L5 5.03a.5.5 0 0 1 .47-.53Zm5.058 0a.5.5 0 0 1 .47.53l-.5 8.5a.5.5 0 1 1-.998-.06l.5-8.5a.5.5 0 0 1 .528-.47M8 4.5a.5.5 0 0 1 .5.5v8.5a.5.5 0 0 1-1 0V5a.5.5 0 0 1 .5-.5"/>
 							</svg>
-						</button>
+						</button> -->
+
 					</div>
 				</div>
 			</div>

@@ -8,11 +8,6 @@
 			 getAPIKey,
 				} from '$lib/apis/auths';
 
-	import {
-			 updateAutopticEnvironment,
-			 deleteAutopticEnvironment,
-				} from '$lib/apis/autoptic';
-
 	import UpdatePassword from './Account/UpdatePassword.svelte';
 	import { getGravatarUrl } from '$lib/apis/utils';
 	import { generateInitialsImage, canvasPixelTest } from '$lib/utils';
@@ -29,20 +24,6 @@
 
 	let showAPIKeys = false;
 	
-	let showAutopticKeys = false;
-	let showNewKeys = false;
-	let showAutopticEnv = false;
-
-	let selectedOption = 'save'; // Default option
-
-	let envID = '';
-	let endpointID = '';
-	let envListID = '';
-
-	let autoptic_endpoint = '';
-	let token_id = '';
-
-
 	let showJWTToken = false;
 	let JWTTokenCopied = false;
 
@@ -51,75 +32,6 @@
 	let APIKeyCopied = false;
 
 	let profileImageInputElement: HTMLInputElement;
-
-	let envFile = null;
-	let newEnvFile= false;
-
-	let placeholderText = "Environment file here.";
-
-	function handleEnvFileChange(event) {
-		
-		const fileInput = event.target;
-		
-		if (fileInput.files.length > 0) {
-			envFile = fileInput.files[0]
-			const fileName = fileInput.files[0].name;
-			placeholderText = fileName; 
-		} else {
-			placeholderText = 'Envinroment file here';
-			}	
-		newEnvFile=true;
-	}
-
-	const saveEnvContent = async() => {
-		// JERE: I will improve this if.
-		if (placeholderText != "Environment file here.") {
-			const reader = new FileReader();
-
-			const readEnvFile = () => {
-				return new Promise((resolve,reject) => {
-					reader.onload = function(e) {
-						const envFileContent = e.target.result;
-						const envFileName = envFile.name;
-						try {
-							JSON.parse(envFileContent)
-							resolve({ envFileContent , envFileName })
-						} catch (e) {
-							toast.error($i18n.t('Environment file invalid. Your config will not be saved.'));
-							placeholderText = "Environment file here."
-							reject();
-						}
-					};
-
-					reader.onerror = () => reject();
-					reader.readAsText(envFile);
-
-				});
-			};
-
-			const { envFileContent , envFileName } = await readEnvFile();
-			updateAutopticEnvironment(localStorage.token,envFileContent,envFileName)
-			localStorage.autoptic_environment = envFileContent
-			localStorage.envFileName = envFileName;
-			toast.success($i18n.t('Autoptic environment saved!'));
-
-		} else {
-			deleteAutopticEnvironment(localStorage.token)
-			localStorage.removeItem('autoptic_environment');
-			localStorage.removeItem('envFileName');
-			toast.success($i18n.t('Autoptic environment deleted!'));
-		}
-	};
-
-	const saveAPIURL = async () => {
-		if (autoptic_endpoint != ''){
-            await updateAutopticEndpoint(localStorage.token,autoptic_endpoint)
-		} else {
-			await deleteAutopticEndpoint(localStorage.token)
-		}
-		localStorage.autoptic_endpoint=autoptic_endpoint;
-		toast.success($i18n.t('Autoptic endpoint saved!'));
-        };
 
 	const submitHandler = async () => {
 		if (name !== $user.name) {
@@ -158,16 +70,6 @@
 			console.log(error);
 			return '';
 		});
-
-		const storedEndpoint = localStorage.getItem('autoptic_endpoint');
-			if (storedEndpoint) {
-				autoptic_endpoint = storedEndpoint;
-			}
-
-		const storedEnvName = localStorage.getItem('envFileName');
-			if (storedEnvName) {
-				placeholderText = storedEnvName;
-				}
 
 	});
 </script>
@@ -595,12 +497,6 @@
 		<button
 			class="  px-4 py-2 bg-emerald-700 hover:bg-emerald-800 text-gray-100 transition rounded-lg"
 			on:click={async () => {
-				if (autoptic_endpoint != localStorage.autoptic_endpoint) {
-					saveAPIURL();
-				}
-				if (newEnvFile){
-					saveEnvContent();
-				}
 				const res = await submitHandler();
 				if (res) {
 					saveHandler();

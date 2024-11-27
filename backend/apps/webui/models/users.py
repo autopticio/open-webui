@@ -26,15 +26,12 @@ class User(Model):
     api_key = CharField(null=True, unique=True)
     settings = JSONField(null=True)
 
-    autoptic_endpoint = CharField()
+    serverURL = CharField(null=True)
+    serverEndpointID = CharField(null=True)
 
-    autoptic_environment = JSONField()
+    EnvironmentID = CharField(null=True)
 
-    envFileName = CharField()
-
-    serverURL = CharField()
-    serverEndpointID = CharField()
-    accessToken = CharField()
+    accessToken = CharField(null=True)
 
     class Meta:
         database = DB
@@ -60,14 +57,11 @@ class UserModel(BaseModel):
     api_key: Optional[str] = None
     settings: Optional[UserSettings] = None
 
-    autoptic_endpoint: Optional[str] = None
-
-    autoptic_environment: Optional[str] = None
-
-    envFileName: Optional[str] = None
-
     serverURL: Optional[str] = None
     serverEndpointID: Optional[str] = None
+
+    environmentID: Optional[str] = None
+
     accessToken: Optional[str] = None
 
 ####################
@@ -232,48 +226,48 @@ class UsersTable:
         except:
             return None
         
-    def update_user_autoptic_endpoint_by_id(self, id: str, autoptic_endpoint: str) -> str:
-        try:
-            query = User.update(autoptic_endpoint=autoptic_endpoint).where(User.id == id)
-            result = query.execute()
+    # def update_user_autoptic_endpoint_by_id(self, id: str, autoptic_endpoint: str) -> str:
+    #     try:
+    #         query = User.update(autoptic_endpoint=autoptic_endpoint).where(User.id == id)
+    #         result = query.execute()
 
-            return True if result == 1 else False
-        except Exception as e:
-            print(f"Exception occurred: {e}")
-            return False
+    #         return True if result == 1 else False
+    #     except Exception as e:
+    #         print(f"Exception occurred: {e}")
+    #         return False
         
-    def get_user_autoptic_endpoint_by_id(self, id: str) -> Optional[str]:
-        try:
-            user = User.get(User.id == id)
-            return user.autoptic_endpoint
-        except:
-            return None
+    # def get_user_autoptic_endpoint_by_id(self, id: str) -> Optional[str]:
+    #     try:
+    #         user = User.get(User.id == id)
+    #         return user.autoptic_endpoint
+    #     except:
+    #         return None
         
-    def update_user_autoptic_environment_by_id(self, id: str, autoptic_environment: str,envFileName:str) -> str:
-        try:
-            query = User.update(autoptic_environment=autoptic_environment).where(User.id == id)
-            query2 = User.update(envFileName=envFileName).where(User.id == id)
-            result = query.execute()
-            result2 = query2.execute()
+    # def update_user_autoptic_environment_by_id(self, id: str, autoptic_environment: str,envFileName:str) -> str:
+    #     try:
+    #         query = User.update(autoptic_environment=autoptic_environment).where(User.id == id)
+    #         query2 = User.update(envFileName=envFileName).where(User.id == id)
+    #         result = query.execute()
+    #         result2 = query2.execute()
 
-            return True if result == 1 and result2 == 1 else False
-        except Exception as e:
-            print(f"Exception occurred: {e}")
-            return False
+    #         return True if result == 1 and result2 == 1 else False
+    #     except Exception as e:
+    #         print(f"Exception occurred: {e}")
+    #         return False
 
-    def get_user_autoptic_environment_by_id(self, id: str) -> Optional[str]:
-        try:
-            user = User.get(User.id == id)
-            return user.autoptic_environment
-        except:
-            return None
+    # def get_user_autoptic_environment_by_id(self, id: str) -> Optional[str]:
+    #     try:
+    #         user = User.get(User.id == id)
+    #         return user.autoptic_environment
+    #     except:
+    #         return None
         
-    def get_user_envFileName_by_id(self, id: str) -> Optional[str]:
-        try:
-            user = User.get(User.id == id)
-            return user.envFileName
-        except:
-            return None
+    # def get_user_envFileName_by_id(self, id: str) -> Optional[str]:
+    #     try:
+    #         user = User.get(User.id == id)
+    #         return user.envFileName
+    #     except:
+    #         return None
         
     def update_user_serverURL_by_id(self, id: str, serverURL: str) -> str:
         try:
@@ -309,5 +303,22 @@ class UsersTable:
         except:
             return None
         
+
+    def update_user_environmentID_by_id(self, id: str, environmentID: str) -> str:
+        try:
+            query = User.update(EnvironmentID=environmentID).where(User.id == id)
+            result = query.execute()
+
+            return True if result == 1 else False
+        except Exception as e:
+            print(f"Exception occurred: {e}")
+            return False
+        
+    def get_user_environmentID_by_id(self, id: str) -> Optional[str]:
+        try:
+            user = User.get(User.id == id)
+            return user.EnvironmentID
+        except:
+            return None
 
 Users = UsersTable(DB)

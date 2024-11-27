@@ -7,7 +7,6 @@ from fastapi import HTTPException
 from pydantic import BaseModel
 from contextlib import asynccontextmanager
 
-from .keys import router as keys_router
 from .serverconfig import router as serverconfig
 from .tokens.crud import router as tokens_router
 from .snapshots.crud import router as snapshots_router
@@ -29,7 +28,6 @@ app = FastAPI(
     docs_url="/docs" if ENV == "dev" else None, redoc_url=None, lifespan=lifespan
 )
 
-app.include_router(keys_router, prefix="/keys", tags=["autoptic_keys"])
 app.include_router(serverconfig, prefix="/serverconfig", tags=["serverconfig_keys"])
 app.include_router(snapshots_router, prefix="/snapshots", tags=["snapshots"])
 app.include_router(pql_router, prefix="/pqls", tags=["pqls"])
@@ -51,16 +49,15 @@ def extract_id_from_url(url: str) -> str:
     match = re.match(pattern, url)
     if match:
         if match.group(2):
-            return match.group(2)  # String capturado entre "ep/" y "/run"
+            return match.group(2)  
         elif match.group(3):
-            return match.group(3)  # String que no coincide con el patrón de URL completo
+            return match.group(3)  
     return "None"
 
 @app.post("/runPQL")
 async def sentToAutoptic(serverUrl: str , Payload: PayloadQuery):
     try:
         async with aiohttp.ClientSession(trust_env=True) as session:
-            # endpoint_id = extract_id_from_url(Payload.endpoint)
             response = await session.post(
 		        f"{serverUrl}story/ep/${Payload.endpoint}/run",
                 json=Payload.query.dict()
